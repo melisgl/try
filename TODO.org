@@ -1,0 +1,36 @@
+#+SEQ_TODO: TODO(t@) NEXT(n@) STARTED(s@) WAITING(w@) | DONE(d@) OLD(o@) CANCELLED(c@)
+#+TODO: MAYBE(m@) FAILED(f@) LOG(l@) DEFERRED(e@)
+* MAYBE fixtures: easy DEFINE-ENSURE-* macro
+* MAYBE DEFTEST ignore declarations don't work
+Because we save the args in the trial for rerunning.
+DYNAMIC-EXTENT does not work either.
+* MAYBE verbose mode: explain OUTCOME-MARKERs, totals, etc
+* MAYBE WITH-SHUFFLING seed vs reproducability?
+Portable seeding?
+* MAYBE support user defined handlers in TRY?
+That is, instead of DEBUG we could say (UNEXPECTED-FAILURE
+#'INVOKE-DEBUGGER) or (UNEXPECTED-FAILURE nil) and establish our own
+handler outside TRY.
+* MAYBE remember printer parameters for !?
+* MAYBE *DESCRIBE* vs verdicts?
+* MAYBE tests rely on default values of specials
+Add more vars to WITH-STD-TRY. Actually, use DEFVAR* to capture those
+defaults according OAOO.
+* MAYBE threads
+Channel events from some other threads somehow.
+(with-test (t0)
+  ...
+  (make-thread (lambda()
+                 (with-borrowed-parent (t1 :parent t0)
+                   ...)))
+  ...
+  (wait-until-all-borrows-are-done)))
+* MAYBE tree-printer with outline-minor-mode?
+outline-minor-mode doesn't work in the SLIME repl buffer because
+outline-regex is set to a strange value.
+
+After M-: (setq outline-regexp "*+"), it works. C-c @ ...
+https://www.emacswiki.org/emacs/OutlineMinorMode
+* MAYBE (try package): list-package-tests returns those with required args
+Provide opt out from LIST-ALL-PACKAGE-TESTS?
+Maybe tags?
