@@ -4,6 +4,7 @@
 
 (defsection @try-manual (:title "Try Manual")
   (try asdf:system)
+  (@try/links section)
   (@try/tutorial section)
   (@try/events section)
   (@try/is section)
@@ -11,6 +12,12 @@
   (@try/tests section)
   (@try/implementation-notes section)
   (@glossary section))
+
+(defsection @try/links (:title "Links")
+  "Here is the [official repository](https://github.com/melisgl/try)
+  and the [HTML
+  documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
+  for the latest version.")
 
 (defsection @try/tutorial (:title "Tutorial")
   """Try is a library for unit testing with equal support for
