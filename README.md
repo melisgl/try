@@ -45,7 +45,7 @@
     - [7.6 Rerunning Trials][76af]
     - [7.7 Reprocessing Trials][b0a8]
 - [8 Implementation Notes][300f]
-- [9 Glossary][98ae]
+- [9 Glossary][8292]
 
 ###### \[in package TRY\]
 <a id='x-28-23A-28-283-29-20BASE-CHAR-20-2E-20-22try-22-29-20ASDF-2FSYSTEM-3ASYSTEM-29'></a>
@@ -484,7 +484,7 @@ The condition [`EVENT`][6ded] has 4 disjoint subclasses:
 
 - [`RESULT`][3091], the `OUTCOME` of a check (see [Checks][3e2d]), and
 
-- [`ERROR*`][e6dd], an unexpected `CL:ERROR` or unadorned [non-local exit][dfb4].
+- [`ERROR*`][e6dd], an unexpected `CL:ERROR` or unadorned [non-local exit][c4d2].
 
 ```
 (let (;; We don't want to debug nor print a backtrace for the error below.
@@ -529,7 +529,7 @@ signalled are called concrete.
    up by [`DEFTEST`][e6a7] or [`WITH-TEST`][af8d], or when the debugger is invoked.
 
 - [`NLX`][d43d], signalled when no error was detected by the handler, but the
-   trial finishes with a [non-local exit][dfb4].
+   trial finishes with a [non-local exit][c4d2].
 
 These are the 15 concrete event classes.
 
@@ -890,7 +890,7 @@ it, and it can be changed with the [Outcome Restarts][14a6] and the
 
 - [function] **RETRY-CHECK** *&OPTIONAL CONDITION*
 
-    Initiate a [non-local exit][dfb4] to go reevaluate the forms wrapped by
+    Initiate a [non-local exit][c4d2] to go reevaluate the forms wrapped by
     the check without signalling an [`OUTCOME`][a306].
 
 <a id='x-28TRY-3A-40TRY-2FTRIALS-20MGL-PAX-3ASECTION-29'></a>
@@ -902,7 +902,7 @@ it, and it can be changed with the [Outcome Restarts][14a6] and the
 - [type] **TRIAL**
 
     Trials are records of calls to tests (see
-    [Counting Events][3c27], [Collecting Events][0a38]). Their behaviour as [funcallable instance][14b1]s
+    [Counting Events][3c27], [Collecting Events][0a38]). Their behaviour as [funcallable instance][de86]s
     is explained in [Rerunning Trials][76af].
     
     There are three ways to acquire a `TRIAL` object: by calling
@@ -1141,9 +1141,9 @@ that case, any intervening trials are skipped.
 ==> #<TRIAL (WITH-TEST (OUTER)) SKIP 0.000s ⋅1>
 ```
 
-Furthermore, all three restarts initiate a [non-local exit][dfb4] to return
+Furthermore, all three restarts initiate a [non-local exit][c4d2] to return
 from the trial. If during the unwinding of the stack, the
-non-local-exit is cancelled (see [cancelled non-local exit][f189]), the appropriate
+non-local-exit is cancelled (see [cancelled non-local exit][d65b]), the appropriate
 restart will be invoked upon returning from the trial. In the
 following example, the non-local exit from a skip is cancelled by a
 `THROW`.
@@ -1194,7 +1194,7 @@ debugger or programatically that event is not dropped.
     When `CONDITION` is a [`VERDICT`][5976] for `TRIAL`, `ABORT-TRIAL` signals a new
     verdict of type VERDICT-ABORT*. This behavior is similar to that of
     [`ABORT-CHECK`][eb00]. Else, the `ABORT-TRIAL` restart may record `CONDITION`,
-    then it initiates a [non-local exit][dfb4] to return from the test function
+    then it initiates a [non-local exit][c4d2] to return from the test function
     with VERDICT-ABORT*. If during the unwinding [`SKIP-TRIAL`][0982] or
     [`RETRY-TRIAL`][93e2] is called, then the abort is cancelled.
     
@@ -1214,7 +1214,7 @@ debugger or programatically that event is not dropped.
     When `CONDITION` is a [`VERDICT`][5976] for `TRIAL`, `SKIP-TRIAL` signals a new
     verdict of type [`VERDICT-SKIP`][24b5]. This behavior is similar to that of
     [`SKIP-CHECK`][44ee]. Else, the `SKIP-TRIAL` restart may record `CONDITION`, then
-    it initiates a [non-local exit][dfb4] to return from the test function with
+    it initiates a [non-local exit][c4d2] to return from the test function with
     `VERDICT-SKIP`. If during the unwinding [`ABORT-TRIAL`][c705] or [`RETRY-TRIAL`][93e2] is
     called, then the skip is cancelled.
     
@@ -1250,7 +1250,7 @@ debugger or programatically that event is not dropped.
 - [function] **RETRY-TRIAL** *&OPTIONAL CONDITION (TRIAL (CURRENT-TRIAL))*
 
     Invoke the `RETRY-TRIAL` restart of [`RUNNINGP`][c773] `TRIAL`. The `RETRY-TRIAL`
-    restart may record `CONDITION`, then it initiates a [non-local exit][dfb4] to
+    restart may record `CONDITION`, then it initiates a [non-local exit][c4d2] to
     go back to the beginning of the test function. If the non-local exit
     completes, then
     
@@ -1324,7 +1324,7 @@ debugger or programatically that event is not dropped.
 
 - [condition] **NLX** *ERROR\**
 
-    Representing a [non-local exit][dfb4] of unknown origin,
+    Representing a [non-local exit][c4d2] of unknown origin,
     this is signalled if a [`TRIAL`][9fc3] does not return normally although it
     should have because it was not dismissed (see [`DISMISSAL`][68db], [`SKIP-TRIAL`][0982],
     [`ABORT-TRIAL`][c705]). In this case, there is no `CL:ERROR` associated with the
@@ -1772,7 +1772,7 @@ Many of them share a number of arguments, which are described here.
   macro that wraps `BODY` is made when `BODY` returns normally.
 
 - `ON-NLX` is a boolean that determines whether the check in a macro
-  that wraps `BODY` is made when `BODY` performs a [non-local exit][dfb4].
+  that wraps `BODY` is made when `BODY` performs a [non-local exit][c4d2].
 
 - `MSG` and `CTX` are [Format Specifier Forms][22e6] as in `IS`.
 
@@ -1806,7 +1806,7 @@ around `BODY`.
 function, `T`, or `NIL`. When it is a function, it is called from the
 condition handler (`SIGNALS` and `SIGNALS-NOT`) or the debugger
 hook (invokes-debugger and `INVOKES-DEBUGGER-NOT`) with the matching
-condition. `HANDLER` may perform a [non-local exit][dfb4]. When `HANDLER` is `T`,
+condition. `HANDLER` may perform a [non-local exit][c4d2]. When `HANDLER` is `T`,
 the matching condition is handled by performing a non-local exit to
 just outside `BODY`. If the exit completes, `BODY` is treated as if it
 had returned normally, and `ON-RETURN` is consulted. When `HANDLER` is
@@ -1915,8 +1915,8 @@ terms of [`*CONDITION-MATCHED-P*`][1d8e] and [`*BEST-MATCHING-CONDITION*`][9f9b]
 
 - [macro] **FAILS** *(&KEY NAME MSG CTX) &BODY BODY*
 
-    Check that `BODY` performs a [non-local exit][dfb4] but do not cancel
-    it (see [cancelled non-local exit][f189]). See [Check Library][4fbb] for the descriptions
+    Check that `BODY` performs a [non-local exit][c4d2] but do not cancel
+    it (see [cancelled non-local exit][d65b]). See [Check Library][4fbb] for the descriptions
     of the other arguments.
     
     In the following example, `FAILS` signals a [`SUCCESS`][440d].
@@ -2215,7 +2215,7 @@ functions. In more detail, tests
   the function,
 
 - signal a [`VERDICT`][5976] condition before returning normally or via a
-  [non-local exit][dfb4],
+  [non-local exit][c4d2],
 
 - return the `TRIAL` object as the first value,
 
@@ -2727,7 +2727,7 @@ interactive one, but this is not enforced in any way.
 Valid first arguments to [`TRY`][7a62] are called testables. A testable may
 be:
 
-- a [function designator][69cd]
+- a [function designator][efc2]
 
     - the name of a global test
 
@@ -2742,7 +2742,7 @@ be:
 - a `PACKAGE`
 
 In the function designator cases, `TRY` calls the designated function.
-[`TRIAL`][9fc3]s, being [funcallable instance][14b1]s, designate themselves. If the
+[`TRIAL`][9fc3]s, being [funcallable instance][de86]s, designate themselves. If the
 trial is not [`RUNNINGP`][c773], then it will be rerun (see [Rerunning Trials][76af]). Don't
 invoke `TRY` with `RUNNINGP` trials (but see
 [Implementation of Implicit TRY][303f] for discussion).
@@ -2793,7 +2793,7 @@ setups.
 
 <a id='x-28TRY-3ATREE-PRINTER-20CLASS-29'></a>
 
-- [class] **TREE-PRINTER** *PRINTER*
+- [class] **TREE-PRINTER**
 
     `TREE-PRINTER` prints events in an indented
     tree-like structure, with each internal node corresponding to a
@@ -3181,11 +3181,11 @@ SBCL.
   being made for the same thing.
 
 
-<a id='x-28TRY-3A-40GLOSSARY-20MGL-PAX-3ASECTION-29'></a>
+<a id='x-28TRY-3A-40TRY-2FGLOSSARY-20MGL-PAX-3ASECTION-29'></a>
 
 ## 9 Glossary
 
-<a id='x-28TRY-3A-40FUNCTION-DESIGNATOR-20MGL-PAX-3AGLOSSARY-TERM-29'></a>
+<a id='x-28TRY-3A-3A-40FUNCTION-DESIGNATOR-20MGL-PAX-3AGLOSSARY-TERM-29'></a>
 
 - [glossary-term] **function designator**
 
@@ -3193,7 +3193,7 @@ SBCL.
     designator is a symbol (denoting the function named by that symbol
     in the global environment), or a function (denoting itself).
 
-<a id='x-28TRY-3A-40FUNCALLABLE-INSTANCE-20MGL-PAX-3AGLOSSARY-TERM-29'></a>
+<a id='x-28TRY-3A-3A-40FUNCALLABLE-INSTANCE-20MGL-PAX-3AGLOSSARY-TERM-29'></a>
 
 - [glossary-term] **funcallable instance**
 
@@ -3201,7 +3201,7 @@ SBCL.
     of a class that's a subclass of `MOP:FUNCALLABLE-STANDARD-CLASS`. It
     is like a normal instance, but it can also be `FUNCALL`ed.
 
-<a id='x-28TRY-3A-40NON-LOCAL-EXIT-20MGL-PAX-3AGLOSSARY-TERM-29'></a>
+<a id='x-28TRY-3A-3A-40NON-LOCAL-EXIT-20MGL-PAX-3AGLOSSARY-TERM-29'></a>
 
 - [glossary-term] **non-local exit**
 
@@ -3210,12 +3210,12 @@ SBCL.
     `RETURN-FROM` or `THROW`, then it is said to have performed a non-local
     exit.
 
-<a id='x-28TRY-3A-40CANCELLED-NLX-20MGL-PAX-3AGLOSSARY-TERM-29'></a>
+<a id='x-28TRY-3A-3A-40CANCELLED-NLX-20MGL-PAX-3AGLOSSARY-TERM-29'></a>
 
 - [glossary-term] **cancelled non-local exit**
 
     This is a term from the Common Lisp ANSI standard. If during the
-    unwinding of the stack initiated by a [non-local exit][dfb4] another nlx is
+    unwinding of the stack initiated by a [non-local exit][c4d2] another nlx is
     initiated in, and exits from an `UNWIND-PROTECT` cleanup form, then
     this second nlx is said to have cancelled the first, and the first
     nlx will not continue.
@@ -3242,7 +3242,6 @@ SBCL.
   [10b2]: #x-28TRY-3AUNEXPECTED-FAILURE-20TYPE-29 "(TRY:UNEXPECTED-FAILURE TYPE)"
   [1431]: #x-28TRY-3AEXPECTED-VERDICT-SUCCESS-20CONDITION-29 "(TRY:EXPECTED-VERDICT-SUCCESS CONDITION)"
   [14a6]: #x-28TRY-3A-40TRY-2FOUTCOME-RESTARTS-20MGL-PAX-3ASECTION-29 "Outcome Restarts"
-  [14b1]: #x-28TRY-3A-40FUNCALLABLE-INSTANCE-20MGL-PAX-3AGLOSSARY-TERM-29 "(TRY:@FUNCALLABLE-INSTANCE MGL-PAX:GLOSSARY-TERM)"
   [16a7]: #x-28TRY-3AEXPECTED-RESULT-FAILURE-20CONDITION-29 "(TRY:EXPECTED-RESULT-FAILURE CONDITION)"
   [1955]: #x-28TRY-3A-40TRY-2FCHECKING-CONDITIONS-20MGL-PAX-3ASECTION-29 "Checking Conditions"
   [19eb]: #x-28TRY-3A-40TRY-2FTRIAL-EVENTS-20MGL-PAX-3ASECTION-29 "Trial Events"
@@ -3284,7 +3283,6 @@ SBCL.
   [68a8]: #x-28TRY-3A-40TRY-2FEVENTS-20MGL-PAX-3ASECTION-29 "Events"
   [68db]: #x-28TRY-3ADISMISSAL-20CONDITION-29 "(TRY:DISMISSAL CONDITION)"
   [6909]: #x-28TRY-3AN-RETRIES-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29 "(TRY:N-RETRIES (MGL-PAX:READER TRY:TRIAL))"
-  [69cd]: #x-28TRY-3A-40FUNCTION-DESIGNATOR-20MGL-PAX-3AGLOSSARY-TERM-29 "(TRY:@FUNCTION-DESIGNATOR MGL-PAX:GLOSSARY-TERM)"
   [6a27]: #x-28TRY-3ATRIAL-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-EVENT-29-29 "(TRY:TRIAL (MGL-PAX:READER TRY:TRIAL-EVENT))"
   [6b07]: #x-28TRY-3A-40TRY-2FCHECK-UTILITIES-20MGL-PAX-3ASECTION-29 "Check Utilities"
   [6c25]: #x-28TRY-3A-40TRY-2FEXPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Explicit TRY"
@@ -3303,6 +3301,7 @@ SBCL.
   [7eb2]: #x-28TRY-3A-2ACOUNT-2A-20VARIABLE-29 "(TRY:*COUNT* VARIABLE)"
   [7f53]: #x-28TRY-3A-40TRY-2FTUTORIAL-20MGL-PAX-3ASECTION-29 "Tutorial"
   [808e]: #x-28TRY-3A-40TRY-2FIS-20MGL-PAX-3ASECTION-29 "The IS Macro"
+  [8292]: #x-28TRY-3A-40TRY-2FGLOSSARY-20MGL-PAX-3ASECTION-29 "Glossary"
   [8389]: #x-28TRY-3AWITH-TESTS-RUN-20MGL-PAX-3AMACRO-29 "(TRY:WITH-TESTS-RUN MGL-PAX:MACRO)"
   [85d7]: #x-28TRY-3A-2APRINT-PARENT-2A-20VARIABLE-29 "(TRY:*PRINT-PARENT* VARIABLE)"
   [87a0]: #x-28TRY-3AUNEXPECTED-RESULT-SUCCESS-20CONDITION-29 "(TRY:UNEXPECTED-RESULT-SUCCESS CONDITION)"
@@ -3319,7 +3318,6 @@ SBCL.
   [95c4]: #x-28TRY-3A-40TRY-2FOUTCOMES-20MGL-PAX-3ASECTION-29 "Outcomes"
   [95df]: #x-28TRY-3A-2ADESCRIBE-2A-20VARIABLE-29 "(TRY:*DESCRIBE* VARIABLE)"
   [989e]: #x-28TRY-3ARESULT-SKIP-20CONDITION-29 "(TRY:RESULT-SKIP CONDITION)"
-  [98ae]: #x-28TRY-3A-40GLOSSARY-20MGL-PAX-3ASECTION-29 "Glossary"
   [9e9e]: #x-28TRY-3ALIST-PACKAGE-TESTS-20FUNCTION-29 "(TRY:LIST-PACKAGE-TESTS FUNCTION)"
   [9f9b]: #x-28TRY-3A-2ABEST-MATCHING-CONDITION-2A-20VARIABLE-29 "(TRY:*BEST-MATCHING-CONDITION* VARIABLE)"
   [9fc3]: #x-28TRY-3ATRIAL-20TYPE-29 "(TRY:TRIAL TYPE)"
@@ -3341,6 +3339,7 @@ SBCL.
   [bd26]: #x-28TRY-3AUNEXPECTED-VERDICT-SUCCESS-20CONDITION-29 "(TRY:UNEXPECTED-VERDICT-SUCCESS CONDITION)"
   [c04d]: #x-28TRY-3AUNEXPECTED-VERDICT-FAILURE-20CONDITION-29 "(TRY:UNEXPECTED-VERDICT-FAILURE CONDITION)"
   [c4ab]: #x-28TRY-3A-2ATRY-PRINTER-2A-20VARIABLE-29 "(TRY:*TRY-PRINTER* VARIABLE)"
+  [c4d2]: #x-28TRY-3A-3A-40NON-LOCAL-EXIT-20MGL-PAX-3AGLOSSARY-TERM-29 "(TRY::@NON-LOCAL-EXIT MGL-PAX:GLOSSARY-TERM)"
   [c705]: #x-28TRY-3AABORT-TRIAL-20FUNCTION-29 "(TRY:ABORT-TRIAL FUNCTION)"
   [c773]: #x-28TRY-3ARUNNINGP-20FUNCTION-29 "(TRY:RUNNINGP FUNCTION)"
   [ca88]: #x-28TRY-3AVERDICT-ABORT-2A-20CONDITION-29 "(TRY:VERDICT-ABORT* CONDITION)"
@@ -3349,10 +3348,11 @@ SBCL.
   [d0fc]: #x-28TRY-3A-21-20-28VARIABLE-20NIL-29-29 "(TRY:! (VARIABLE NIL))"
   [d270]: #x-28TRY-3A-40TRY-2FTESTABLES-20MGL-PAX-3ASECTION-29 "Testables"
   [d43d]: #x-28TRY-3ANLX-20CONDITION-29 "(TRY:NLX CONDITION)"
+  [d65b]: #x-28TRY-3A-3A-40CANCELLED-NLX-20MGL-PAX-3AGLOSSARY-TERM-29 "(TRY::@CANCELLED-NLX MGL-PAX:GLOSSARY-TERM)"
   [d94b]: #x-28TRY-3A-25-20MACROLET-29 "(TRY:% MACROLET)"
   [dbd2]: #x-28TRY-3A-40TRY-2FCHECK-RESTARTS-20MGL-PAX-3ASECTION-29 "Check Restarts"
   [dbf0]: #x-28TRY-3A-40TRY-2FTRIAL-RESTARTS-20MGL-PAX-3ASECTION-29 "Trial Restarts"
-  [dfb4]: #x-28TRY-3A-40NON-LOCAL-EXIT-20MGL-PAX-3AGLOSSARY-TERM-29 "(TRY:@NON-LOCAL-EXIT MGL-PAX:GLOSSARY-TERM)"
+  [de86]: #x-28TRY-3A-3A-40FUNCALLABLE-INSTANCE-20MGL-PAX-3AGLOSSARY-TERM-29 "(TRY::@FUNCALLABLE-INSTANCE MGL-PAX:GLOSSARY-TERM)"
   [e019]: #x-28TRY-3ABACKTRACE-OF-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29 "(TRY:BACKTRACE-OF (MGL-PAX:READER TRY:UNHANDLED-ERROR))"
   [e542]: #x-28TRY-3ACURRENT-TRIAL-20FUNCTION-29 "(TRY:CURRENT-TRIAL FUNCTION)"
   [e55e]: #x-28TRY-3ATEST-BOUND-P-20FUNCTION-29 "(TRY:TEST-BOUND-P FUNCTION)"
@@ -3365,7 +3365,7 @@ SBCL.
   [ea4a]: #x-28TRY-3AFAILURE-20CONDITION-29 "(TRY:FAILURE CONDITION)"
   [eb00]: #x-28TRY-3AABORT-CHECK-20FUNCTION-29 "(TRY:ABORT-CHECK FUNCTION)"
   [ed00]: #x-28TRY-3AUNEXPECTED-SUCCESS-20TYPE-29 "(TRY:UNEXPECTED-SUCCESS TYPE)"
-  [f189]: #x-28TRY-3A-40CANCELLED-NLX-20MGL-PAX-3AGLOSSARY-TERM-29 "(TRY:@CANCELLED-NLX MGL-PAX:GLOSSARY-TERM)"
+  [efc2]: #x-28TRY-3A-3A-40FUNCTION-DESIGNATOR-20MGL-PAX-3AGLOSSARY-TERM-29 "(TRY::@FUNCTION-DESIGNATOR MGL-PAX:GLOSSARY-TERM)"
   [f1c6]: #x-28TRY-3A-40TRY-2FCATEGORIES-20MGL-PAX-3ASECTION-29 "Categories"
   [f526]: #x-28TRY-3AEXPECTED-FAILURE-20TYPE-29 "(TRY:EXPECTED-FAILURE TYPE)"
   [fa53]: #x-28TRY-3ATRIAL-EVENT-20CONDITION-29 "(TRY:TRIAL-EVENT CONDITION)"

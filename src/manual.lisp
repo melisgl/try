@@ -11,7 +11,7 @@
   (@try/check-library section)
   (@try/tests section)
   (@try/implementation-notes section)
-  (@glossary section))
+  (@try/glossary section))
 
 (defsection @try/links (:title "Links")
   "Here is the [official repository](https://github.com/melisgl/try)
@@ -421,7 +421,7 @@
   """)
 
 
-(defsection @glossary (:title "Glossary")
+(defsection @try/glossary (:title "Glossary" :export nil)
   (@function-designator glossary-term)
   (@funcallable-instance glossary-term)
   (@non-local-exit glossary-term)

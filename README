@@ -2412,7 +2412,7 @@ object is instantiated by TRY has no effect. This is to ensure
 consistent output with nested TRY calls of differing printer
 setups.
 
-- [class] TREE-PRINTER PRINTER
+- [class] TREE-PRINTER
 
     TREE-PRINTER prints events in an indented
     tree-like structure, with each internal node corresponding to a

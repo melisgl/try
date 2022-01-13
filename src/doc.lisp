@@ -14,8 +14,6 @@
 
 ;;; Regenerate documentation
 #+nil
-(asdf:load-system :mgl-pax/full)
-#+nil
 (let ((pax:*document-max-numbering-level* 4)
       (pax:*document-max-table-of-contents-level* 4)
       (pax:*document-html-max-navigation-table-of-contents-level* 3))
