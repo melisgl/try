@@ -47,16 +47,19 @@
   (let ((data (print-form-memoization-data result)))
     (labels ((frob (form)
                (or (gethash form data)
-                   (cond ((atom form)
-                          form)
-                         ((and (member (first form) '(% %%))
-                               ;; Catch circles in code.
-                               (null (cddr form))
-                               (= (length form) 2))
-                          (setf (gethash form data) (frob (second form))))
-                         (t
-                          (setf (gethash form data)
-                                (mapcar #'frob form)))))))
+                   (cond
+                     ;; Basically ATOM, but also include improper
+                     ;; lists.
+                     ((not (alexandria:proper-list-p form))
+                      form)
+                     ((and (member (first form) '(% %%))
+                           ;; Catch circles in code.
+                           (null (cddr form))
+                           (= (length form) 2))
+                      (setf (gethash form data) (frob (second form))))
+                     (t
+                      (setf (gethash form data)
+                            (mapcar #'frob form)))))))
       (frob form))))
 
 (defun %write-result-msg (result stream &key terse)

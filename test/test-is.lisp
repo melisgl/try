@@ -93,7 +93,8 @@
   (test-is/capture/no-implicit)
   (test-is/capture/evaluation-order)
   (test-is/capture/duplicate)
-  (test-is/capture/nested-subs))
+  (test-is/capture/nested-subs)
+  (test-is/capture/improper-list-literal))
 
 (deftest test-is/capture/implicit-and-explicit ()
   (is-ctx-captures '(((null t) nil nil t))
@@ -192,6 +193,14 @@
   (is-ctx-captures '(((1+ 5) 6 nil nil)
                      ((list (1+ 5)) (6) nil nil))
     (is (endp (list (1+ 5))))))
+
+(deftest test-is/capture/improper-list-literal ()
+  (check-try-output ((named-lambda-test foo77 ()
+                       (is (equalp 1 '(1 . 2)))))
+                    "FOO77
+  × (IS (EQUALP 1 '(1 . 2)))
+× FOO77 ×1
+"))
 
 
 (deftest test-is/restarts ()
