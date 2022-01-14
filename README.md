@@ -1450,7 +1450,7 @@ on top of it.
       not running in a trial, and the result is a [`PASS`][338d]).
     
     The return value of `IS` is `T` if the last condition signalled is a
-    `PASS`, and `NIL` otherwise.
+    `SUCCESS`, and `NIL` otherwise.
     
     `MSG` and `CTX` are [Format Specifier Forms][22e6]. `MSG` prints a
     description of the check being made, which is by default the whole

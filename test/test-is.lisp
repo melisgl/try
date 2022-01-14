@@ -213,9 +213,9 @@
 
 (deftest test-is/success/skip ()
   (check-outcomes (lambda ()
-                    (is (handler-bind (((and expected success)
-                                         #'skip-check))
-                          (is t))))
+                    (is (not (handler-bind (((and expected success)
+                                              #'skip-check))
+                               (is t)))))
                   '((skip 1)
                     (expected-success 1))))
 

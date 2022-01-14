@@ -145,25 +145,25 @@
   (let ((try-id *try-id*)
         (expected-outcome *expected-outcome*)
         (outcome nil)
-        (passp nil))
+        (successp nil))
     (with-retry ()
       (restart-case
           (let ((outcome-type (determine-outcome-type checkp basic-outcome
                                                       expected-outcome)))
             (setq outcome (apply #'make-condition outcome-type initargs))
-            (setq passp
+            (setq successp
                   ;; KLUDGE: AllegroCL and CCL seem to miscompile this.
-                  #-(or allegro ccl) (typep outcome 'pass)
-                  #+(or allegro ccl) (subtypep outcome-type 'pass))
+                  #-(or allegro ccl) (typep outcome 'success)
+                  #+(or allegro ccl) (subtypep outcome-type 'success))
             (dbg "signalling ~S" outcome)
-            (funcall (if (and (not passp) checkp) 'error 'signal) outcome)
-            passp)
+            (funcall (if (and (not successp) checkp) 'error 'signal) outcome)
+            successp)
         (:stream stream :condition condition)
         (continue ()
           :report "Return from the check."
           :test (null *record-event*)
           (dbg "Restart ~S called on ~S." 'continue outcome)
-          passp)
+          successp)
         (record-event ()
           ;; In the debugger, what will happen is apparent in the type
           ;; of the condition. No need to say much.
@@ -172,7 +172,7 @@
           :test (and (eq *try-id* try-id) *record-event*)
           (dbg "Restart ~S called on ~S." 'record-event outcome)
           (funcall *record-event* outcome)
-          passp)
+          successp)
         (force-expected-success ()
           :report (report-change-outcome-to
                    stream (determine-outcome-type checkp 'success t))

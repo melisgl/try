@@ -71,7 +71,7 @@
     not running in a trial, and the result is a PASS).
 
   The return value of IS is T if the last condition signalled is a
-  PASS, and NIL otherwise.
+  SUCCESS, and NIL otherwise.
 
   MSG and CTX are @TRY/FORMAT-SPECIFIER-FORMS. MSG prints a
   description of the check being made, which is by default the whole
