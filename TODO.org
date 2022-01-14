@@ -34,3 +34,7 @@ https://www.emacswiki.org/emacs/OutlineMinorMode
 * MAYBE (try package): list-package-tests returns those with required args
 Provide opt out from LIST-ALL-PACKAGE-TESTS?
 Maybe tags?
+* invoking the debugger on UNHANDLED-ERROR is suboptimal
+Restarts associated with the original ERROR condition that is
+resignalled as UNHANDLED-ERROR are not visible. Maybe it would be
+better to invoke the debugger on the actual ERROR.
