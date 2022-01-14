@@ -38,3 +38,5 @@ Maybe tags?
 Restarts associated with the original ERROR condition that is
 resignalled as UNHANDLED-ERROR are not visible. Maybe it would be
 better to invoke the debugger on the actual ERROR.
+* count skipped tests in parent?
+There should be a trace of what happened in the counts.
