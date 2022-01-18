@@ -262,8 +262,8 @@
            2
   ```
 
-  where printing `==` instead of `=` indicates that this is a multiple
-  value capture.
+  where printing `==` instead of [=][dislocated] indicates that this
+  is a multiple value capture.
   """
   (capture macro)
   (capture-values macro)
@@ -323,7 +323,8 @@
   ```
 
   By default, automatic captures are not made for subforms deeper in
-  FORM, except for when FORM is a call to NULL, ENDP and NOT:
+  FORM, except for when FORM is a call to [NULL][function],
+  [ENDP][function] and [NOT][function]:
 
   ```
   (is (null (find (1+ 1) '(1 2 3))))
@@ -345,8 +346,8 @@
     #1# = (2 3)
   ```
 
-  Note that the argument of NOT is not captured as it is assumed to be
-  NIL or T. If that's not true, use NULL.
+  Note that the argument of [NOT][function] is not captured as it is
+  assumed to be NIL or T. If that's not true, use [NULL][function].
 
   ```
   (is (not (equal (1+ 5) 6)))

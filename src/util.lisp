@@ -157,9 +157,10 @@
 (defmacro on-values (form &body body)
   """ON-VALUES evaluates FORM and transforms its return values one by
   one based on forms in BODY. The Nth value is replaced by the return
-  value of the Nth form of BODY evaluated with `*` bound to the Nth
-  value. If the number of values exceeds the number of transformation
-  forms in BODY then the excess values are returned as is.
+  value of the Nth form of BODY evaluated with [*][dislocated] bound
+  to the Nth value. If the number of values exceeds the number of
+  transformation forms in BODY then the excess values are returned as
+  is.
 
   ```
   (on-values (values 1 "abc" 7)
@@ -171,7 +172,7 @@
   ```
 
   If the number of values is less than the number of transformation
-  forms, then in later transformation forms `*` is bound to NIL.
+  forms, then in later transformation forms [*][dislocated] is bound to NIL.
 
   ```
   (on-values (values)

@@ -49,11 +49,12 @@
   - When a TRIAL-START event matches the `COLLECT` type (see
     @TRY/COLLECT), its [TRIAL][(reader trial-event)] is collected.
 
-  - Similarly, when a TRIAL-START matches the `PRINT` type (see
-    @TRY/PRINT), it is printed immediately, and its trial's VERDICT
-    will be printed too regardless of whether it matches `PRINT`. If
-    TRIAL-START does not match `PRINT`, it may still be printed if for
-    example *PRINT-PARENT* requires it.
+  - Similarly, when a TRIAL-START matches the [PRINT][argument]
+    type (see @TRY/PRINT), it is printed immediately, and its trial's
+    VERDICT will be printed too regardless of whether it matches
+    [PRINT][argument]. If TRIAL-START does not match
+    [PRINT][argument], it may still be printed if for example
+    *PRINT-PARENT* requires it.
 
   - When a TRIAL-START matches the `RERUN` type (see @TRY/RERUN), its
     [TRIAL][(reader trial-event)] may be rerun.

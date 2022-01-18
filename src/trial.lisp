@@ -367,10 +367,11 @@
   ```
 
   All three restarts may be invoked on any EVENT, including the
-  trial's own TRIAL-START and VERDICT. If CONDITION is an EVENT
-  (RETRY-TRIAL has a special case here), they also record it (as in
-  RECORD-EVENT) to ensure that when they handle an EVENT in the
-  debugger or programatically that event is not dropped.
+  trial's own TRIAL-START and VERDICT. If their [CONDITION][argument]
+  argument is an EVENT (RETRY-TRIAL has a special case here), they
+  also record it (as in RECORD-EVENT) to ensure that when they handle
+  an EVENT in the debugger or programatically that event is not
+  dropped.
   """
   (abort-trial function)
   (skip-trial function)

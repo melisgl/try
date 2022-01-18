@@ -9,12 +9,12 @@
                       (print *try-print*) (describe *try-describe*)
                       (stream *try-stream*) (printer *try-printer*))
   """REPLAY-EVENTS reprocesses the events collected (see @TRY/COLLECT)
-  in TRIAL. It takes the same arguments as TRY except DEBUG, COUNT and
-  RERUN. This is because REPLAY-EVENTS does not run any tests. It
-  simply signals the events collected in TRIAL again to allow further
-  processing. The values of *CATEGORIES* and *COUNT* that were in
-  effect for TRIAL are used, and their current values are ignored to
-  be able to keep consistent counts (see @TRY/COUNT).
+  in TRIAL. It takes the same arguments as TRY except DEBUG,
+  [COUNT][argument] and RERUN. This is because REPLAY-EVENTS does not
+  run any tests. It simply signals the events collected in TRIAL again
+  to allow further processing. The values of *CATEGORIES* and *COUNT*
+  that were in effect for TRIAL are used, and their current values are
+  ignored to be able to keep consistent counts (see @TRY/COUNT).
 
   Suppose we have run a large test using the default `:PRINT 'LEAF`
   `:COLLECT 'UNEXPECTED` arguments for TRY, and now we have too much

@@ -67,11 +67,11 @@
              #2#
   ```
 
-  In the body of MATCH-VALUES, `*` is bound to successive return
-  values of some form, here `(VALUES (1+ 5) "sdf")`. MATCH-VALUES
-  comes with an automatic rewrite rule that captures the values of
-  this form, which are printed above as `#1# == 6 #2#`. IS is flexible
-  enough that all other checks (SIGNALS, SIGNALS-NOT,
+  In the body of MATCH-VALUES, [*][dislocated] is bound to successive
+  return values of some form, here `(VALUES (1+ 5) "sdf")`.
+  MATCH-VALUES comes with an automatic rewrite rule that captures the
+  values of this form, which are printed above as `#1# == 6 #2#`. IS
+  is flexible enough that all other checks (SIGNALS, SIGNALS-NOT,
   INVOKES-DEBUGGER, INVOKES-DEBUGGER-NOT, FAILS, and IN-TIME are built
   on top of it.
 
@@ -265,7 +265,9 @@
   ```
   (deftest my-suite ()
     (when (passedp (should-work))
-      (is t :msg "a test that depends on SHOULD-WORK")))
+      (is t :msg "a test that depends on SHOULD-WORK")
+      (when (is nil)
+        (is nil :msg "never run"))))
   ```
 
   ##### Skipping
@@ -413,8 +415,8 @@
   - Gray streams are broken on ABCL so the output may look even worse
     [https://abcl.org/trac/ticket/373](https://abcl.org/trac/ticket/373).
 
-  - ABCL, CMUCL, and ECL have a bug related to losing `EQL`ness of
-    source literals
+  - ABCL, CMUCL, and ECL have a bug related to losing
+    [EQL][function]ness of source literals
     [https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665](https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665).
     The result is somewhat cosmetic, it may cause multiple captures
     being made for the same thing.

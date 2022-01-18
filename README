@@ -6,12 +6,12 @@
 - Version: 0.0.1
 - Description: Try is a test framework.
 - Long Description: Try is what we get if we make tests functions and
-  build a test framework on top of the condition system like
-  [Stefil](https://common-lisp.net/project/stefil/index-old.shtml)
-  did, but also address the issue of rerunning and replaying, make the
-  IS check more capable, use the types of the condition hierarchy to
-  parameterize what to debug, print, rerun, and document the whole
-  thing.
+  build a test framework on top of the condition system as
+  [Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
+  but also address the issue of rerunning and replaying, make the IS
+  check more capable, use the types of the condition hierarchy to
+  parameterize what to debug, print, rerun, and finally document the
+  whole thing.
 - Licence: MIT, see COPYING.
 - Author: Gábor Melis
 - Mailto: [mega@retes.hu](mailto:mega@retes.hu)
@@ -75,11 +75,11 @@ debugger invoked on a TRY:UNEXPECTED-FAILURE:
            #2#
 ```
 
-In the body of MATCH-VALUES, `*` is bound to successive return
-values of some form, here `(VALUES (1+ 5) "sdf")`. MATCH-VALUES
-comes with an automatic rewrite rule that captures the values of
-this form, which are printed above as `#1# == 6 #2#`. IS is flexible
-enough that all other checks (SIGNALS, SIGNALS-NOT,
+In the body of MATCH-VALUES, `*` is bound to successive
+return values of some form, here `(VALUES (1+ 5) "sdf")`.
+MATCH-VALUES comes with an automatic rewrite rule that captures the
+values of this form, which are printed above as `#1# == 6 #2#`. IS
+is flexible enough that all other checks (SIGNALS, SIGNALS-NOT,
 INVOKES-DEBUGGER, INVOKES-DEBUGGER-NOT, FAILS, and IN-TIME are built
 on top of it.
 
@@ -273,7 +273,9 @@ object returned by @TRY/TESTS.
 ```
 (deftest my-suite ()
   (when (passedp (should-work))
-    (is t :msg "a test that depends on SHOULD-WORK")))
+    (is t :msg "a test that depends on SHOULD-WORK")
+    (when (is nil)
+      (is nil :msg "never run"))))
 ```
 
 ##### Skipping
@@ -826,11 +828,12 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     - When a TRIAL-START event matches the `COLLECT` type (see
       @TRY/COLLECT), its [TRIAL][(reader trial-event)] is collected.
     
-    - Similarly, when a TRIAL-START matches the `PRINT` type (see
-      @TRY/PRINT), it is printed immediately, and its trial's VERDICT
-      will be printed too regardless of whether it matches `PRINT`. If
-      TRIAL-START does not match `PRINT`, it may still be printed if for
-      example *PRINT-PARENT* requires it.
+    - Similarly, when a TRIAL-START matches the `PRINT`
+      type (see @TRY/PRINT), it is printed immediately, and its trial's
+      VERDICT will be printed too regardless of whether it matches
+      `PRINT`. If TRIAL-START does not match
+      `PRINT`, it may still be printed if for example
+      *PRINT-PARENT* requires it.
     
     - When a TRIAL-START matches the `RERUN` type (see @TRY/RERUN), its
       [TRIAL][(reader trial-event)] may be rerun.
@@ -997,10 +1000,11 @@ an ERROR, which triggers an ABORT-TRIAL.
 ```
 
 All three restarts may be invoked on any EVENT, including the
-trial's own TRIAL-START and VERDICT. If CONDITION is an EVENT
-(RETRY-TRIAL has a special case here), they also record it (as in
-RECORD-EVENT) to ensure that when they handle an EVENT in the
-debugger or programatically that event is not dropped.
+trial's own TRIAL-START and VERDICT. If their `CONDITION`
+argument is an EVENT (RETRY-TRIAL has a special case here), they
+also record it (as in RECORD-EVENT) to ensure that when they handle
+an EVENT in the debugger or programatically that event is not
+dropped.
 
 - [function] ABORT-TRIAL &OPTIONAL CONDITION (TRIAL (CURRENT-TRIAL))
 
@@ -1340,7 +1344,8 @@ where
 ```
 
 By default, automatic captures are not made for subforms deeper in
-FORM, except for when FORM is a call to NULL, ENDP and NOT:
+FORM, except for when FORM is a call to [NULL][function],
+[ENDP][function] and [NOT][function]:
 
 ```
 (is (null (find (1+ 1) '(1 2 3))))
@@ -1362,8 +1367,8 @@ where
   #1# = (2 3)
 ```
 
-Note that the argument of NOT is not captured as it is assumed to be
-NIL or T. If that's not true, use NULL.
+Note that the argument of [NOT][function] is not captured as it is
+assumed to be NIL or T. If that's not true, use [NULL][function].
 
 ```
 (is (not (equal (1+ 5) 6)))
@@ -1474,8 +1479,8 @@ where
          2
 ```
 
-where printing `==` instead of `=` indicates that this is a multiple
-value capture.
+where printing `==` instead of `=` indicates that this
+is a multiple value capture.
 
 - [macro] CAPTURE FORM
 
@@ -1692,9 +1697,10 @@ functions and macros that may be useful for writing IS checks.
 
     ON-VALUES evaluates FORM and transforms its return values one by
     one based on forms in BODY. The Nth value is replaced by the return
-    value of the Nth form of BODY evaluated with `*` bound to the Nth
-    value. If the number of values exceeds the number of transformation
-    forms in BODY then the excess values are returned as is.
+    value of the Nth form of BODY evaluated with `*` bound
+    to the Nth value. If the number of values exceeds the number of
+    transformation forms in BODY then the excess values are returned as
+    is.
     
     ```
     (on-values (values 1 "abc" 7)
@@ -2721,12 +2727,12 @@ immediately returns the TRIAL object. A new trial is skipped if
 - [function] REPLAY-EVENTS TRIAL &KEY (COLLECT \*TRY-COLLECT\*) (PRINT \*TRY-PRINT\*) (DESCRIBE \*TRY-DESCRIBE\*) (STREAM \*TRY-STREAM\*) (PRINTER \*TRY-PRINTER\*)
 
     REPLAY-EVENTS reprocesses the events collected (see @TRY/COLLECT)
-    in TRIAL. It takes the same arguments as TRY except DEBUG, COUNT and
-    RERUN. This is because REPLAY-EVENTS does not run any tests. It
-    simply signals the events collected in TRIAL again to allow further
-    processing. The values of *CATEGORIES* and *COUNT* that were in
-    effect for TRIAL are used, and their current values are ignored to
-    be able to keep consistent counts (see @TRY/COUNT).
+    in TRIAL. It takes the same arguments as TRY except DEBUG,
+    `COUNT` and RERUN. This is because REPLAY-EVENTS does not
+    run any tests. It simply signals the events collected in TRIAL again
+    to allow further processing. The values of *CATEGORIES* and *COUNT*
+    that were in effect for TRIAL are used, and their current values are
+    ignored to be able to keep consistent counts (see @TRY/COUNT).
     
     Suppose we have run a large test using the default `:PRINT 'LEAF`
     `:COLLECT 'UNEXPECTED` arguments for TRY, and now we have too much
@@ -2769,8 +2775,8 @@ SBCL.
 - Gray streams are broken on ABCL so the output may look even worse
   [https://abcl.org/trac/ticket/373](https://abcl.org/trac/ticket/373).
 
-- ABCL, CMUCL, and ECL have a bug related to losing `EQL`ness of
-  source literals
+- ABCL, CMUCL, and ECL have a bug related to losing
+  [EQL][function]ness of source literals
   [https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665](https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665).
   The result is somewhat cosmetic, it may cause multiple captures
   being made for the same thing.

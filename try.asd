@@ -11,12 +11,12 @@
   :source-control (:git "https://github.com/melisgl/try.git")
   :description "Try is a test framework."
   :long-description "Try is what we get if we make tests functions and
-  build a test framework on top of the condition system like
-  [Stefil](https://common-lisp.net/project/stefil/index-old.shtml)
-  did, but also address the issue of rerunning and replaying, make the
-  IS check more capable, use the types of the condition hierarchy to
-  parameterize what to debug, print, rerun, and document the whole
-  thing."
+  build a test framework on top of the condition system as
+  [Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
+  but also address the issue of rerunning and replaying, make the IS
+  check more capable, use the types of the condition hierarchy to
+  parameterize what to debug, print, rerun, and finally document the
+  whole thing."
   :defsystem-depends-on (#:try.asdf)
   :depends-on (#:alexandria #:closer-mop #:ieee-floats #:mgl-pax
                             #:trivial-gray-streams #:uiop)
