@@ -60,7 +60,7 @@
              ,rest-var)))
 
 (defun lambda-list-to-arglist-form (lambda-list)
-  (let ((lambda-list (ensure-rest-arg lambda-list)))
+  (let ((lambda-list (ensure-rest-arg lambda-list 'rest)))
     (values (lambda-list-with-&rest-to-arglist-form lambda-list)
             lambda-list)))
 

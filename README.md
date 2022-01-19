@@ -3130,12 +3130,13 @@ immediately returns the `TRIAL` object. A new trial is skipped if
 - [function] **REPLAY-EVENTS** *TRIAL &KEY (COLLECT \*TRY-COLLECT\*) (PRINT \*TRY-PRINT\*) (DESCRIBE \*TRY-DESCRIBE\*) (STREAM \*TRY-STREAM\*) (PRINTER \*TRY-PRINTER\*)*
 
     `REPLAY-EVENTS` reprocesses the events collected (see [Collecting Events][0a38])
-    in `TRIAL`. It takes the same arguments as [`TRY`][7a62] except `DEBUG`,
-    `COUNT` and `RERUN`. This is because `REPLAY-EVENTS` does not
-    run any tests. It simply signals the events collected in `TRIAL` again
-    to allow further processing. The values of [`*CATEGORIES*`][3d4c] and [`*COUNT*`][7eb2]
-    that were in effect for `TRIAL` are used, and their current values are
-    ignored to be able to keep consistent counts (see [Counting Events][3c27]).
+    in `TRIAL`. It takes the same arguments as [`TRY`][7a62] except
+    `DEBUG`, `COUNT` and `RERUN`. This is because
+    `REPLAY-EVENTS` does not run any tests. It simply signals the events
+    collected in `TRIAL` again to allow further processing. The values of
+    [`*CATEGORIES*`][3d4c] and [`*COUNT*`][7eb2] that were in effect for `TRIAL` are used, and
+    their current values are ignored to be able to keep consistent
+    counts (see [Counting Events][3c27]).
     
     Suppose we have run a large test using the default `:PRINT 'LEAF`
     `:COLLECT 'UNEXPECTED` arguments for `TRY`, and now we have too much
