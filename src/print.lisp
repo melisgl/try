@@ -119,7 +119,7 @@
     :documentation "The value of *PRINT-PARENT* when the printer was
     instantiated.")
    (variable-bindings :initform (append *event-print-bindings*
-                                        `((*package ,*package*)
+                                        `((*package* ,*package*)
                                           (*categories* ,*categories*)
                                           (*event-print-bindings* ()))))
    (trial-print-states
