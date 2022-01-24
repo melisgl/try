@@ -27,15 +27,17 @@
   the CURRENT-TRIAL, and the @TRY/TRIAL-RESTARTS are available. It is
   also signalled when a trial is retried:
 
-  ```
-  (let ((*print* nil))
+  ```cl-transcript
+  (let ((*print* nil)
+        (n 0))
     (with-test ()
       (handler-bind ((trial-start (lambda (c)
                                     (format t "TRIAL-START for ~S retry#~S~%"
                                             (test-name (trial c))
                                             (n-retries (trial c))))))
         (with-test (this)
-          (when (zerop (random 2))
+          (incf n)
+          (when (< n 3)
             (retry-trial))))))
   .. TRIAL-START for THIS retry#0
   .. TRIAL-START for THIS retry#1
@@ -78,7 +80,7 @@
   still the CURRENT-TRIAL, and @TRY/TRIAL-RESTARTS are still
   available.
 
-  ```
+  ```cl-transcript (:check-consistency nil)
   (try (lambda ()
          (handler-bind (((and verdict failure) #'retry-trial))
            (with-test (this)

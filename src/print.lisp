@@ -59,7 +59,7 @@
   *PRINT-PARENT*, the trial is printed as if its TRIAL-START matched
   the PRINT argument of TRY.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*print* 'leaf)
         (*print-parent* t))
     (with-test (t0)
@@ -73,7 +73,7 @@
   ==> #<TRIAL (WITH-TEST (T0)) EXPECTED-SUCCESS 0.000s ⋅2>
   ```
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*print* 'leaf)
         (*print-parent* nil))
     (with-test (t0)
@@ -88,7 +88,7 @@
   *PRINT-PARENT* NIL combined with printing VERDICTs results in a flat
    output:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*print* '(or leaf verdict))
         (*print-parent* nil))
     (with-test (outer)
@@ -263,7 +263,7 @@
 (defvar *print-duration* nil
   """If true, the number of seconds spent during execution is printed.
 
-  ```
+  ```cl-transcript (:check-consistency nil)
   (let ((*print-duration* t)
         (*debug* nil)
         (*describe* nil))
@@ -295,7 +295,7 @@
   VERDICTs of trials without printed child trials are printed with `=>
   <MARKER>` (see *CATEGORIES*).
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*print-compactly* t)
         (*debug* nil)
         (*describe* nil))
@@ -326,7 +326,7 @@
   *PRINT-COMPACTLY*), deferring description of events matching
   *DESCRIBE* until the end.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*print* 'leaf)
         (*print-parent* nil)
         (*print-compactly* t)
@@ -359,7 +359,7 @@
 
   The following example prints all @TRY/CONCRETE-EVENTS.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*debug* nil)
         (*print* '(not trial-start))
         (*describe* nil))
@@ -402,7 +402,7 @@
   ..     ⊟ non-local exit                 ; NLX
   ..   ⊟ NLX-TEST ⊟1                      ; VERDICT-ABORT*
   ..   ⊟ "UNHANDLED-ERROR" (SIMPLE-ERROR)
-  .. ⊟ VERDICT-ABORT* ⊟3 ⊠1 -1 ×1 ⋅2
+  .. ⊟ VERDICT-ABORT* ⊟3 ⊠1 ⊡1 -1 ×1 ⋅1
   ..
   ==> #<TRIAL (WITH-TEST (VERDICT-ABORT*)) ABORT* 0.004s ⊟3 ⊠1 ⊡1 -1 ×1 ⋅1>
   ```

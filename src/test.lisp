@@ -43,7 +43,7 @@
   See DEFUN for a description of NAME, LAMBDA-LIST, and BODY. The
   behaviour common with WITH-TEST is described in @TRY/TESTS.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (deftest my-test ()
     (write-string "hey"))
   => MY-TEST
@@ -68,7 +68,7 @@
   - values returned with an explicit RETURN-FROM are returned as
     values after the trial
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (deftest my-test ()
     (prin1 my-test)
     (return-from my-test (values 2 3)))
@@ -202,7 +202,7 @@
 
   When both TRIAL-VAR and NAME are specified:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (with-test (some-feature :name "obscure feature")
     (prin1 some-feature)
     (is t)
@@ -212,14 +212,14 @@
   ..   ⋅ (IS T)
   .. ⋅ obscure feature ⋅1
   ..
-  ==> #<TRIAL (WITH-TEST ("obscure feature")) EXPECTED-SUCCESS 0.000s ⋅1>
+  ==> #<TRIAL (WITH-TEST ("obscure feature")) EXPECTED-SUCCESS 0.002s ⋅1>
   => 1
   => 2
   ```
 
   If only TRIAL-VAR is specified:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (with-test (some-feature)
     (prin1 some-feature)
     (is t)
@@ -236,7 +236,7 @@
 
   If neither is specified:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (with-test ()
     (prin1 (current-trial))
     (is t)
@@ -254,7 +254,7 @@
   Finally, using that NAME defaults to TRIAL-VAR and that it is valid
   to specify non-symbols for TRIAL-VAR, one can also write:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (with-test ("Some feature")
     (prin1 (current-trial))
     (is t)

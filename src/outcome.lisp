@@ -31,7 +31,7 @@
   expect both SUCCESS and FAILURE for RESULTs, while requiring
   VERDICTs to succeed:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*debug* nil))
     (with-expected-outcome ('(or result (and verdict success)))
       (with-test (t1)
@@ -46,7 +46,7 @@
   This is equivalent to `(WITH-FAILURE-EXPECTED () ...)`. To make
   result failures expected but result successes unexpected:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*debug* nil))
     (with-expected-outcome ('(or (and result failure) (and verdict success)))
       (with-test (t1)
@@ -64,7 +64,7 @@
   final example leaves result failures unexpected but makes both
   verdict successes and failures expected:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*debug* nil))
     (with-expected-outcome ('(or (and result success) verdict))
       (with-test (t1)
@@ -74,8 +74,7 @@
   .. × T1 ⊠1
   ..
   ==> #<TRIAL (WITH-TEST (T1)) EXPECTED-FAILURE 0.004s ⊠1>
-  ```
-  "
+  ```"
   `(let ((*expected-outcome* ,expected-type))
      ,@body))
 

@@ -153,7 +153,7 @@
   sets up a HANDLER-BIND. Thus it can only see what BODY does not
   handle. The arguments are described in @TRY/CHECKING-CONDITIONS.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (signals (error)
     (error "xxx"))
   => NIL
@@ -162,15 +162,14 @@
   The following example shows a failure where CONDITION-TYPE matches
   but PRED does not.
 
-  ```
-  (ignore-errors
-    (signals (error :pred "non-matching")
-      (error "xxx")))
-
-  UNEXPECTED-FAILURE in check:
-    (ERROR "xxx") signals a condition of type ERROR that matches
-    "non-matching".
-  The predicate did not match "xxx".
+  ```cl-transcript (:dynenv try-transcript)
+  (signals (error :pred "non-matching")
+    (error "xxx"))
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (ERROR "xxx") signals a condition of type ERROR that matches
+  ..     "non-matching".
+  ..   The predicate did not match "xxx".
   ```
   """
   `(condition-match-checker (,condition-type
@@ -245,7 +244,7 @@
   and a *DEBUGGER-HOOK* is set up (see UNHANDLED-ERROR). Thus invoking
   debugger would normally cause the trial to abort.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (invokes-debugger (error :pred "xxx")
     (handler-bind ((error #'invoke-debugger))
       (error "xxx")))
@@ -329,7 +328,7 @@
 
   In the following example, FAILS signals a SUCCESS.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (catch 'foo
     (fails ()
       (throw 'foo 7)))
@@ -339,12 +338,14 @@
   Next, FAILS signals an UNEXPECTED-FAILURE because BODY returns
   normally.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (fails ()
     (print 'hey))
-
-  UNEXPECTED-FAILURE in check:
-    (PRINT 'HEY) does not return normally.
+  ..
+  .. HEY 
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (PRINT 'HEY) does not return normally.
   ```
 
   Note that there is no `FAILS-NOT` as WITH-TEST fills that role.
@@ -378,10 +379,10 @@
   ```
   (in-time (1)
     (sleep 2))
-
-  UNEXPECTED-FAILURE in check:
-    (SLEEP 2) finishes within 1s.
-  Took 2.000s.
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (SLEEP 2) finishes within 1s.
+  ..   Took 2.000s.
   ```
 
   RETRY-CHECK restarts timing.
@@ -429,7 +430,7 @@
   :TRUNCATE option of ON-VALUES is supported, but :ON-LENGTH-MISMATCH
   always returns NIL.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   ;; no values
   (is (match-values (values)))
   ;; single value success
@@ -484,34 +485,29 @@
   and they limit the number of elements in the prefix and the
   suffixes.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (null (mismatch% '(1 2 3) '(1 2 4 5))))
-
-  UNEXPECTED-FAILURE in check:
-    (IS (NULL #1=(MISMATCH% '(1 2 3) '(1 2 4 5))))
-  where
-    COMMON-PREFIX = (1 2)
-    MISMATCHED-SUFFIX-1 = (3)
-    MISMATCHED-SUFFIX-2 = (4 5)
-    #1# = 2
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (NULL #1=(MISMATCH% '(1 2 3) '(1 2 4 5))))
+  ..   where
+  ..     COMMON-PREFIX = (1 2)
+  ..     MISMATCHED-SUFFIX-1 = (3)
+  ..     MISMATCHED-SUFFIX-2 = (4 5)
+  ..     #1# = 2
   ```
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (null (mismatch% "Hello, World!"
-                        "Hello,
-  World!")))
-
-  UNEXPECTED-FAILURE in check:
-    (IS
-     (NULL
-      #1=(MISMATCH% "Hello, World!" "Hello,
-    World!")))
-  where
-    COMMON-PREFIX = "Hello,"
-    MISMATCHED-SUFFIX-1 = " World!"
-    MISMATCHED-SUFFIX-2 = "
-    World!"
-    #1# = 6
+                       "Hello, world!")))
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (NULL #1=(MISMATCH% "Hello, World!" "Hello, world!")))
+  ..   where
+  ..     COMMON-PREFIX = "Hello, "
+  ..     MISMATCHED-SUFFIX-1 = "World!"
+  ..     MISMATCHED-SUFFIX-2 = "world!"
+  ..     #1# = 7
   ```
   """
   (let ((mismatch-position
@@ -549,13 +545,13 @@
   are elements of SEQUENCE1 and SEQUENCE2 at `<INDEX>`, respectively,
   and they may be MISSING if the corresponding sequence is too short.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (endp (different-elements '(1 2 3) '(1 b 3 d))))
-
-  UNEXPECTED-FAILURE in check:
-    (IS (ENDP #1=(DIFFERENT-ELEMENTS '(1 2 3) '(1 B 3 D))))
-  where
-    #1# = ((:INDEX 1 2 B) (:INDEX 3 :MISSING D))
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (ENDP #1=(DIFFERENT-ELEMENTS '(1 2 3) '(1 B 3 D))))
+  ..   where
+  ..     #1# = ((:INDEX 1 2 B) (:INDEX 3 :MISSING D))
   ```"
   (let ((n1 (length sequence1))
         (n2 (length sequence2)))
@@ -575,15 +571,14 @@
   order and return NIL. This may be useful to prevent writing tests
   that accidentally depend on the order in which subtests are called.
 
-  ```
+  ```cl-transcript (:check-consistency nil)
   (loop repeat 3 do
     (with-shuffling ()
       (prin1 1)
       (prin1 2)))
   .. 122112
   => NIL
-  ```
-  "
+  ```"
   (with-gensyms (thunk)
     `(dolist (,thunk (shuffle
                       (list ,@(loop for form in body

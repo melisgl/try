@@ -15,7 +15,7 @@
   separate counters for ABORT*, UNEXPECTED-FAILURE,
   UNEXPECTED-SUCCESS, SKIP, EXPECTED-FAILURE, and EXPECTED-SUCCESS.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*debug* nil))
     (with-test (outer)
       (with-test (inner)

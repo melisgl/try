@@ -101,7 +101,7 @@
   CURRENT-TRIAL, through the lexical binding of the symbol that names
   the test or through the return value of a test:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (deftest xxx ()
     (prin1 xxx))
 
@@ -112,7 +112,7 @@
 
   WITH-TRIAL can also provide access to its TRIAL:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (with-test (t0)
     (prin1 t0))
   .. #<TRIAL (WITH-TEST (T0)) RUNNING>
@@ -312,7 +312,7 @@
   but they may be called on trials other than the CURRENT-TRIAL. In
   that case, any intervening trials are skipped.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   ;; Skipped trials are marked with '-' in the output.
   (with-test (outer)
     (with-test (inner)
@@ -334,7 +334,7 @@
   following example, the non-local exit from a skip is cancelled by a
   THROW.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (with-test (some-test)
     (catch 'foo
       (unwind-protect
@@ -351,7 +351,7 @@
   In the next example, the non-local exit from a skip is cancelled by
   an ERROR, which triggers an ABORT-TRIAL.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*debug* nil)
         (*describe* nil))
     (with-test (foo)
@@ -407,7 +407,7 @@
   VERDICT-SKIP. If during the unwinding ABORT-TRIAL or RETRY-TRIAL is
   called, then the skip is cancelled.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (with-test (skipped)
     (handler-bind ((unexpected-result-failure #'skip-trial))
       (is nil)))
@@ -421,7 +421,7 @@
   Invoking SKIP-TRIAL on the TRIAL's own TRIAL-START skips the trial
   being started.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*print* '(or outcome leaf)))
     (with-test (parent)
       (handler-bind ((trial-start #'skip-trial))

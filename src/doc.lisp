@@ -1,5 +1,47 @@
 (in-package :try)
 
+;;; Called when generating documentation and a code block like this is
+;;; encountered:
+;;;
+;;; ```cl-transcript (:dynenv try-transcript)
+;;; ```
+(defun try-transcript (fn)
+  (let ((*package* (find-package :try))
+        (*run-deftest-when* *run-deftest-when*)
+        ;; Catch timings leaking into transcripts.
+        (*testing-timing* t)
+        (mgl-pax:*transcribe-check-consistency*
+          '((:output try-transcript-output=)
+            (:readable equal)
+            (:unreadable try-transcript-unreadable=))))
+    (unwind-protect
+         (funcall fn)
+      ;; To prevent redefinition warnings.
+      (unintern (read-from-string "some-test")))))
+
+(defun try-transcript-output= (string1 string2)
+  (string= (try-transcript-normalize-output string1)
+           (try-transcript-normalize-output string2)))
+
+(defun try-transcript-normalize-output (string)
+  (try-transcript-upcase-trial
+   (squeeze-whitespace (delete-trailing-whitespace (delete-comments string)))))
+
+(defun try-transcript-unreadable= (string1 string2)
+  (string= (try-transcript-normalize-unreadable string1)
+           (try-transcript-normalize-unreadable string2)))
+
+(defun try-transcript-normalize-unreadable (string)
+  (try-transcript-upcase-trial
+   ;; Replace the time in "#<TRIAL UNEXPECTED 0.001s>" with "0.000s".
+   (cl-ppcre:regex-replace-all " \\d.\\d\\d\\ds" string " 0.000s")))
+
+(defun try-transcript-upcase-trial (string)
+  ;; ECL's PRINT-UNREADABLE-OBJECT prints in lowercase #<trial ..>.
+  #+ecl (cl-ppcre:regex-replace-all "#<trial" string "#<TRIAL")
+  #-ecl string)
+
+
 ;;;; Register in PAX World
 
 (defun pax-sections ()

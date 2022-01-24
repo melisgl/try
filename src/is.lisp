@@ -7,14 +7,13 @@
   the others are built, and it is a replacement for CL:ASSERT that can
   capture values of subforms to provide context to failures:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (= (1+ 5) 0))
-
-  debugger invoked on a TRY:UNEXPECTED-FAILURE:
-    UNEXPECTED-FAILURE in check:
-      (IS (= #1=(1+ 5) 0))
-    where
-      #1# = 6
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (= #1=(1+ 5) 0))
+  ..   where
+  ..     #1# = 6
   ```
 
   IS automatically captures values of arguments to functions like `1+`
@@ -24,19 +23,19 @@
   these features allows MATCH-VALUES to be implementable as tiny
   extension:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (match-values (values (1+ 5) "sdf")
         (= * 0)
         (string= * "sdf")))
-
-  debugger invoked on a TRY:UNEXPECTED-FAILURE:
-    (IS
-     (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
-       (= * 0)
-       (STRING= * "sdf")))
-    where
-      #1# == 6
-             #2#
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS
+  ..      (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
+  ..        (= * 0)
+  ..        (STRING= * "sdf")))
+  ..   where
+  ..     #1# == 6
+  ..            #2#
   ```
 
   IS is flexible enough that all other checks (SIGNALS, SIGNALS-NOT,
@@ -79,17 +78,18 @@
   desired outcome is, and CTX provides information about the
   evaluation.
 
-  ```
+  ```cl-transcript (:check-consistency #+sbcl t #-sbcl nil)
   (is (equal (prin1-to-string 'hello) "hello")
       :msg "Symbols are replacements for strings." 
       :ctx ("*PACKAGE* is ~S and *PRINT-CASE* is ~S~%"
             *package* *print-case*))
-
-  UNEXPECTED-FAILURE in check:
-    Symbols are replacements for strings.
-  where
-    (PRIN1-TO-STRING 'HELLO) = "HELLO"
-  *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     Symbols are replacements for strings.
+  ..   where
+  ..     (PRIN1-TO-STRING 'HELLO) = "HELLO"
+  ..   *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
+  ..
   ```
 
   If CAPTURE is true, the value(s) of some subforms of FORM may be
@@ -165,32 +165,32 @@
 
   It may be a constant string:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is nil :msg "FORMAT-CONTROL~%with no args.")
-
-  UNEXPECTED-FAILURE in check:
-    FORMAT-CONTROL
-    with no args.
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     FORMAT-CONTROL
+  ..     with no args.
   ```
 
   It may be a list whose first element is a constant string, and the
   rest are the format arguments to be evaluated:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is nil :msg ("Implicit LIST ~A." "form"))
-
-  UNEXPECTED-FAILURE in check:
-    Implicit LIST form.
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     Implicit LIST form.
   ```
 
   Or it may be a form that evaluates to a list like `(FORMAT-CONTROL
   &REST FORMAT-ARGS)`:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is nil :msg (list "Full ~A." "form"))
-
-  UNEXPECTED-FAILURE in check:
-    Full form.
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     Full form.
   ```
 
   Finally, it may evaluate to NIL, in which case some context specific
@@ -222,44 +222,44 @@
   rewriting rules (see @TRY/WRITING-AUTOMATIC-CAPTURE-RULES),
   explicit, ad-hoc captures can also be made.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (let ((x 1))
         (= (capture x) 2)))
-
-  UNEXPECTED-FAILURE in check:
-    (IS
-     (LET ((X 1))
-       (= (CAPTURE X) 2)))
-  where
-    X = 1
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS
+  ..      (LET ((X 1))
+  ..        (= (CAPTURE X) 2)))
+  ..   where
+  ..     X = 1
   ```
 
-  If CAPTURE showing up in the form that IS print is undesirable, then
-  `%` may be used instead:
+  If CAPTURE showing up in the form that IS prints is undesirable,
+  then `%` may be used instead:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (let ((x 1))
         (= (% x) 2)))
-
-  UNEXPECTED-FAILURE in check:
-    (IS
-     (LET ((X 1))
-       (= X 2)))
-  where
-    X = 1
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS
+  ..      (LET ((X 1))
+  ..        (= X 2)))
+  ..   where
+  ..     X = 1
   ```
 
   Multiple values may be captured with CAPTURE-VALUES and its
   secretive counterpart `%%`:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (= (%% (values 1 2)) 2))
-
-  UNEXPECTED-FAILURE in check:
-    (IS (= #1=(VALUES 1 2) 2))
-  where
-    #1# == 1
-           2
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (= #1=(VALUES 1 2) 2))
+  ..   where
+  ..     #1# == 1
+  ..            2
   ```
 
   where printing `==` instead of [=][dislocated] indicates that this
@@ -312,50 +312,50 @@
   to be informative. In particular, if FORM is a function call, then
   non-constant arguments are automatically captured:
 
-  ```
+  ```cl-transcript (:check-consistency #+sbcl t #-sbcl nil)
   (is (= 3 (1+ 2) (- 4 3)))
-
-  UNEXPECTED-FAILURE in check:
-    (IS (= 3 #1=(1+ 2) #2=(- 4 3)))
-  where
-    #1# = 3
-    #2# = 1
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (= 3 #1=(1+ 2) #2=(- 4 3)))
+  ..   where
+  ..     #1# = 3
+  ..     #2# = 1
   ```
 
   By default, automatic captures are not made for subforms deeper in
   FORM, except for when FORM is a call to [NULL][function],
   [ENDP][function] and [NOT][function]:
 
-  ```
+  ```cl-transcript (:check-consistency #+sbcl t #-sbcl nil)
   (is (null (find (1+ 1) '(1 2 3))))
-
-  UNEXPECTED-FAILURE in check:
-    (IS (NULL #1=(FIND #2=(1+ 1) '(1 2 3))))
-  where
-    #2# = 2
-    #1# = 2
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (NULL #1=(FIND #2=(1+ 1) '(1 2 3))))
+  ..   where
+  ..     #2# = 2
+  ..     #1# = 2
   ```
 
-  ```
+  ```cl-transcript (:check-consistency #+sbcl t #-sbcl nil)
   (is (endp (member (1+ 1) '(1 2 3))))
-
-  UNEXPECTED-FAILURE in check:
-    (IS (ENDP #1=(MEMBER #2=(1+ 1) '(1 2 3))))
-  where
-    #2# = 2
-    #1# = (2 3)
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (ENDP #1=(MEMBER #2=(1+ 1) '(1 2 3))))
+  ..   where
+  ..     #2# = 2
+  ..     #1# = (2 3)
   ```
 
   Note that the argument of [NOT][function] is not captured as it is
   assumed to be NIL or T. If that's not true, use [NULL][function].
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (not (equal (1+ 5) 6)))
-
-  UNEXPECTED-FAILURE in check:
-    (IS (NOT (EQUAL #1=(1+ 5) 6)))
-  where
-    #1# = 6
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (NOT (EQUAL #1=(1+ 5) 6)))
+  ..   where
+  ..     #1# = 6
   ```
 
   Other automatic captures are discussed with the relevant

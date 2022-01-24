@@ -28,7 +28,7 @@
 
   - ERROR*, an unexpected CL:ERROR or unadorned @NON-LOCAL-EXIT.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (let (;; We don't want to debug nor print a backtrace for the error below.
         (*debug* nil)
         (*describe* nil))
@@ -197,8 +197,9 @@
 
 (defgeneric write-event (event stream &key terse ctx)
   (:method :around (event stream &key terse ctx)
+    ;; FIXME: *PRINT-CIRCLE* seems to have no effect if bound here.
     (with-bindings *event-print-bindings*
-      ;; We rely *PRINT-PRETTY*, force it on regardless of
+      ;; We rely on *PRINT-PRETTY*, force it on regardless of
       ;; *EVENT-PRINT-BINDINGS*. KLUDGE: pretty printing on CLISP is
       ;; very broken.
       (let ((*print-pretty* #-clisp t #+clisp nil))

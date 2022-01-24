@@ -162,7 +162,7 @@
   transformation forms in BODY then the excess values are returned as
   is.
 
-  ```
+  ```cl-transcript
   (on-values (values 1 "abc" 7)
     (1+ *)
     (length *))
@@ -174,7 +174,7 @@
   If the number of values is less than the number of transformation
   forms, then in later transformation forms [*][dislocated] is bound to NIL.
 
-  ```
+  ```cl-transcript
   (on-values (values)
     *
     *)
@@ -186,7 +186,7 @@
   transformation forms. With :TRUNCATE T, the excess values are
   discarded.
 
-  ```
+  ```cl-transcript
   (on-values (values 1 "abc" 7)
     (:truncate t)
     (1+ *)
@@ -200,7 +200,7 @@
   forms is different, then this function is called to transform the
   list of values. :TRUNCATE is handled before :ON-LENGTH-MISMATCH.
 
-  ```
+  ```cl-transcript
   (on-values 1
     (:on-length-mismatch (lambda (values)
                            (if (= (length values) 1)

@@ -30,14 +30,13 @@
   @TRY/IS is a replacement for CL:ASSERT, that can capture values of
   subforms to provide context to failures:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (= (1+ 5) 0))
-
-  debugger invoked on a TRY:UNEXPECTED-RESULT-FAILURE:
-    UNEXPECTED-FAILURE in check:
-      (IS (= #1=(1+ 5) 0))
-    where
-      #1# = 6
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (= #1=(1+ 5) 0))
+  ..   where
+  ..     #1# = 6
   ```
 
   Note the `#N#` syntax due to *PRINT-CIRCLE*.
@@ -52,19 +51,19 @@
   (@TRY/WRITING-AUTOMATIC-CAPTURE-RULES). The combination of these
   features allows MATCH-VALUES to be implementable as tiny extension:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (is (match-values (values (1+ 5) "sdf")
         (= * 0)
         (string= * "sdf")))
-
-  debugger invoked on a TRY:UNEXPECTED-FAILURE:
-    (IS
-     (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
-       (= * 0)
-       (STRING= * "sdf")))
-    where
-      #1# == 6
-             #2#
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS
+  ..      (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
+  ..        (= * 0)
+  ..        (STRING= * "sdf")))
+  ..   where
+  ..     #1# == 6
+  ..            #2#
   ```
 
   In the body of MATCH-VALUES, [*][dislocated] is bound to successive
@@ -81,7 +80,7 @@
   that record their execution in TRIAL objects. Let's define a test
   and run it:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (deftest should-work ()
     (is t))
 
@@ -104,7 +103,7 @@
   debugger on events whose type matches the type in the variable
   *DEBUG*.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (try 'should-work)
   .. SHOULD-WORK
   ..   ⋅ (IS T)
@@ -117,7 +116,7 @@
 
   Test suites are just tests which call other tests.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (deftest my-suite ()
     (should-work)
     (is (= (foo) 5)))
@@ -146,7 +145,7 @@
   To focus on the important bits, we can print only the UNEXPECTED
   events:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (try 'my-suite :print 'unexpected)
   .. MY-SUITE
   ..   ⊠ (IS (= #1=(FOO) 5))
@@ -193,7 +192,7 @@
   navigate to its definition, realize what the problem is and fix
   `FOO`:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (defun foo ()
     5)
   ```
@@ -223,7 +222,7 @@
   Instead of working interactively, one can fix the failing test and
   rerun it. Now, let's fix `MY-SUITE` and rerun it:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (deftest my-suite ()
     (should-work)
     (is nil))
@@ -272,7 +271,7 @@
 
   ##### Skipping
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (deftest my-suite ()
     (with-skip ((not (server-available-p)))
       (test-server)))
@@ -292,7 +291,7 @@
 
   ##### Expecting Outcomes
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (deftest known-broken ()
     (with-failure-expected (t)
       (is nil)))
@@ -315,7 +314,7 @@
   With *RUN-DEFTEST-WHEN*, one can run test on definition. To run
   tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (setq *run-deftest-when* :execute)
 
   (deftest some-test ()
@@ -452,7 +451,7 @@
   this second nlx is said to have cancelled the first, and the first
   nlx will not continue.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (catch 'foo
     (catch 'bar
       (unwind-protect

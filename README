@@ -38,14 +38,13 @@ prominently in parameterization.
 @TRY/IS is a replacement for CL:ASSERT, that can capture values of
 subforms to provide context to failures:
 
-```
+```common-lisp
 (is (= (1+ 5) 0))
-
-debugger invoked on a TRY:UNEXPECTED-RESULT-FAILURE:
-  UNEXPECTED-FAILURE in check:
-    (IS (= #1=(1+ 5) 0))
-  where
-    #1# = 6
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS (= #1=(1+ 5) 0))
+..   where
+..     #1# = 6
 ```
 
 Note the `#N#` syntax due to *PRINT-CIRCLE*.
@@ -60,19 +59,19 @@ values and can be taught how to deal with macros
 (@TRY/WRITING-AUTOMATIC-CAPTURE-RULES). The combination of these
 features allows MATCH-VALUES to be implementable as tiny extension:
 
-```
+```common-lisp
 (is (match-values (values (1+ 5) "sdf")
       (= * 0)
       (string= * "sdf")))
-
-debugger invoked on a TRY:UNEXPECTED-FAILURE:
-  (IS
-   (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
-     (= * 0)
-     (STRING= * "sdf")))
-  where
-    #1# == 6
-           #2#
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS
+..      (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
+..        (= * 0)
+..        (STRING= * "sdf")))
+..   where
+..     #1# == 6
+..            #2#
 ```
 
 In the body of MATCH-VALUES, `*` is bound to successive
@@ -89,7 +88,7 @@ Beyond a fancy ASSERT, Try provides tests, which are Lisp functions
 that record their execution in TRIAL objects. Let's define a test
 and run it:
 
-```
+```common-lisp
 (deftest should-work ()
   (is t))
 
@@ -112,7 +111,7 @@ the debugger, whereas calling a test function directly enters the
 debugger on events whose type matches the type in the variable
 *DEBUG*.
 
-```
+```common-lisp
 (try 'should-work)
 .. SHOULD-WORK
 ..   ⋅ (IS T)
@@ -125,7 +124,7 @@ debugger on events whose type matches the type in the variable
 
 Test suites are just tests which call other tests.
 
-```
+```common-lisp
 (deftest my-suite ()
   (should-work)
   (is (= (foo) 5)))
@@ -154,7 +153,7 @@ Test suites are just tests which call other tests.
 To focus on the important bits, we can print only the UNEXPECTED
 events:
 
-```
+```common-lisp
 (try 'my-suite :print 'unexpected)
 .. MY-SUITE
 ..   ⊠ (IS (= #1=(FOO) 5))
@@ -201,7 +200,7 @@ debugger, we press `v` on the frame of the call to `MY-SUITE` to
 navigate to its definition, realize what the problem is and fix
 `FOO`:
 
-```
+```common-lisp
 (defun foo ()
   5)
 ```
@@ -231,7 +230,7 @@ MY-SUITE retry #1
 Instead of working interactively, one can fix the failing test and
 rerun it. Now, let's fix `MY-SUITE` and rerun it:
 
-```
+```common-lisp
 (deftest my-suite ()
   (should-work)
   (is nil))
@@ -280,7 +279,7 @@ object returned by @TRY/TESTS.
 
 ##### Skipping
 
-```
+```common-lisp
 (deftest my-suite ()
   (with-skip ((not (server-available-p)))
     (test-server)))
@@ -300,7 +299,7 @@ errors happened, so nothing was printed.
 
 ##### Expecting Outcomes
 
-```
+```common-lisp
 (deftest known-broken ()
   (with-failure-expected (t)
     (is nil)))
@@ -323,7 +322,7 @@ fail. Also see WITH-EXPECTED-OUTCOME.
 With *RUN-DEFTEST-WHEN*, one can run test on definition. To run
 tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
 
-```
+```common-lisp
 (setq *run-deftest-when* :execute)
 
 (deftest some-test ()
@@ -431,7 +430,7 @@ The condition EVENT has 4 disjoint subclasses:
 
 - ERROR\*, an unexpected CL:ERROR or unadorned @NON-LOCAL-EXIT.
 
-```
+```common-lisp
 (let (;; We don't want to debug nor print a backtrace for the error below.
       (*debug* nil)
       (*describe* nil))
@@ -608,7 +607,7 @@ Only RECORD-EVENT is applicable to all EVENTs. See
     expect both SUCCESS and FAILURE for RESULTs, while requiring
     VERDICTs to succeed:
     
-    ```
+    ```common-lisp
     (let ((*debug* nil))
       (with-expected-outcome ('(or result (and verdict success)))
         (with-test (t1)
@@ -623,7 +622,7 @@ Only RECORD-EVENT is applicable to all EVENTs. See
     This is equivalent to `(WITH-FAILURE-EXPECTED () ...)`. To make
     result failures expected but result successes unexpected:
     
-    ```
+    ```common-lisp
     (let ((*debug* nil))
       (with-expected-outcome ('(or (and result failure) (and verdict success)))
         (with-test (t1)
@@ -641,7 +640,7 @@ Only RECORD-EVENT is applicable to all EVENTs. See
     final example leaves result failures unexpected but makes both
     verdict successes and failures expected:
     
-    ```
+    ```common-lisp
     (let ((*debug* nil))
       (with-expected-outcome ('(or (and result success) verdict))
         (with-test (t1)
@@ -764,7 +763,7 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     CURRENT-TRIAL, through the lexical binding of the symbol that names
     the test or through the return value of a test:
     
-    ```
+    ```common-lisp
     (deftest xxx ()
       (prin1 xxx))
     
@@ -775,7 +774,7 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     
     WITH-TRIAL can also provide access to its TRIAL:
     
-    ```
+    ```common-lisp
     (with-test (t0)
       (prin1 t0))
     .. #<TRIAL (WITH-TEST (T0)) RUNNING>
@@ -806,15 +805,17 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     the CURRENT-TRIAL, and the @TRY/TRIAL-RESTARTS are available. It is
     also signalled when a trial is retried:
     
-    ```
-    (let ((*print* nil))
+    ```common-lisp
+    (let ((*print* nil)
+          (n 0))
       (with-test ()
         (handler-bind ((trial-start (lambda (c)
                                       (format t "TRIAL-START for ~S retry#~S~%"
                                               (test-name (trial c))
                                               (n-retries (trial c))))))
           (with-test (this)
-            (when (zerop (random 2))
+            (incf n)
+            (when (< n 3)
               (retry-trial))))))
     .. TRIAL-START for THIS retry#0
     .. TRIAL-START for THIS retry#1
@@ -852,7 +853,7 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     still the CURRENT-TRIAL, and @TRY/TRIAL-RESTARTS are still
     available.
     
-    ```
+    ```common-lisp
     (try (lambda ()
            (handler-bind (((and verdict failure) #'retry-trial))
              (with-test (this)
@@ -946,7 +947,7 @@ TRIAL. It is an error to call them on trials that are not RUNNINGP,
 but they may be called on trials other than the CURRENT-TRIAL. In
 that case, any intervening trials are skipped.
 
-```
+```common-lisp
 ;; Skipped trials are marked with '-' in the output.
 (with-test (outer)
   (with-test (inner)
@@ -968,7 +969,7 @@ restart will be invoked upon returning from the trial. In the
 following example, the non-local exit from a skip is cancelled by a
 THROW.
 
-```
+```common-lisp
 (with-test (some-test)
   (catch 'foo
     (unwind-protect
@@ -985,7 +986,7 @@ THROW.
 In the next example, the non-local exit from a skip is cancelled by
 an ERROR, which triggers an ABORT-TRIAL.
 
-```
+```common-lisp
 (let ((*debug* nil)
       (*describe* nil))
   (with-test (foo)
@@ -1035,7 +1036,7 @@ dropped.
     VERDICT-SKIP. If during the unwinding ABORT-TRIAL or RETRY-TRIAL is
     called, then the skip is cancelled.
     
-    ```
+    ```common-lisp
     (with-test (skipped)
       (handler-bind ((unexpected-result-failure #'skip-trial))
         (is nil)))
@@ -1049,7 +1050,7 @@ dropped.
     Invoking SKIP-TRIAL on the TRIAL's own TRIAL-START skips the trial
     being started.
     
-    ```
+    ```common-lisp
     (let ((*print* '(or outcome leaf)))
       (with-test (parent)
         (handler-bind ((trial-start #'skip-trial))
@@ -1181,14 +1182,13 @@ IS is the most fundamental one among @TRY/CHECKS, on which all
 the others are built, and it is a replacement for CL:ASSERT that can
 capture values of subforms to provide context to failures:
 
-```
+```common-lisp
 (is (= (1+ 5) 0))
-
-debugger invoked on a TRY:UNEXPECTED-FAILURE:
-  UNEXPECTED-FAILURE in check:
-    (IS (= #1=(1+ 5) 0))
-  where
-    #1# = 6
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS (= #1=(1+ 5) 0))
+..   where
+..     #1# = 6
 ```
 
 IS automatically captures values of arguments to functions like `1+`
@@ -1198,19 +1198,19 @@ values and can be taught how to deal with macros. The combination of
 these features allows MATCH-VALUES to be implementable as tiny
 extension:
 
-```
+```common-lisp
 (is (match-values (values (1+ 5) "sdf")
       (= * 0)
       (string= * "sdf")))
-
-debugger invoked on a TRY:UNEXPECTED-FAILURE:
-  (IS
-   (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
-     (= * 0)
-     (STRING= * "sdf")))
-  where
-    #1# == 6
-           #2#
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS
+..      (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
+..        (= * 0)
+..        (STRING= * "sdf")))
+..   where
+..     #1# == 6
+..            #2#
 ```
 
 IS is flexible enough that all other checks (SIGNALS, SIGNALS-NOT,
@@ -1241,17 +1241,18 @@ on top of it.
     desired outcome is, and CTX provides information about the
     evaluation.
     
-    ```
+    ```common-lisp
     (is (equal (prin1-to-string 'hello) "hello")
         :msg "Symbols are replacements for strings." 
         :ctx ("*PACKAGE* is ~S and *PRINT-CASE* is ~S~%"
               *package* *print-case*))
-    
-    UNEXPECTED-FAILURE in check:
-      Symbols are replacements for strings.
-    where
-      (PRIN1-TO-STRING 'HELLO) = "HELLO"
-    *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     Symbols are replacements for strings.
+    ..   where
+    ..     (PRIN1-TO-STRING 'HELLO) = "HELLO"
+    ..   *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
+    ..
     ```
     
     If CAPTURE is true, the value(s) of some subforms of FORM may be
@@ -1269,11 +1270,11 @@ on top of it.
     restart returns :RETRY, which allows complex checks such as SIGNALS
     to implement their own retry mechanism.
 
-- [variable] *IS-FORM* "-unbound-"
+- [variable] *IS-FORM* 
 
     IS binds this to its FORM argument for CTX and MSG.
 
-- [variable] *IS-CAPTURES* "-unbound-"
+- [variable] *IS-CAPTURES* 
 
     Captures made during an IS evaluation are made available for
     CTX via *IS-CAPTURES*.
@@ -1286,32 +1287,32 @@ the FORMAT function.
 
 It may be a constant string:
 
-```
+```common-lisp
 (is nil :msg "FORMAT-CONTROL~%with no args.")
-
-UNEXPECTED-FAILURE in check:
-  FORMAT-CONTROL
-  with no args.
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     FORMAT-CONTROL
+..     with no args.
 ```
 
 It may be a list whose first element is a constant string, and the
 rest are the format arguments to be evaluated:
 
-```
+```common-lisp
 (is nil :msg ("Implicit LIST ~A." "form"))
-
-UNEXPECTED-FAILURE in check:
-  Implicit LIST form.
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     Implicit LIST form.
 ```
 
 Or it may be a form that evaluates to a list like `(FORMAT-CONTROL
 &REST FORMAT-ARGS)`:
 
-```
+```common-lisp
 (is nil :msg (list "Full ~A." "form"))
-
-UNEXPECTED-FAILURE in check:
-  Full form.
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     Full form.
 ```
 
 Finally, it may evaluate to NIL, in which case some context specific
@@ -1333,50 +1334,50 @@ IS automatically captures some subforms of FORM that are likely
 to be informative. In particular, if FORM is a function call, then
 non-constant arguments are automatically captured:
 
-```
+```common-lisp
 (is (= 3 (1+ 2) (- 4 3)))
-
-UNEXPECTED-FAILURE in check:
-  (IS (= 3 #1=(1+ 2) #2=(- 4 3)))
-where
-  #1# = 3
-  #2# = 1
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS (= 3 #1=(1+ 2) #2=(- 4 3)))
+..   where
+..     #1# = 3
+..     #2# = 1
 ```
 
 By default, automatic captures are not made for subforms deeper in
 FORM, except for when FORM is a call to [NULL][function],
 [ENDP][function] and [NOT][function]:
 
-```
+```common-lisp
 (is (null (find (1+ 1) '(1 2 3))))
-
-UNEXPECTED-FAILURE in check:
-  (IS (NULL #1=(FIND #2=(1+ 1) '(1 2 3))))
-where
-  #2# = 2
-  #1# = 2
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS (NULL #1=(FIND #2=(1+ 1) '(1 2 3))))
+..   where
+..     #2# = 2
+..     #1# = 2
 ```
 
-```
+```common-lisp
 (is (endp (member (1+ 1) '(1 2 3))))
-
-UNEXPECTED-FAILURE in check:
-  (IS (ENDP #1=(MEMBER #2=(1+ 1) '(1 2 3))))
-where
-  #2# = 2
-  #1# = (2 3)
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS (ENDP #1=(MEMBER #2=(1+ 1) '(1 2 3))))
+..   where
+..     #2# = 2
+..     #1# = (2 3)
 ```
 
 Note that the argument of [NOT][function] is not captured as it is
 assumed to be NIL or T. If that's not true, use [NULL][function].
 
-```
+```common-lisp
 (is (not (equal (1+ 5) 6)))
-
-UNEXPECTED-FAILURE in check:
-  (IS (NOT (EQUAL #1=(1+ 5) 6)))
-where
-  #1# = 6
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS (NOT (EQUAL #1=(1+ 5) 6)))
+..   where
+..     #1# = 6
 ```
 
 Other automatic captures are discussed with the relevant
@@ -1439,44 +1440,44 @@ In addition to automatic captures, which are prescribed by
 rewriting rules (see @TRY/WRITING-AUTOMATIC-CAPTURE-RULES),
 explicit, ad-hoc captures can also be made.
 
-```
+```common-lisp
 (is (let ((x 1))
       (= (capture x) 2)))
-
-UNEXPECTED-FAILURE in check:
-  (IS
-   (LET ((X 1))
-     (= (CAPTURE X) 2)))
-where
-  X = 1
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS
+..      (LET ((X 1))
+..        (= (CAPTURE X) 2)))
+..   where
+..     X = 1
 ```
 
-If CAPTURE showing up in the form that IS print is undesirable, then
-`%` may be used instead:
+If CAPTURE showing up in the form that IS prints is undesirable,
+then `%` may be used instead:
 
-```
+```common-lisp
 (is (let ((x 1))
       (= (% x) 2)))
-
-UNEXPECTED-FAILURE in check:
-  (IS
-   (LET ((X 1))
-     (= X 2)))
-where
-  X = 1
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS
+..      (LET ((X 1))
+..        (= X 2)))
+..   where
+..     X = 1
 ```
 
 Multiple values may be captured with CAPTURE-VALUES and its
 secretive counterpart `%%`:
 
-```
+```common-lisp
 (is (= (%% (values 1 2)) 2))
-
-UNEXPECTED-FAILURE in check:
-  (IS (= #1=(VALUES 1 2) 2))
-where
-  #1# == 1
-         2
+.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+..   UNEXPECTED-FAILURE in check:
+..     (IS (= #1=(VALUES 1 2) 2))
+..   where
+..     #1# == 1
+..            2
 ```
 
 where printing `==` instead of `=` indicates that this
@@ -1558,14 +1559,14 @@ found.
 The default CTX describes the result of the matching process in
 terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
 
-- [variable] *CONDITION-MATCHED-P* "-unbound-"
+- [variable] *CONDITION-MATCHED-P* 
 
     When a check described in @TRY/CHECKING-CONDITIONS signals its
     OUTCOME, this variable is bound to a boolean value to indicate
     whether a condition that matched CONDITION-TYPE and PRED was
     found.
 
-- [variable] *BEST-MATCHING-CONDITION* "-unbound-"
+- [variable] *BEST-MATCHING-CONDITION* 
 
     Bound when a check described in @TRY/CHECKING-CONDITIONS
     signals its OUTCOME. If *CONDITION-MATCHED-P*, then it is the
@@ -1580,7 +1581,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     sets up a HANDLER-BIND. Thus it can only see what BODY does not
     handle. The arguments are described in @TRY/CHECKING-CONDITIONS.
     
-    ```
+    ```common-lisp
     (signals (error)
       (error "xxx"))
     => NIL
@@ -1589,15 +1590,14 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     The following example shows a failure where CONDITION-TYPE matches
     but PRED does not.
     
-    ```
-    (ignore-errors
-      (signals (error :pred "non-matching")
-        (error "xxx")))
-    
-    UNEXPECTED-FAILURE in check:
-      (ERROR "xxx") signals a condition of type ERROR that matches
-      "non-matching".
-    The predicate did not match "xxx".
+    ```common-lisp
+    (signals (error :pred "non-matching")
+      (error "xxx"))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (ERROR "xxx") signals a condition of type ERROR that matches
+    ..     "non-matching".
+    ..   The predicate did not match "xxx".
     ```
 
 
@@ -1621,7 +1621,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     and a *DEBUGGER-HOOK* is set up (see UNHANDLED-ERROR). Thus invoking
     debugger would normally cause the trial to abort.
     
-    ```
+    ```common-lisp
     (invokes-debugger (error :pred "xxx")
       (handler-bind ((error #'invoke-debugger))
         (error "xxx")))
@@ -1647,7 +1647,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     
     In the following example, FAILS signals a SUCCESS.
     
-    ```
+    ```common-lisp
     (catch 'foo
       (fails ()
         (throw 'foo 7)))
@@ -1657,12 +1657,14 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     Next, FAILS signals an UNEXPECTED-FAILURE because BODY returns
     normally.
     
-    ```
+    ```common-lisp
     (fails ()
       (print 'hey))
-    
-    UNEXPECTED-FAILURE in check:
-      (PRINT 'HEY) does not return normally.
+    ..
+    .. HEY 
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (PRINT 'HEY) does not return normally.
     ```
     
     Note that there is no `FAILS-NOT` as WITH-TEST fills that role.
@@ -1675,15 +1677,15 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     ```
     (in-time (1)
       (sleep 2))
-    
-    UNEXPECTED-FAILURE in check:
-      (SLEEP 2) finishes within 1s.
-    Took 2.000s.
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (SLEEP 2) finishes within 1s.
+    ..   Took 2.000s.
     ```
     
     RETRY-CHECK restarts timing.
 
-- [variable] *IN-TIME-ELAPSED-SECONDS* "-unbound-"
+- [variable] *IN-TIME-ELAPSED-SECONDS* 
 
     Bound to the number of seconds passed during the evaluation of
     BODY when IN-TIME signals its OUTCOME.
@@ -1702,7 +1704,7 @@ functions and macros that may be useful for writing IS checks.
     transformation forms in BODY then the excess values are returned as
     is.
     
-    ```
+    ```common-lisp
     (on-values (values 1 "abc" 7)
       (1+ *)
       (length *))
@@ -1714,7 +1716,7 @@ functions and macros that may be useful for writing IS checks.
     If the number of values is less than the number of transformation
     forms, then in later transformation forms `*` is bound to NIL.
     
-    ```
+    ```common-lisp
     (on-values (values)
       *
       *)
@@ -1726,7 +1728,7 @@ functions and macros that may be useful for writing IS checks.
     transformation forms. With :TRUNCATE T, the excess values are
     discarded.
     
-    ```
+    ```common-lisp
     (on-values (values 1 "abc" 7)
       (:truncate t)
       (1+ *)
@@ -1740,7 +1742,7 @@ functions and macros that may be useful for writing IS checks.
     forms is different, then this function is called to transform the
     list of values. :TRUNCATE is handled before :ON-LENGTH-MISMATCH.
     
-    ```
+    ```common-lisp
     (on-values 1
       (:on-length-mismatch (lambda (values)
                              (if (= (length values) 1)
@@ -1762,7 +1764,7 @@ functions and macros that may be useful for writing IS checks.
     :TRUNCATE option of ON-VALUES is supported, but :ON-LENGTH-MISMATCH
     always returns NIL.
     
-    ```
+    ```common-lisp
     ;; no values
     (is (match-values (values)))
     ;; single value success
@@ -1797,34 +1799,29 @@ functions and macros that may be useful for writing IS checks.
     and they limit the number of elements in the prefix and the
     suffixes.
     
-    ```
+    ```common-lisp
     (is (null (mismatch% '(1 2 3) '(1 2 4 5))))
-    
-    UNEXPECTED-FAILURE in check:
-      (IS (NULL #1=(MISMATCH% '(1 2 3) '(1 2 4 5))))
-    where
-      COMMON-PREFIX = (1 2)
-      MISMATCHED-SUFFIX-1 = (3)
-      MISMATCHED-SUFFIX-2 = (4 5)
-      #1# = 2
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (NULL #1=(MISMATCH% '(1 2 3) '(1 2 4 5))))
+    ..   where
+    ..     COMMON-PREFIX = (1 2)
+    ..     MISMATCHED-SUFFIX-1 = (3)
+    ..     MISMATCHED-SUFFIX-2 = (4 5)
+    ..     #1# = 2
     ```
     
-    ```
+    ```common-lisp
     (is (null (mismatch% "Hello, World!"
-                          "Hello,
-    World!")))
-    
-    UNEXPECTED-FAILURE in check:
-      (IS
-       (NULL
-        #1=(MISMATCH% "Hello, World!" "Hello,
-      World!")))
-    where
-      COMMON-PREFIX = "Hello,"
-      MISMATCHED-SUFFIX-1 = " World!"
-      MISMATCHED-SUFFIX-2 = "
-      World!"
-      #1# = 6
+                         "Hello, world!")))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (NULL #1=(MISMATCH% "Hello, World!" "Hello, world!")))
+    ..   where
+    ..     COMMON-PREFIX = "Hello, "
+    ..     MISMATCHED-SUFFIX-1 = "World!"
+    ..     MISMATCHED-SUFFIX-2 = "world!"
+    ..     #1# = 7
     ```
 
 
@@ -1835,13 +1832,13 @@ functions and macros that may be useful for writing IS checks.
     are elements of SEQUENCE1 and SEQUENCE2 at `<INDEX>`, respectively,
     and they may be MISSING if the corresponding sequence is too short.
     
-    ```
+    ```common-lisp
     (is (endp (different-elements '(1 2 3) '(1 b 3 d))))
-    
-    UNEXPECTED-FAILURE in check:
-      (IS (ENDP #1=(DIFFERENT-ELEMENTS '(1 2 3) '(1 B 3 D))))
-    where
-      #1# = ((:INDEX 1 2 B) (:INDEX 3 :MISSING D))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (ENDP #1=(DIFFERENT-ELEMENTS '(1 2 3) '(1 B 3 D))))
+    ..   where
+    ..     #1# = ((:INDEX 1 2 B) (:INDEX 3 :MISSING D))
     ```
 
 
@@ -1851,7 +1848,7 @@ functions and macros that may be useful for writing IS checks.
     order and return NIL. This may be useful to prevent writing tests
     that accidentally depend on the order in which subtests are called.
     
-    ```
+    ```common-lisp
     (loop repeat 3 do
       (with-shuffling ()
         (prin1 1)
@@ -1927,7 +1924,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     See DEFUN for a description of NAME, LAMBDA-LIST, and BODY. The
     behaviour common with WITH-TEST is described in @TRY/TESTS.
     
-    ```
+    ```common-lisp
     (deftest my-test ()
       (write-string "hey"))
     => MY-TEST
@@ -1952,7 +1949,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     - values returned with an explicit RETURN-FROM are returned as
       values after the trial
     
-    ```
+    ```common-lisp
     (deftest my-test ()
       (prin1 my-test)
       (return-from my-test (values 2 3)))
@@ -2003,7 +2000,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     
     When both TRIAL-VAR and NAME are specified:
     
-    ```
+    ```common-lisp
     (with-test (some-feature :name "obscure feature")
       (prin1 some-feature)
       (is t)
@@ -2013,14 +2010,14 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     ..   ⋅ (IS T)
     .. ⋅ obscure feature ⋅1
     ..
-    ==> #<TRIAL (WITH-TEST ("obscure feature")) EXPECTED-SUCCESS 0.000s ⋅1>
+    ==> #<TRIAL (WITH-TEST ("obscure feature")) EXPECTED-SUCCESS 0.002s ⋅1>
     => 1
     => 2
     ```
     
     If only TRIAL-VAR is specified:
     
-    ```
+    ```common-lisp
     (with-test (some-feature)
       (prin1 some-feature)
       (is t)
@@ -2037,7 +2034,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     
     If neither is specified:
     
-    ```
+    ```common-lisp
     (with-test ()
       (prin1 (current-trial))
       (is t)
@@ -2055,7 +2052,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     Finally, using that NAME defaults to TRIAL-VAR and that it is valid
     to specify non-symbols for TRIAL-VAR, one can also write:
     
-    ```
+    ```common-lisp
     (with-test ("Some feature")
       (prin1 (current-trial))
       (is t)
@@ -2124,7 +2121,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
 Tests can be run explicitly by invoking the TRY function or
 implicitly by calling a test function:
 
-```
+```common-lisp
 (deftest my-test ()
   (is t))
 
@@ -2138,7 +2135,7 @@ implicitly by calling a test function:
 
 The situation is similar with a WITH-TEST:
 
-```
+```common-lisp
 (with-test (my-test)
   (is t))
 .. MY-TEST
@@ -2202,7 +2199,7 @@ The rest of the behaviour is described in @TRY/EXPLICIT-TRY.
 Instead of invoking the test function directly, tests can also be
 run by invoking the TRY function.
 
-```
+```common-lisp
 (deftest my-test ()
   (is t))
 
@@ -2427,7 +2424,7 @@ setups.
     
     The following example prints all @TRY/CONCRETE-EVENTS.
     
-    ```
+    ```common-lisp
     (let ((*debug* nil)
           (*print* '(not trial-start))
           (*describe* nil))
@@ -2470,7 +2467,7 @@ setups.
     ..     ⊟ non-local exit                 ; NLX
     ..   ⊟ NLX-TEST ⊟1                      ; VERDICT-ABORT*
     ..   ⊟ "UNHANDLED-ERROR" (SIMPLE-ERROR)
-    .. ⊟ VERDICT-ABORT* ⊟3 ⊠1 -1 ×1 ⋅2
+    .. ⊟ VERDICT-ABORT* ⊟3 ⊠1 ⊡1 -1 ×1 ⋅1
     ..
     ==> #<TRIAL (WITH-TEST (VERDICT-ABORT*)) ABORT* 0.004s ⊟3 ⊠1 ⊡1 -1 ×1 ⋅1>
     ```
@@ -2484,7 +2481,7 @@ setups.
     *PRINT-PARENT*, the trial is printed as if its TRIAL-START matched
     the PRINT argument of TRY.
     
-    ```
+    ```common-lisp
     (let ((*print* 'leaf)
           (*print-parent* t))
       (with-test (t0)
@@ -2498,7 +2495,7 @@ setups.
     ==> #<TRIAL (WITH-TEST (T0)) EXPECTED-SUCCESS 0.000s ⋅2>
     ```
     
-    ```
+    ```common-lisp
     (let ((*print* 'leaf)
           (*print-parent* nil))
       (with-test (t0)
@@ -2513,7 +2510,7 @@ setups.
     *PRINT-PARENT* NIL combined with printing VERDICTs results in a flat
      output:
     
-    ```
+    ```common-lisp
     (let ((*print* '(or leaf verdict))
           (*print-parent* nil))
       (with-test (outer)
@@ -2538,7 +2535,7 @@ setups.
 
     If true, the number of seconds spent during execution is printed.
     
-    ```
+    ```common-lisp
     (let ((*print-duration* t)
           (*debug* nil)
           (*describe* nil))
@@ -2570,7 +2567,7 @@ setups.
     VERDICTs of trials without printed child trials are printed with `=>
     <MARKER>` (see *CATEGORIES*).
     
-    ```
+    ```common-lisp
     (let ((*print-compactly* t)
           (*debug* nil)
           (*describe* nil))
@@ -2601,7 +2598,7 @@ setups.
     *PRINT-COMPACTLY*), deferring description of events matching
     *DESCRIBE* until the end.
     
-    ```
+    ```common-lisp
     (let ((*print* 'leaf)
           (*print-parent* nil)
           (*print-compactly* t)
@@ -2636,7 +2633,7 @@ default values, then only LEAF events are counted, and we get
 separate counters for ABORT\*, UNEXPECTED-FAILURE,
 UNEXPECTED-SUCCESS, SKIP, EXPECTED-FAILURE, and EXPECTED-SUCCESS.
 
-```
+```common-lisp
 (let ((*debug* nil))
   (with-test (outer)
     (with-test (inner)
@@ -2812,7 +2809,7 @@ SBCL.
     this second nlx is said to have cancelled the first, and the first
     nlx will not continue.
     
-    ```
+    ```common-lisp
     (catch 'foo
       (catch 'bar
         (unwind-protect

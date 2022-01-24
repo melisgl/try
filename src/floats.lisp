@@ -32,9 +32,7 @@
   If one of them is a DOUBLE-FLOAT, then the other is converted to a
   double float, and the comparison takes place in double float space.
   Else, both are converted to SINGLE-FLOAT and the comparison takes
-  place in single float space.
-
-  "
+  place in single float space."
   (cond ((and (not (typep x 'float))
               (not (typep y 'float)))
          (= x y))

@@ -4,7 +4,7 @@
   "Tests can be run explicitly by invoking the TRY function or
   implicitly by calling a test function:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (deftest my-test ()
     (is t))
 
@@ -18,7 +18,7 @@
 
   The situation is similar with a WITH-TEST:
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (with-test (my-test)
     (is t))
   .. MY-TEST
@@ -90,7 +90,7 @@
   "Instead of invoking the test function directly, tests can also be
   run by invoking the TRY function.
 
-  ```
+  ```cl-transcript (:dynenv try-transcript)
   (deftest my-test ()
     (is t))
 
@@ -209,8 +209,7 @@
 
   (with-test (recurse)
     (funcall recurse))
-  ```
-  ")
+  ```")
 
 (defmacro with-try-context (&body body)
   `(let* ((*internal-error* nil)
