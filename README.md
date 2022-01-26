@@ -2525,7 +2525,7 @@ The rest of the behaviour is described in [Explicit TRY][6c25].
 
 <a id='x-28TRY-3A-2ADESCRIBE-2A-20VARIABLE-29'></a>
 
-- [variable] **\*DESCRIBE\*** *UNEXPECTED*
+- [variable] **\*DESCRIBE\*** *(OR UNEXPECTED FAILURE)*
 
     By default, the context (e.g. [Captures][a03c], and the `CTX` argument
     of is and other checks) of [`UNEXPECTED`][077b] events is described.

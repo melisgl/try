@@ -71,7 +71,7 @@
   T, only TRIALs with checks or ERROR* in them are printed. If
   UNEXPECTED, only the interesting things are printed.")
 
-(defvar *describe* 'unexpected
+(defvar *describe* '(or unexpected failure)
   "By default, the context (e.g. @TRY/CAPTURES, and the CTX argument
   of is and other checks) of UNEXPECTED events is described.")
 
