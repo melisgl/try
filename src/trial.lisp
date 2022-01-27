@@ -298,8 +298,7 @@
           has-non-collected-failed-child-p nil)
     (reset-counter counter)
     (reset-counter non-collected-counter))
-  (assert (eq trial *trial*))
-  (signal-with-record-event (make-condition 'trial-start :trial trial)))
+  (assert (eq trial *trial*)))
 
 
 (defsection @try/trial-restarts (:title "Trial Restarts")
