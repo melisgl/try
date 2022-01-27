@@ -142,7 +142,11 @@
   (with-standard-io-syntax
     ;; With *PRINT-READABLY*, CLISP insists on printing FOO as |FOO|.
     (let (#+clisp (*print-readably* nil))
-      (format stream "~A" condition))))
+      (if (typep condition 'simple-condition)
+          (apply #'format stream
+                 (simple-condition-format-control condition)
+                 (simple-condition-format-arguments condition))
+          (format stream "~A" condition)))))
 
 
 (defmacro signals ((condition-type &key pred (handler t)
