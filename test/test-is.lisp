@@ -20,7 +20,10 @@
 
 (deftest test-is/custom-message ()
   (signals ((and expected success) :pred "custom message" :handler nil)
-    (is t :msg ("custom ~A" "message"))))
+    (is t :msg ("custom ~A" "message")))
+  (signals ((and expected success) :pred "custom message" :handler nil)
+    (let ((msg "custom message"))
+      (is t :msg msg))))
 
 (deftest test-is/print-newline ()
   (with-failure-expected ((alexandria:featurep :clisp))

@@ -72,7 +72,8 @@
            (%%write-result-msg result stream)))))
 
 (defun %%write-result-msg (result stream)
-  (destructuring-bind (&optional msg-control &rest msg-args) (msg result)
+  (destructuring-bind (&optional msg-control &rest msg-args)
+      (alexandria:ensure-list (msg result))
     (if msg-control
         (apply #'format stream
                (concatenate 'string "~@<"
