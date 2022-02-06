@@ -66,8 +66,8 @@
   ..            #2#
   ```
 
-  In the body of MATCH-VALUES, [*][dislocated] is bound to successive
-  return values of some form, here `(VALUES (1+ 5) "sdf")`.
+  In the body of MATCH-VALUES, [`*`][dislocated] is bound to
+  successive return values of some form, here `(VALUES (1+ 5) "sdf")`.
   MATCH-VALUES comes with an automatic rewrite rule that captures the
   values of this form, which are printed above as `#1# == 6 #2#`. IS
   is flexible enough that all other checks (SIGNALS, SIGNALS-NOT,

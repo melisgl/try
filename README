@@ -74,8 +74,8 @@ features allows MATCH-VALUES to be implementable as tiny extension:
 ..            #2#
 ```
 
-In the body of MATCH-VALUES, `*` is bound to successive
-return values of some form, here `(VALUES (1+ 5) "sdf")`.
+In the body of MATCH-VALUES, `*` is bound to
+successive return values of some form, here `(VALUES (1+ 5) "sdf")`.
 MATCH-VALUES comes with an automatic rewrite rule that captures the
 values of this form, which are printed above as `#1# == 6 #2#`. IS
 is flexible enough that all other checks (SIGNALS, SIGNALS-NOT,
@@ -829,11 +829,11 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     - When a TRIAL-START event matches the `COLLECT` type (see
       @TRY/COLLECT), its [TRIAL][(reader trial-event)] is collected.
     
-    - Similarly, when a TRIAL-START matches the `PRINT`
+    - Similarly, when a TRIAL-START matches the PRINT
       type (see @TRY/PRINT), it is printed immediately, and its trial's
       VERDICT will be printed too regardless of whether it matches
-      `PRINT`. If TRIAL-START does not match
-      `PRINT`, it may still be printed if for example
+      PRINT. If TRIAL-START does not match
+      PRINT, it may still be printed if for example
       *PRINT-PARENT* requires it.
     
     - When a TRIAL-START matches the `RERUN` type (see @TRY/RERUN), its
@@ -917,7 +917,7 @@ RECORD-EVENT is invoked on it.
 - [reader] VERDICT TRIAL (= NIL)
 
     The [VERDICT][condition] EVENT signalled when this
-    `TRIAL` finished or NIL if it has not finished yet.
+    TRIAL finished or NIL if it has not finished yet.
 
 - [function] RUNNINGP TRIAL
 
@@ -1001,7 +1001,7 @@ an ERROR, which triggers an ABORT-TRIAL.
 ```
 
 All three restarts may be invoked on any EVENT, including the
-trial's own TRIAL-START and VERDICT. If their `CONDITION`
+trial's own TRIAL-START and VERDICT. If their CONDITION
 argument is an EVENT (RETRY-TRIAL has a special case here), they
 also record it (as in RECORD-EVENT) to ensure that when they handle
 an EVENT in the debugger or programatically that event is not
@@ -1086,7 +1086,7 @@ dropped.
 
 - [reader] N-RETRIES TRIAL (:N-RETRIES = 0)
 
-    The number of times this `TRIAL` has
+    The number of times this TRIAL has
     been retried. See RETRY-TRIAL.
 
 ### Errors
@@ -1480,7 +1480,7 @@ secretive counterpart `%%`:
 ..            2
 ```
 
-where printing `==` instead of `=` indicates that this
+where printing `==` instead of = indicates that this
 is a multiple value capture.
 
 - [macro] CAPTURE FORM
@@ -1714,7 +1714,8 @@ functions and macros that may be useful for writing IS checks.
     ```
     
     If the number of values is less than the number of transformation
-    forms, then in later transformation forms `*` is bound to NIL.
+    forms, then in later transformation forms `*` is bound
+    to NIL.
     
     ```common-lisp
     (on-values (values)
@@ -2153,7 +2154,7 @@ Behind the scenes, the outermost test function calls TRY with
      :stream *stream* :printer *printer*)
 ```
 
-TRY then calls the test function belonging to `TRIAL`.
+TRY then calls the test function belonging to TRIAL.
 The rest of the behaviour is described in @TRY/EXPLICIT-TRY.
 
 - [variable] *DEBUG* (AND UNEXPECTED (NOT NLX) (NOT VERDICT))
@@ -2725,7 +2726,7 @@ immediately returns the TRIAL object. A new trial is skipped if
 
     REPLAY-EVENTS reprocesses the events collected (see @TRY/COLLECT)
     in TRIAL. It takes the same arguments as TRY except
-    `DEBUG`, `COUNT` and RERUN. This is because
+    DEBUG, COUNT and RERUN. This is because
     REPLAY-EVENTS does not run any tests. It simply signals the events
     collected in TRIAL again to allow further processing. The values of
     *CATEGORIES* and *COUNT* that were in effect for TRIAL are used, and
