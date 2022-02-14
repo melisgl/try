@@ -1,7 +1,7 @@
 # Try Manual
 
 ###### \[in package TRY\]
-## TRY ASDF System Details
+## TRY ASDF System
 
 - Version: 0.0.1
 - Description: Try is a test framework.
@@ -783,7 +783,7 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     
     TRIALs are not to be instantiated by client code.
 
-- [function] CURRENT-TRIAL 
+- [function] CURRENT-TRIAL
 
     TRIALs, like the calls to tests they stand for, nest. CURRENT-TRIAL
     returns the innermost trial. If there is no currently running test,
@@ -1156,12 +1156,12 @@ counterpart.
     the first matching type. When @TRY/COUNT, the counts associated with
     all matching types are incremented.
 
-- [function] FANCY-STD-CATEGORIES 
+- [function] FANCY-STD-CATEGORIES
 
     Returns the default value of *CATEGORIES* (see @TRY/CATEGORIES),
     which contains some fancy Unicode characters.
 
-- [function] ASCII-STD-CATEGORIES 
+- [function] ASCII-STD-CATEGORIES
 
     Returns a value suitable for *CATEGORIES*, which uses only ASCII
     characters for the markers.
@@ -1270,11 +1270,11 @@ on top of it.
     restart returns :RETRY, which allows complex checks such as SIGNALS
     to implement their own retry mechanism.
 
-- [variable] *IS-FORM* 
+- [variable] *IS-FORM*
 
     IS binds this to its FORM argument for CTX and MSG.
 
-- [variable] *IS-CAPTURES* 
+- [variable] *IS-CAPTURES*
 
     Captures made during an IS evaluation are made available for
     CTX via *IS-CAPTURES*.
@@ -1559,14 +1559,14 @@ found.
 The default CTX describes the result of the matching process in
 terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
 
-- [variable] *CONDITION-MATCHED-P* 
+- [variable] *CONDITION-MATCHED-P*
 
     When a check described in @TRY/CHECKING-CONDITIONS signals its
     OUTCOME, this variable is bound to a boolean value to indicate
     whether a condition that matched CONDITION-TYPE and PRED was
     found.
 
-- [variable] *BEST-MATCHING-CONDITION* 
+- [variable] *BEST-MATCHING-CONDITION*
 
     Bound when a check described in @TRY/CHECKING-CONDITIONS
     signals its OUTCOME. If *CONDITION-MATCHED-P*, then it is the
@@ -1685,7 +1685,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     
     RETRY-CHECK restarts timing.
 
-- [variable] *IN-TIME-ELAPSED-SECONDS* 
+- [variable] *IN-TIME-ELAPSED-SECONDS*
 
     Bound to the number of seconds passed during the evaluation of
     BODY when IN-TIME signals its OUTCOME.

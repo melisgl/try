@@ -3,7 +3,7 @@
 
 ## Table of Contents
 
-- [1 TRY ASDF System Details][4c97]
+- [1 `TRY` ASDF System][4c97]
 - [2 Links][a565]
 - [3 Tutorial][c7f7]
 - [4 Events][fe18]
@@ -22,7 +22,7 @@
             - [4.6.3.3 Trial Restarts][39b3]
     - [4.7 Errors][cb2b]
     - [4.8 Categories][b95c]
-- [5 The IS Macro][6cc6]
+- [5 The `IS` Macro][6cc6]
     - [5.1 Format Specifier Forms][879c]
     - [5.2 Captures][b881]
         - [5.2.1 Automatic Captures][9c16]
@@ -35,9 +35,9 @@
         - [6.3.1 Comparing Floats][4754]
 - [7 Tests][1688]
     - [7.1 Calling Test Functions][c8d9]
-    - [7.2 Explicit TRY][2b2c]
+    - [7.2 Explicit `TRY`][2b2c]
         - [7.2.1 Testables][8ed8]
-        - [7.2.2 Implementation of Implicit TRY][2971]
+        - [7.2.2 Implementation of Implicit `TRY`][2971]
     - [7.3 Printing Events][534b]
     - [7.4 Counting Events][e726]
     - [7.5 Collecting Events][0575]
@@ -48,7 +48,7 @@
 
 ###### \[in package TRY\]
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
-## 1 TRY ASDF System Details
+## 1 `TRY` ASDF System
 
 - Version: 0.0.1
 - Description: Try is a test framework.
@@ -84,7 +84,7 @@ prominently in parameterization.
 
 ##### Looking for Truth
 
-[The IS Macro][6cc6] is a replacement for [`CL:ASSERT`][cf68], that can capture values of
+[The `IS` Macro][6cc6] is a replacement for [`CL:ASSERT`][cf68], that can capture values of
 subforms to provide context to failures:
 
 ```common-lisp
@@ -880,7 +880,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
     `TRIAL`s are not to be instantiated by client code.
 
 <a id="x-28TRY-3ACURRENT-TRIAL-20FUNCTION-29"></a>
-- [function] **CURRENT-TRIAL** 
+- [function] **CURRENT-TRIAL**
 
     [`TRIAL`][bfdf]s, like the calls to tests they stand for, nest. `CURRENT-TRIAL`
     returns the innermost trial. If there is no currently running test,
@@ -896,7 +896,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
     [`VERDICT`][52e1].
 
 <a id="x-28TRY-3ATRIAL-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-EVENT-29-29"></a>
-- [reader] **TRIAL** *TRIAL-EVENT* *(:TRIAL)*
+- [reader] **TRIAL** *TRIAL-EVENT (:TRIAL)*
 
 <a id="x-28TRY-3ATRIAL-START-20CONDITION-29"></a>
 - [condition] **TRIAL-START** *TRIAL-EVENT*
@@ -1024,7 +1024,7 @@ by the [Outcome Restarts][0247] or the [Trial Restarts][39b3] before
 [`RECORD-EVENT`][ce49] is invoked on it.
 
 <a id="x-28TRY-3AVERDICT-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29"></a>
-- [reader] **VERDICT** *TRIAL* *(= NIL)*
+- [reader] **VERDICT** *TRIAL (= NIL)*
 
     The [`VERDICT`][52e1] [`EVENT`][955d] signalled when this
     `TRIAL` finished or `NIL` if it has not finished yet.
@@ -1202,7 +1202,7 @@ dropped.
     the [`VERDICT`][52e1] of `TRIAL`, and the [`RECORD-EVENT`][ce49] restart is available.
 
 <a id="x-28TRY-3AN-RETRIES-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29"></a>
-- [reader] **N-RETRIES** *TRIAL* *(:N-RETRIES = 0)*
+- [reader] **N-RETRIES** *TRIAL (:N-RETRIES = 0)*
 
     The number of times this `TRIAL` has
     been retried. See [`RETRY-TRIAL`][fae3].
@@ -1219,7 +1219,7 @@ dropped.
     so as [`RECORD-EVENT`][ce49], which [`TRY`][b602] invokes, takes care of this.
 
 <a id="x-28TRY-3ATEST-NAME-20-28MGL-PAX-3AREADER-20TRY-3AERROR-2A-29-29"></a>
-- [reader] **TEST-NAME** *ERROR\** *(:TEST-NAME)*
+- [reader] **TEST-NAME** *ERROR\* (:TEST-NAME)*
 
 <a id="x-28TRY-3AUNHANDLED-ERROR-20CONDITION-29"></a>
 - [condition] **UNHANDLED-ERROR** *ERROR\**
@@ -1229,13 +1229,13 @@ dropped.
     is invoked with a condition that's not an [`EVENT`][955d].
 
 <a id="x-28TRY-3ANESTED-CONDITION-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29"></a>
-- [reader] **NESTED-CONDITION** *UNHANDLED-ERROR* *(:CONDITION = 'NIL)*
+- [reader] **NESTED-CONDITION** *UNHANDLED-ERROR (:CONDITION = 'NIL)*
 
 <a id="x-28TRY-3ABACKTRACE-OF-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29"></a>
-- [reader] **BACKTRACE-OF** *UNHANDLED-ERROR* *(:BACKTRACE = 'NIL)*
+- [reader] **BACKTRACE-OF** *UNHANDLED-ERROR (:BACKTRACE = 'NIL)*
 
 <a id="x-28TRY-3ADEBUGGER-INVOKED-P-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29"></a>
-- [reader] **DEBUGGER-INVOKED-P** *UNHANDLED-ERROR* *(:DEBUGGER-INVOKED-P = 'NIL)*
+- [reader] **DEBUGGER-INVOKED-P** *UNHANDLED-ERROR (:DEBUGGER-INVOKED-P = 'NIL)*
 
 <a id="x-28TRY-3A-2AGATHER-BACKTRACE-2A-20VARIABLE-29"></a>
 - [variable] **\*GATHER-BACKTRACE\*** *T*
@@ -1286,13 +1286,13 @@ counterpart.
     all matching types are incremented.
 
 <a id="x-28TRY-3AFANCY-STD-CATEGORIES-20FUNCTION-29"></a>
-- [function] **FANCY-STD-CATEGORIES** 
+- [function] **FANCY-STD-CATEGORIES**
 
     Returns the default value of [`*CATEGORIES*`][2ce7] (see [Categories][b95c]),
     which contains some fancy Unicode characters.
 
 <a id="x-28TRY-3AASCII-STD-CATEGORIES-20FUNCTION-29"></a>
-- [function] **ASCII-STD-CATEGORIES** 
+- [function] **ASCII-STD-CATEGORIES**
 
     Returns a value suitable for [`*CATEGORIES*`][2ce7], which uses only ASCII
     characters for the markers.
@@ -1308,7 +1308,7 @@ counterpart.
 
 
 <a id="x-28TRY-3A-40TRY-2FIS-20MGL-PAX-3ASECTION-29"></a>
-## 5 The IS Macro
+## 5 The `IS` Macro
 
 [`IS`][80d6] is the most fundamental one among [Checks][9a72], on which all
 the others are built, and it is a replacement for [`CL:ASSERT`][cf68] that can
@@ -1404,12 +1404,12 @@ on top of it.
     to implement their own retry mechanism.
 
 <a id="x-28TRY-3A-2AIS-FORM-2A-20VARIABLE-29"></a>
-- [variable] **\*IS-FORM\*** 
+- [variable] **\*IS-FORM\***
 
     [`IS`][80d6] binds this to its `FORM` argument for `CTX` and `MSG`.
 
 <a id="x-28TRY-3A-2AIS-CAPTURES-2A-20VARIABLE-29"></a>
-- [variable] **\*IS-CAPTURES\*** 
+- [variable] **\*IS-CAPTURES\***
 
     Captures made during an [`IS`][80d6] evaluation are made available for
     `CTX` via `*IS-CAPTURES*`.
@@ -1714,7 +1714,7 @@ The default `CTX` describes the result of the matching process in
 terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f].
 
 <a id="x-28TRY-3A-2ACONDITION-MATCHED-P-2A-20VARIABLE-29"></a>
-- [variable] **\*CONDITION-MATCHED-P\*** 
+- [variable] **\*CONDITION-MATCHED-P\***
 
     When a check described in [Checking Conditions][883b] signals its
     [`OUTCOME`][2656], this variable is bound to a boolean value to indicate
@@ -1722,7 +1722,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
     found.
 
 <a id="x-28TRY-3A-2ABEST-MATCHING-CONDITION-2A-20VARIABLE-29"></a>
-- [variable] **\*BEST-MATCHING-CONDITION\*** 
+- [variable] **\*BEST-MATCHING-CONDITION\***
 
     Bound when a check described in [Checking Conditions][883b]
     signals its [`OUTCOME`][2656]. If [`*CONDITION-MATCHED-P*`][cf88], then it is the
@@ -1849,7 +1849,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
     [`RETRY-CHECK`][8cf6] restarts timing.
 
 <a id="x-28TRY-3A-2AIN-TIME-ELAPSED-SECONDS-2A-20VARIABLE-29"></a>
-- [variable] **\*IN-TIME-ELAPSED-SECONDS\*** 
+- [variable] **\*IN-TIME-ELAPSED-SECONDS\***
 
     Bound to the number of seconds passed during the evaluation of
     `BODY` when [`IN-TIME`][f3af] signals its [`OUTCOME`][2656].
@@ -2340,7 +2340,7 @@ Behind the scenes, the outermost test function calls `TRY` with
 ```
 
 `TRY` then calls the test function belonging to `TRIAL`.
-The rest of the behaviour is described in [Explicit TRY][2b2c].
+The rest of the behaviour is described in [Explicit `TRY`][2b2c].
 
 <a id="x-28TRY-3A-2ADEBUG-2A-20VARIABLE-29"></a>
 - [variable] **\*DEBUG\*** *(AND UNEXPECTED (NOT NLX) (NOT VERDICT))*
@@ -2389,7 +2389,7 @@ The rest of the behaviour is described in [Explicit TRY][2b2c].
 - [variable] **\*PRINTER\*** *TREE-PRINTER*
 
 <a id="x-28TRY-3A-40TRY-2FEXPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
-### 7.2 Explicit TRY
+### 7.2 Explicit `TRY`
 
 Instead of invoking the test function directly, tests can also be
 run by invoking the [`TRY`][b602] function.
@@ -2584,7 +2584,7 @@ In the function designator cases, `TRY` calls the designated function.
 [`TRIAL`][bfdf]s, being [funcallable instance][2eef]s, designate themselves. If the
 trial is not [`RUNNINGP`][5d4a], then it will be rerun (see [Rerunning Trials][7005]). Don't
 invoke `TRY` with `RUNNINGP` trials (but see
-[Implementation of Implicit TRY][2971] for discussion).
+[Implementation of Implicit `TRY`][2971] for discussion).
 
 When given a list of testables, `TRY` calls each testable one by one.
 
@@ -2592,7 +2592,7 @@ Finally, a `PACKAGE` stands for the result of calling
 [`LIST-PACKAGE-TESTS`][b426] on that package.
 
 <a id="x-28TRY-3A-40TRY-2FIMPLICIT-TRY-IMPLEMENTATION-20MGL-PAX-3ASECTION-29"></a>
-#### 7.2.2 Implementation of Implicit TRY
+#### 7.2.2 Implementation of Implicit `TRY`
 
 What's happening in the implementation is that a test function,
 when it is called, checks whether it is running under the [`TRY`][b602]
@@ -2893,7 +2893,7 @@ By default, both implicit and explicit calls to `TRY` collect the
 the enclosing trials.
 
 <a id="x-28TRY-3ACHILDREN-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29"></a>
-- [reader] **CHILDREN** *TRIAL* *(:CHILDREN = NIL)*
+- [reader] **CHILDREN** *TRIAL (:CHILDREN = NIL)*
 
     A list of immediate child [`VERDICT`][52e1]s, [`RESULT`][231f]s, and
     ERROR\*s collected in reverse chronological order (see
@@ -2921,7 +2921,7 @@ instantiated `TRIAL` are executed.
   it on a rerun in a `WITH-TEST` of the same `TRIAL-VAR` and same `NAME`.
 
 - If the trial was created by `TRY` itself to ensure that all events
-  are signalled in a trial (see [Explicit TRY][2b2c]), then on a rerun
+  are signalled in a trial (see [Explicit `TRY`][2b2c]), then on a rerun
   the same `TESTABLE` is run again.
 
 All three possibilities involve entering `DEFTEST` or `WITH-TEST`, or
@@ -3073,8 +3073,8 @@ SBCL.
   [231f]: #x-28TRY-3ARESULT-20CONDITION-29 "TRY:RESULT CONDITION"
   [2656]: #x-28TRY-3AOUTCOME-20CONDITION-29 "TRY:OUTCOME CONDITION"
   [269a]: #x-28TRY-3ASUCCESS-20CONDITION-29 "TRY:SUCCESS CONDITION"
-  [2971]: #x-28TRY-3A-40TRY-2FIMPLICIT-TRY-IMPLEMENTATION-20MGL-PAX-3ASECTION-29 "Implementation of Implicit TRY"
-  [2b2c]: #x-28TRY-3A-40TRY-2FEXPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Explicit TRY"
+  [2971]: #x-28TRY-3A-40TRY-2FIMPLICIT-TRY-IMPLEMENTATION-20MGL-PAX-3ASECTION-29 "Implementation of Implicit `TRY`"
+  [2b2c]: #x-28TRY-3A-40TRY-2FEXPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Explicit `TRY`"
   [2ce7]: #x-28TRY-3A-2ACATEGORIES-2A-20-28VARIABLE-20-22--20see-20above-20--22-29-29 'TRY:*CATEGORIES* (VARIABLE "- see above -")'
   [2eef]: #x-28TRY-3A-40FUNCALLABLE-INSTANCE-20MGL-PAX-3AGLOSSARY-TERM-29 "TRY:@FUNCALLABLE-INSTANCE MGL-PAX:GLOSSARY-TERM"
   [2f9f]: #x-28TRY-3A-40TRY-2FMIDDLE-LAYER-OF-EVENTS-20MGL-PAX-3ASECTION-29 "Middle Layer of Events"
@@ -3129,7 +3129,7 @@ SBCL.
   [6a5d]: #x-28TRY-3A-40TRY-2FIMPLEMENTATION-NOTES-20MGL-PAX-3ASECTION-29 "Implementation Notes"
   [6b0e]: #x-28TRY-3ASUB-20CLASS-29 "TRY:SUB CLASS"
   [6b4a]: http://www.lispworks.com/documentation/HyperSpec/Body/f_funcal.htm "FUNCALL FUNCTION"
-  [6cc6]: #x-28TRY-3A-40TRY-2FIS-20MGL-PAX-3ASECTION-29 "The IS Macro"
+  [6cc6]: #x-28TRY-3A-40TRY-2FIS-20MGL-PAX-3ASECTION-29 "The `IS` Macro"
   [6d4e]: #x-28TRY-3ASIGNALS-20MGL-PAX-3AMACRO-29 "TRY:SIGNALS MGL-PAX:MACRO"
   [7005]: #x-28TRY-3A-40TRY-2FRERUN-20MGL-PAX-3ASECTION-29 "Rerunning Trials"
   [7230]: #x-28TRY-3A-2APRINTER-2A-20VARIABLE-29 "TRY:*PRINTER* VARIABLE"
