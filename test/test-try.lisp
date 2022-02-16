@@ -179,11 +179,11 @@
   ! \"my-msg\" (MY-ERR)
 ! %ALL-CHECK-OUTCOME-TYPES !1 ×1 ✓×1 -1 ××1 ✓1
 ")
-  (is (< 1000 (length (with-output-to-string (s)
-                        (try '%all-check-outcome-types
-                             :print 'unhandled-error
-                             :describe 'unhandled-error
-                             :stream s))))))
+  (is (< 200 (length (% (with-output-to-string (s)
+                          (try '%all-check-outcome-types
+                               :print 'unhandled-error
+                               :describe 'unhandled-error
+                               :stream s)))))))
 
 (deftest %collect-test-case ()
   (%all-check-outcome-types)
