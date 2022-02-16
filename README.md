@@ -96,6 +96,12 @@ subforms to provide context to failures:
 ..     #1# = 6
 ```
 
+This is a PAX transcript,
+output is prefixed with `..` and the unreadable return value with
+`==>`. Try is driven by conditions, and the comments to the right
+give the type of the condition that is printed on that line. The `⋅`
+character marks successes.
+
 Note the `#N#` syntax due to [`*PRINT-CIRCLE*`][d3e7].
 
 ##### Checking Multiple Values
@@ -148,11 +154,6 @@ and run it:
 ..
 ==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
 ```
-
-This is an `MGL-PAX` transcript, output is prefixed with `..` and the
-unreadable return value with `==>`. Try is driven by conditions, and
-the comments to the right give the type of the condition that is
-printed on that line. The `⋅` character marks successes.
 
 We could have run our test with `(TRY 'SHOULD-WORK)`, as well, which
 does pretty much the same thing except it defaults to never entering

@@ -47,6 +47,12 @@ subforms to provide context to failures:
 ..     #1# = 6
 ```
 
+This is a PAX transcript,
+output is prefixed with `..` and the unreadable return value with
+`==>`. Try is driven by conditions, and the comments to the right
+give the type of the condition that is printed on that line. The `⋅`
+character marks successes.
+
 Note the `#N#` syntax due to *PRINT-CIRCLE*.
 
 ##### Checking Multiple Values
@@ -99,11 +105,6 @@ and run it:
 ..
 ==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
 ```
-
-This is an MGL-PAX transcript, output is prefixed with `..` and the
-unreadable return value with `==>`. Try is driven by conditions, and
-the comments to the right give the type of the condition that is
-printed on that line. The `⋅` character marks successes.
 
 We could have run our test with `(TRY 'SHOULD-WORK)`, as well, which
 does pretty much the same thing except it defaults to never entering
@@ -827,7 +828,7 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     of other EVENTs.
     
     - When a TRIAL-START event matches the `COLLECT` type (see
-      @TRY/COLLECT), its [TRIAL][(reader trial-event)] is collected.
+      @TRY/COLLECT), its TRIAL is collected.
     
     - Similarly, when a TRIAL-START matches the PRINT
       type (see @TRY/PRINT), it is printed immediately, and its trial's
@@ -837,7 +838,7 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
       *PRINT-PARENT* requires it.
     
     - When a TRIAL-START matches the `RERUN` type (see @TRY/RERUN), its
-      [TRIAL][(reader trial-event)] may be rerun.
+      TRIAL may be rerun.
     
     - Also, see WITH-SKIP.
 
@@ -849,7 +850,7 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     VERDICT-ABORT\*. Regarding how the verdict type is determined, see
     @TRY/TRIAL-VERDICTS.
     
-    Verdicts are signalled while their [TRIAL][(reader trial-event)] is
+    Verdicts are signalled while their TRIAL is
     still the CURRENT-TRIAL, and @TRY/TRIAL-RESTARTS are still
     available.
     
@@ -916,7 +917,7 @@ RECORD-EVENT is invoked on it.
 
 - [reader] VERDICT TRIAL (= NIL)
 
-    The [VERDICT][condition] EVENT signalled when this
+    The VERDICT EVENT signalled when this
     TRIAL finished or NIL if it has not finished yet.
 
 - [function] RUNNINGP TRIAL
@@ -927,12 +928,12 @@ RECORD-EVENT is invoked on it.
 
 - [function] PASSEDP TRIAL
 
-    See if TRIAL has finished and its [VERDICT][(reader trial)] is a
+    See if TRIAL has finished and its VERDICT is a
     PASS.
 
 - [function] FAILEDP TRIAL
 
-    See if TRIAL has finished and its [VERDICT][(reader trial)] is a
+    See if TRIAL has finished and its VERDICT is a
     FAIL.
 
 ##### Trial Restarts
@@ -1345,8 +1346,8 @@ non-constant arguments are automatically captured:
 ```
 
 By default, automatic captures are not made for subforms deeper in
-FORM, except for when FORM is a call to [NULL][function],
-[ENDP][function] and [NOT][function]:
+FORM, except for when FORM is a call to NULL,
+ENDP and NOT:
 
 ```common-lisp
 (is (null (find (1+ 1) '(1 2 3))))
@@ -1368,8 +1369,8 @@ FORM, except for when FORM is a call to [NULL][function],
 ..     #1# = (2 3)
 ```
 
-Note that the argument of [NOT][function] is not captured as it is
-assumed to be NIL or T. If that's not true, use [NULL][function].
+Note that the argument of NOT is not captured as it is
+assumed to be NIL or T. If that's not true, use NULL.
 
 ```common-lisp
 (is (not (equal (1+ 5) 6)))
@@ -2665,7 +2666,7 @@ onto CHILDREN of the CURRENT-TRIAL for subsequent @TRY/RERUN or
 
 In particular, if the matching event is a LEAF, then the event
 itself is collected. If the matching event is a TRIAL-EVENT, then
-its [TRIAL][(reader trial-event)] is collected. Furthermore, trials
+its TRIAL is collected. Furthermore, trials
 which collected anything are always collected by their parent.
 
 By default, both implicit and explicit calls to TRY collect the
@@ -2775,7 +2776,7 @@ SBCL.
   [https://abcl.org/trac/ticket/373](https://abcl.org/trac/ticket/373).
 
 - ABCL, CMUCL, and ECL have a bug related to losing
-  [EQL][function]ness of source literals
+  EQLness of source literals
   [https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665](https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665).
   The result is somewhat cosmetic, it may cause multiple captures
   being made for the same thing.

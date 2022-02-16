@@ -39,6 +39,12 @@
   ..     #1# = 6
   ```
 
+  This is a [PAX][pax::@pax-manual] [transcript][pax::@transcripts],
+  output is prefixed with `.. ` and the unreadable return value with
+  `==>`. Try is driven by conditions, and the comments to the right
+  give the type of the condition that is printed on that line. The `⋅`
+  character marks successes.
+
   Note the `#N#` syntax due to *PRINT-CIRCLE*.
 
   ##### Checking Multiple Values
@@ -91,11 +97,6 @@
   ..
   ==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
   ```
-
-  This is an MGL-PAX transcript, output is prefixed with `.. ` and the
-  unreadable return value with `==>`. Try is driven by conditions, and
-  the comments to the right give the type of the condition that is
-  printed on that line. The `⋅` character marks successes.
 
   We could have run our test with `(TRY 'SHOULD-WORK)`, as well, which
   does pretty much the same thing except it defaults to never entering
