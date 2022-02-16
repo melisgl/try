@@ -92,9 +92,7 @@
            (defun ,name ,args
              ,@(when doc (list doc))
              ,@declarations
-             (let ((,trial (make-instance 'trial
-                                          '%test-name ',name
-                                          :cform (cons ',name ,args-form))))
+             (let ((,trial (make-trial ',name (cons ',name ,args-form))))
                ,(if (expand-with-trial-in-deftest-p env)
                     `(if *try-id*
                          (with-trial (,trial)
@@ -132,6 +130,12 @@
                             (member :execute *run-deftest-when*)))
                (invoke-test-interactively ',name ',lambda-list)))
            ',name)))))
+
+;;; On SBCL, there seems to be one CTOR per for each MAKE-INSTANCE
+;;; call compiled, so call MAKE-INSTANCE from a separate function to
+;;; amortize the cost of the CTOR updating itself.
+(defun make-trial (name cform)
+  (make-instance 'trial '%test-name name :cform cform))
 
 (defvar *run-deftest-when* nil
   "This may be any of :COMPILE-TOPLEVEL, :LOAD-TOPLEVEL, :EXECUTE, or
