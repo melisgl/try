@@ -98,20 +98,17 @@ subforms to provide context to failures:
 
 This is a PAX transcript,
 output is prefixed with `..` and the unreadable return value with
-`==>`. Try is driven by conditions, and the comments to the right
-give the type of the condition that is printed on that line. The `⋅`
-character marks successes.
+`==>`.
 
 Note the `#N#` syntax due to [`*PRINT-CIRCLE*`][d3e7].
 
 ##### Checking Multiple Values
 
-[`IS`][80d6] automatically captures values of arguments to functions like [`1+`][45f4]
-in the above example (see [Automatic Captures][9c16]). Values of other
-interesting subforms can be explicitly requested to be
-captured ([Explicit Captures][ff6f]). `IS` supports capturing multiple
-values and can be taught how to deal with macros
-([Writing Automatic Capture Rules][4fbb]). The combination of these
+[`IS`][80d6] [automatically captures][9c16] values of
+arguments to functions like [`1+`][45f4] in the above example. Values of
+other interesting subforms can be [explicitly
+captured][ff6f]. `IS` supports capturing multiple
+values and can be taught [how to deal with macros][4fbb]. The combination of these
 features allows [`MATCH-VALUES`][162a] to be implementable as tiny extension:
 
 ```common-lisp
@@ -154,6 +151,10 @@ and run it:
 ..
 ==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
 ```
+
+Try is driven by conditions, and the comments to the right give the
+type of the condition that is printed on that line. The `⋅`
+character marks successes.
 
 We could have run our test with `(TRY 'SHOULD-WORK)`, as well, which
 does pretty much the same thing except it defaults to never entering
@@ -311,8 +312,7 @@ Here, [`!`][64f6] refers to the most recent `TRIAL` returned by [`TRY`][b602]. W
 trial is passed to `TRY` or is [`FUNCALL`][6b4a]ed, trials in it which match
 the type in `TRY`'s `RERUN` argument are rerun (here, `UNEXPECTED` by
 default). `SHOULD-WORK` and its check are [`EXPECTED-SUCCESS`][c96a]es,
-hence they don't match `UNEXPECTED` and are not rerun (see
-[Rerunning Trials][7005]).
+hence they don't match `UNEXPECTED` and are not [rerun][7005].
 
 ##### Conditional Execution
 

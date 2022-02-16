@@ -49,20 +49,17 @@ subforms to provide context to failures:
 
 This is a PAX transcript,
 output is prefixed with `..` and the unreadable return value with
-`==>`. Try is driven by conditions, and the comments to the right
-give the type of the condition that is printed on that line. The `⋅`
-character marks successes.
+`==>`.
 
 Note the `#N#` syntax due to *PRINT-CIRCLE*.
 
 ##### Checking Multiple Values
 
-IS automatically captures values of arguments to functions like `1+`
-in the above example (see @TRY/AUTOMATIC-CAPTURES). Values of other
-interesting subforms can be explicitly requested to be
-captured (@TRY/EXPLICIT-CAPTURES). IS supports capturing multiple
-values and can be taught how to deal with macros
-(@TRY/WRITING-AUTOMATIC-CAPTURE-RULES). The combination of these
+IS automatically captures values of
+arguments to functions like `1+` in the above example. Values of
+other interesting subforms can be explicitly
+captured. IS supports capturing multiple
+values and can be taught how to deal with macros. The combination of these
 features allows MATCH-VALUES to be implementable as tiny extension:
 
 ```common-lisp
@@ -105,6 +102,10 @@ and run it:
 ..
 ==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
 ```
+
+Try is driven by conditions, and the comments to the right give the
+type of the condition that is printed on that line. The `⋅`
+character marks successes.
 
 We could have run our test with `(TRY 'SHOULD-WORK)`, as well, which
 does pretty much the same thing except it defaults to never entering
@@ -262,8 +263,7 @@ Here, `!` refers to the most recent TRIAL returned by TRY. When a
 trial is passed to TRY or is `FUNCALL`ed, trials in it which match
 the type in TRY's RERUN argument are rerun (here, UNEXPECTED by
 default). `SHOULD-WORK` and its check are `EXPECTED-SUCCESS`es,
-hence they don't match UNEXPECTED and are not rerun (see
-@TRY/RERUN).
+hence they don't match UNEXPECTED and are not rerun.
 
 ##### Conditional Execution
 
