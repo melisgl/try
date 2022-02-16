@@ -17,3 +17,9 @@
         (*defer-describe* nil))
     (warn-on-tests-not-run ((find-package :try-test))
       (print (try 'test-all :debug debug :print print :describe describe)))))
+
+#+nil
+(time (test))
+
+#+nil
+(test-all)

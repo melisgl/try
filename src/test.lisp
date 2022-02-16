@@ -134,8 +134,13 @@
 ;;; On SBCL, there seems to be one CTOR per for each MAKE-INSTANCE
 ;;; call compiled, so call MAKE-INSTANCE from a separate function to
 ;;; amortize the cost of the CTOR updating itself.
-(defun make-trial (name cform)
-  (make-instance 'trial '%test-name name :cform cform))
+(declaim (notinline make-trial))
+(defun make-trial (name cform &optional extra-initargs)
+  (if extra-initargs
+      (apply #'make-instance 'trial
+             (append extra-initargs
+                     `(%test-name ,name :cform ,cform)))
+      (make-instance 'trial '%test-name name :cform cform)))
 
 (defvar *run-deftest-when* nil
   "This may be any of :COMPILE-TOPLEVEL, :LOAD-TOPLEVEL, :EXECUTE, or
@@ -307,11 +312,10 @@
                 (declare (ignorable ,var))
                 (wrap-trial-body-for-return ,var
                   ,@body)))
-         (let ((,var (apply #'make-instance 'trial
-                            (append *trial-initargs*
-                                    (list '%test-name ,name
-                                          ;; This is LAMBDA-TRIAL-P.
-                                          :cform (list #',with-test-body))))))
+         (let ((,var (make-trial ,name
+                                 ;; This is LAMBDA-TRIAL-P.
+                                 (list #',with-test-body)
+                                 *trial-initargs*)))
            (if *try-id*
                (let ((*call-test-fn* #',with-test-body)
                      (*call-test* ,var))
