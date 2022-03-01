@@ -16,7 +16,9 @@
 
 (defun intern-hyphenated (symbols)
   (assert symbols)
-  (intern (format nil "~{~A~^-~}" symbols) (symbol-package (first symbols))))
+  (with-standard-io-syntax
+    (intern (format nil "~{~A~^-~}" symbols)
+            (symbol-package (first symbols)))))
 
 (defun present-body (body)
   (if (and (listp body)
