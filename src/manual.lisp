@@ -25,6 +25,14 @@
   almost everything else is a condition, whose types feature
   prominently in parameterization.
 
+  Try is is what we get if we make tests functions and build a test
+  framework on top of the condition system as
+  [Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
+  but also address the issue of rerunning and replaying, make the
+  IS check more capable, use the types of the condition hierarchy
+  to parameterize what to debug, print, rerun, and finally document
+  the whole thing.
+
   ##### Looking for Truth
 
   @TRY/IS is a replacement for CL:ASSERT, that can capture values of
@@ -100,7 +108,7 @@
   type of the condition that is printed on that line. The `⋅`
   character marks successes.
 
-  We could have run our test with `(TRY 'SHOULD-WORK)`, as well, which
+  We could have run our test with `(TRY 'SHOULD-WORK)` as well, which
   does pretty much the same thing except it defaults to never entering
   the debugger, whereas calling a test function directly enters the
   debugger on events whose type matches the type in the variable
@@ -117,7 +125,7 @@
 
   ##### Test Suites
 
-  Test suites are just tests which call other tests.
+  Test suites are just tests that call other tests.
 
   ```cl-transcript (:dynenv try-transcript)
   (deftest my-suite ()
@@ -141,7 +149,9 @@
   ```
 
   `⊠` marks UNEXPECTED-FAILUREs. Note how the failure of `(IS (= (FOO)
-  5))` caused `MY-SUITE` to fail as well.
+  5))` caused `MY-SUITE` to fail as well. Finally, the `⊠1` and the
+  `⋅1` in the TRIAL's printed representation are the [event
+  counts][@try/count].
 
   ##### Filtering Output
 
@@ -253,7 +263,7 @@
   ```
 
   Here, `!` refers to the most recent TRIAL returned by TRY. When a
-  trial is passed to TRY or is `FUNCALL`ed, trials in it which match
+  trial is passed to TRY or is `FUNCALL`ed, trials in it that match
   the type in TRY's RERUN argument are rerun (here, UNEXPECTED by
   default). `SHOULD-WORK` and its check are `EXPECTED-SUCCESS`es,
   hence they don't match UNEXPECTED and are not [rerun][@TRY/RERUN].
@@ -273,23 +283,21 @@
 
   ##### Skipping
 
+  Sometimes, we do not know up front that a test should not be
+  executed. Calling SKIP-TRIAL unwinds from the CURRENT-TRIAL and sets
+  it skipped.
+
   ```cl-transcript (:dynenv try-transcript)
   (deftest my-suite ()
-    (with-skip ((not (server-available-p)))
-      (test-server)))
-
-  (deftest test-server ()
-    (is t))
-
-  (defun server-available-p ()
-    nil)
+    (is t)
+    (skip-trial)
+    (is nil))
 
   (my-suite)
-  ==> #<TRIAL (MY-SUITE) EXPECTED-SUCCESS 0.012s>
+  ==> #<TRIAL (MY-SUITE) SKIP 0.000s ⋅1>
   ```
 
-  In the above, `TEST-SERVER` was skipped. No checks were made, no
-  errors happened, so nothing was printed.
+  In the above, `(IS T)` was executed, but `(IS NIL)` was not.
 
   ##### Expecting Outcomes
 
@@ -306,10 +314,10 @@
   ==> #<TRIAL (KNOWN-BROKEN) EXPECTED-SUCCESS 0.000s ×1>
   ```
 
-  `×` marks `EXPECTED-SUCCESS`es. `(WITH-SKIP (T) ...)` makes all
-  checks successes and failures EXPECTED, which are counted in their
-  own *CATEGORIES* by default but don't make the enclosing tests to
-  fail. Also see WITH-EXPECTED-OUTCOME.
+  `×` marks EXPECTED-FAILUREs. `(WITH-SKIP (T) ...)` makes all checks
+  successes and failures EXPECTED, which are counted in their own
+  *CATEGORIES* by default but don't make the enclosing tests to fail.
+  Also see WITH-EXPECTED-OUTCOME.
 
   ##### Running Tests on Definition
 

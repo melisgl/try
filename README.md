@@ -51,14 +51,13 @@
 ## 1 `TRY` ASDF System
 
 - Version: 0.0.1
-- Description: Try is a test framework.
-- Long Description: Try is what we get if we make tests functions and
-  build a test framework on top of the condition system as
-  [Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
-  but also address the issue of rerunning and replaying, make the [`IS`][80d6]
-  check more capable, use the types of the condition hierarchy to
-  parameterize what to debug, print, rerun, and finally document the
-  whole thing.
+- Description: Try is an extensible test framework with equal support
+  for interactive and non-interactive workflows.
+- Long Description: Try stays as close to normal Lisp evaulation
+  rules as possible. Tests are functions that record the checks they
+  perform as events. These events provide the means of customization
+  of what to debug, print, rerun. There is a single fundamental check,
+  the extensible [`IS`][80d6] macro. Everything else is built on top.
 - Licence: MIT, see COPYING.
 - Author: Gábor Melis
 - Mailto: [mega@retes.hu](mailto:mega@retes.hu)
@@ -82,6 +81,14 @@ interactive and non-interactive workflows. Tests are functions, and
 almost everything else is a condition, whose types feature
 prominently in parameterization.
 
+Try is is what we get if we make tests functions and build a test
+framework on top of the condition system as
+[Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
+but also address the issue of rerunning and replaying, make the
+[`IS`][80d6] check more capable, use the types of the condition hierarchy
+to parameterize what to debug, print, rerun, and finally document
+the whole thing.
+
 ##### Looking for Truth
 
 [The `IS` Macro][6cc6] is a replacement for [`CL:ASSERT`][cf68], that can capture values of
@@ -104,7 +111,7 @@ Note the `#N#` syntax due to [`*PRINT-CIRCLE*`][d3e7].
 
 ##### Checking Multiple Values
 
-[`IS`][80d6] [automatically captures][9c16] values of
+`IS` [automatically captures][9c16] values of
 arguments to functions like [`1+`][45f4] in the above example. Values of
 other interesting subforms can be [explicitly
 captured][ff6f]. `IS` supports capturing multiple
@@ -156,7 +163,7 @@ Try is driven by conditions, and the comments to the right give the
 type of the condition that is printed on that line. The `⋅`
 character marks successes.
 
-We could have run our test with `(TRY 'SHOULD-WORK)`, as well, which
+We could have run our test with `(TRY 'SHOULD-WORK)` as well, which
 does pretty much the same thing except it defaults to never entering
 the debugger, whereas calling a test function directly enters the
 debugger on events whose type matches the type in the variable
@@ -173,7 +180,7 @@ debugger on events whose type matches the type in the variable
 
 ##### Test Suites
 
-Test suites are just tests which call other tests.
+Test suites are just tests that call other tests.
 
 ```common-lisp
 (deftest my-suite ()
@@ -197,7 +204,9 @@ Test suites are just tests which call other tests.
 ```
 
 `⊠` marks [`UNEXPECTED-FAILURE`][b5cb]s. Note how the failure of `(IS (= (FOO)
-5))` caused `MY-SUITE` to fail as well.
+5))` caused `MY-SUITE` to fail as well. Finally, the `⊠1` and the
+`⋅1` in the `TRIAL`'s printed representation are the [event
+counts][e726].
 
 ##### Filtering Output
 
@@ -309,7 +318,7 @@ rerun it. Now, let's fix `MY-SUITE` and rerun it:
 ```
 
 Here, [`!`][64f6] refers to the most recent `TRIAL` returned by [`TRY`][b602]. When a
-trial is passed to `TRY` or is [`FUNCALL`][6b4a]ed, trials in it which match
+trial is passed to `TRY` or is [`FUNCALL`][6b4a]ed, trials in it that match
 the type in `TRY`'s `RERUN` argument are rerun (here, `UNEXPECTED` by
 default). `SHOULD-WORK` and its check are [`EXPECTED-SUCCESS`][c96a]es,
 hence they don't match `UNEXPECTED` and are not [rerun][7005].
@@ -329,23 +338,21 @@ object returned by [Tests][1688].
 
 ##### Skipping
 
+Sometimes, we do not know up front that a test should not be
+executed. Calling [`SKIP-TRIAL`][f45a] unwinds from the [`CURRENT-TRIAL`][e186] and sets
+it skipped.
+
 ```common-lisp
 (deftest my-suite ()
-  (with-skip ((not (server-available-p)))
-    (test-server)))
-
-(deftest test-server ()
-  (is t))
-
-(defun server-available-p ()
-  nil)
+  (is t)
+  (skip-trial)
+  (is nil))
 
 (my-suite)
-==> #<TRIAL (MY-SUITE) EXPECTED-SUCCESS 0.012s>
+==> #<TRIAL (MY-SUITE) SKIP 0.000s ⋅1>
 ```
 
-In the above, `TEST-SERVER` was skipped. No checks were made, no
-errors happened, so nothing was printed.
+In the above, `(IS T)` was executed, but `(IS NIL)` was not.
 
 ##### Expecting Outcomes
 
@@ -362,10 +369,10 @@ errors happened, so nothing was printed.
 ==> #<TRIAL (KNOWN-BROKEN) EXPECTED-SUCCESS 0.000s ×1>
 ```
 
-`×` marks `EXPECTED-SUCCESS`es. `(WITH-SKIP (T) ...)` makes all
-checks successes and failures [`EXPECTED`][b194], which are counted in their
-own [`*CATEGORIES*`][2ce7] by default but don't make the enclosing tests to
-fail. Also see [`WITH-EXPECTED-OUTCOME`][1d97].
+`×` marks [`EXPECTED-FAILURE`][8620]s. `(WITH-SKIP (T) ...)` makes all checks
+successes and failures [`EXPECTED`][b194], which are counted in their own
+[`*CATEGORIES*`][2ce7] by default but don't make the enclosing tests to fail.
+Also see [`WITH-EXPECTED-OUTCOME`][1d97].
 
 ##### Running Tests on Definition
 

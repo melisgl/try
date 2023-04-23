@@ -9,14 +9,13 @@
   :homepage "http://melisgl.github.io/try"
   :bug-tracker "https://github.com/melisgl/try/issues"
   :source-control (:git "https://github.com/melisgl/try.git")
-  :description "Try is a test framework."
-  :long-description "Try is what we get if we make tests functions and
-  build a test framework on top of the condition system as
-  [Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
-  but also address the issue of rerunning and replaying, make the IS
-  check more capable, use the types of the condition hierarchy to
-  parameterize what to debug, print, rerun, and finally document the
-  whole thing."
+  :description "Try is an extensible test framework with equal support
+  for interactive and non-interactive workflows."
+  :long-description "Try stays as close to normal Lisp evaulation
+  rules as possible. Tests are functions that record the checks they
+  perform as events. These events provide the means of customization
+  of what to debug, print, rerun. There is a single fundamental check,
+  the extensible IS macro. Everything else is built on top."
   :defsystem-depends-on (#:try.asdf)
   :depends-on (#:alexandria #:closer-mop #:ieee-floats #:mgl-pax
                             #:trivial-gray-streams #:uiop)
