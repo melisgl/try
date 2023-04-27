@@ -1,6 +1,6 @@
 ;;;; -*- mode: Lisp -*-
 
-;;; See TRY:@TRY-MANUAL for the user guide.
+;;; See TRY::@TRY-MANUAL for the user guide.
 (asdf:defsystem :try
   :licence "MIT, see COPYING."
   :version "0.0.1"
@@ -18,14 +18,15 @@
   the extensible IS macro. Everything else is built on top."
   :defsystem-depends-on (#:try.asdf)
   :depends-on (#:alexandria #:closer-mop #:ieee-floats #:mgl-pax
-                            #:trivial-gray-streams #:uiop)
+               #:trivial-gray-streams #:uiop)
   :pathname "src/"
   :serial t
   :components
-  ;; By compiling each file in a (WITH-COMPILATION-UNIT (:OVERRIDE T)
-  ;; ...), they are treated as separate compilation units (even though
-  ;; they are all nested in another WITH-COMPILATION-UNIT), and we get
-  ;; warnings about forward references from one file to a later one.
+  ;; We compile each file in a (WITH-COMPILATION-UNIT (:OVERRIDE T)
+  ;; ...) so that they are treated as separate compilation units (even
+  ;; though they are all nested in another WITH-COMPILATION-UNIT), and
+  ;; we get warnings about forward references from one file to a later
+  ;; one.
   ((:file "package" :around-compile "try/asdf:compile-wrapper")
    (:file "util" :around-compile "try/asdf:compile-wrapper")
    (:file "gray-stream" :around-compile "try/asdf:compile-wrapper")
