@@ -17,7 +17,7 @@
   of what to debug, print, rerun. There is a single fundamental check,
   the extensible IS macro. Everything else is built on top."
   :defsystem-depends-on (#:try.asdf)
-  :depends-on (#:alexandria #:closer-mop #:ieee-floats #:mgl-pax
+  :depends-on (#:alexandria #:cl-ppcre #:closer-mop #:ieee-floats #:mgl-pax
                #:trivial-gray-streams #:uiop)
   :pathname "src/"
   :serial t
@@ -49,7 +49,8 @@
    (:file "collect" :around-compile "try/asdf:compile-wrapper")
    (:file "try" :around-compile "try/asdf:compile-wrapper")
    (:file "replay" :around-compile "try/asdf:compile-wrapper")
-   (:file "manual" :around-compile "try/asdf:compile-wrapper"))
+   (:file "manual" :around-compile "try/asdf:compile-wrapper")
+   (:file "doc" :around-compile "try/asdf:compile-wrapper"))
   :in-order-to ((asdf:test-op (asdf:test-op "try/test"))))
 
 (asdf:defsystem :try/test
@@ -73,13 +74,3 @@
                              (:file "test"))))
   :perform (asdf:test-op (o s)
              (uiop:symbol-call '#:try-test '#:test)))
-
-;;; Separate from the TRY system due to the dependency on cl-ppcre.
-(defsystem "try/doc"
-  :licence "MIT, see COPYING."
-  :author "Gábor Melis"
-  :mailto "mega@retes.hu"
-  :description "Documentation generation for TRY."
-  :depends-on ("cl-ppcre" "try")
-  :pathname "src"
-  :components ((:file "doc")))
