@@ -200,7 +200,7 @@
 
   The :ON-LENGTH-MISMATCH option may be NIL or a function of a single
   argument. If the number of values and the number of transformation
-  forms is different, then this function is called to transform the
+  forms are different, then this function is called to transform the
   list of values. :TRUNCATE is handled before :ON-LENGTH-MISMATCH.
 
   ```cl-transcript
@@ -215,8 +215,8 @@
   => "abc"
   ```
 
-  If the same option is specified multiple times, only the first one
-  is in effect.
+  If the same option is specified multiple times, the first one is in
+  effect.
   """
   (multiple-value-bind (options preds)
       (%extract-options '(:on-length-mismatch :truncate) body :options-first t)
