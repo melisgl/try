@@ -232,8 +232,15 @@
                      `((when (and ,truncate (< ,n-preds (length ,values)))
                          (setq ,values (subseq ,values 0 ,n-preds)))))
                  ,@(when on-length-mismatch
-                     `((when (/= (length ,values) ,n-preds)
-                         (setq ,values (funcall ,on-length-mismatch ,values)))))
+                     (if (and (listp on-length-mismatch)
+                              (not (eq (first on-length-mismatch) 'lambda)))
+                         ;; Allow :ON-LENGTH-MISMATCH (RETURN NIL)
+                         ;; without compiler complaints.
+                         `((when (/= (length ,values) ,n-preds)
+                             ,on-length-mismatch))
+                         `((when (/= (length ,values) ,n-preds)
+                             (setq ,values
+                                   (funcall ,on-length-mismatch ,values))))))
                  (values-list
                   (append (list ,@(loop for i upfrom 0
                                         for pred in preds
