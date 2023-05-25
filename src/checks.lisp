@@ -209,7 +209,7 @@
                        &body body)
   "Check that BODY does not signal a CONDITION of CONDITION-TYPE (not
   evaluated) that matches PRED. To detect matching conditions,
-  SIGNALS-NOT sets up a HANDLER-BIND. Thus it can only see what BODY
+  SIGNALS-NOT sets up a HANDLER-BIND. Thus, it can only see what BODY
   does not handle. The arguments are described in
   @TRY/CHECKING-CONDITIONS."
   `(condition-match-checker (,condition-type
@@ -240,13 +240,13 @@
                             &body body)
   """Check that BODY enters the debugger with a CONDITION of
   CONDITION-TYPE (not evaluated) that matches PRED. To detect matching
-  conditions, INVOKES-DEBUGGER sets up a *DEBUGGER-HOOK*. Thus if
+  conditions, INVOKES-DEBUGGER sets up a *DEBUGGER-HOOK*. Thus, if
   *DEBUGGER-HOOK* is changed by BODY, it may not detect the condition.
   The arguments are described in @TRY/CHECKING-CONDITIONS.
 
   Note that in a trial (see CURRENT-TRIAL), all ERRORs are handled,
-  and a *DEBUGGER-HOOK* is set up (see UNHANDLED-ERROR). Thus invoking
-  debugger would normally cause the trial to abort.
+  and a *DEBUGGER-HOOK* is set up (see UNHANDLED-ERROR). Thus,
+  invoking debugger would normally cause the trial to abort.
 
   ```cl-transcript (:dynenv try-transcript)
   (invokes-debugger (error :pred "xxx")
@@ -293,7 +293,7 @@
                                 &body body)
   "Check that BODY does not enter the debugger with a CONDITION of
   CONDITION-TYPE (not evaluated) that matches PRED. To detect matching
-  conditions, INVOKES-DEBUGGER-NOT sets up a *DEBUGGER-HOOK*. Thus if
+  conditions, INVOKES-DEBUGGER-NOT sets up a *DEBUGGER-HOOK*. Thus, if
   *DEBUGGER-HOOK* is changed by BODY, it may not detect the condition.
   The arguments are described in @TRY/CHECKING-CONDITIONS."
   `(condition-match-checker (,condition-type
