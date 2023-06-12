@@ -40,7 +40,4 @@ resignalled as UNHANDLED-ERROR are not visible. Maybe it would be
 better to invoke the debugger on the actual ERROR.
 * count skipped tests in parent?
 There should be a trace of what happened in the counts.
-* make descriptions easier to read
-Multiline ctx can be difficult to read.
-Maybe add some blank lines.
 * MAYBE integrate into Slime
