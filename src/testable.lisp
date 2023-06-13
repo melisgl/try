@@ -4,7 +4,7 @@
   "Valid first arguments to TRY are called testables. A testable may
   be:
 
-  - a @FUNCTION-DESIGNATOR
+  - a [function designator][clhs]
 
       - the name of a global test
       - the name of a global function

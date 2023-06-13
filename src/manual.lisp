@@ -48,8 +48,8 @@
   ```
 
   This is a [PAX][pax::@pax-manual] [transcript][pax::@transcripts],
-  output is prefixed with `.. ` and the unreadable return value with
-  `==>`.
+  output is prefixed with `.. `. Readable and unreadable return values
+  are prefixed with `=> ` and `==> `, respectively.
 
   Note the `#N#` syntax due to *PRINT-CIRCLE*.
 
@@ -88,9 +88,9 @@
 
   ##### Writing Tests
 
-  Beyond a fancy ASSERT, Try provides tests, which are Lisp functions
-  that record their execution in TRIAL objects. Let's define a test
-  and run it:
+  Beyond IS, a fancy ASSERT, Try provides tests, which are Lisp
+  functions that record their execution in TRIAL objects. Let's define
+  a test and run it:
 
   ```cl-transcript (:dynenv try-transcript)
   (deftest should-work ()
@@ -321,8 +321,8 @@
 
   ##### Running Tests on Definition
 
-  With *RUN-DEFTEST-WHEN*, one can run test on definition. To run
-  tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
+  With *RUN-DEFTEST-WHEN*, tests on in various EVAL-WHEN situations.
+  To run tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
 
   ```cl-transcript (:dynenv try-transcript)
   (setq *run-deftest-when* :execute)
@@ -433,33 +433,20 @@
 
 
 (defsection @try/glossary (:title "Glossary" :export nil)
-  (@function-designator glossary-term)
   (@funcallable-instance glossary-term)
-  (@non-local-exit glossary-term)
   (@cancelled-nlx glossary-term))
-
-(define-glossary-term @function-designator (:title "function designator")
-  "This is a term from the Common Lisp ANSI standard. A function
-  designator is a symbol (denoting the function named by that symbol
-  in the global environment), or a function (denoting itself).")
 
 (define-glossary-term @funcallable-instance (:title "funcallable instance")
   "This is a term from the MOP. A funcallable instance is an instance
   of a class that's a subclass of `MOP:FUNCALLABLE-STANDARD-CLASS`. It
   is like a normal instance, but it can also be `FUNCALL`ed.")
 
-(define-glossary-term @non-local-exit (:title "non-local exit")
-  "This is a term from the Common Lisp ANSI standard. If a form does
-  not return normally, but control is transferred via `GO`, RETURN,
-  RETURN-FROM or THROW, then it is said to have performed a non-local
-  exit.")
-
 (define-glossary-term @cancelled-nlx (:title "cancelled non-local exit")
   "This is a term from the Common Lisp ANSI standard. If during the
-  unwinding of the stack initiated by a @NON-LOCAL-EXIT another nlx is
-  initiated in, and exits from an UNWIND-PROTECT cleanup form, then
-  this second nlx is said to have cancelled the first, and the first
-  nlx will not continue.
+  unwinding of the stack initiated by a [non-local exit][clhs] another
+  nlx is initiated in, and exits from an UNWIND-PROTECT cleanup form,
+  then this second nlx is said to have cancelled the first, and the
+  first nlx will not continue.
 
   ```cl-transcript (:dynenv try-transcript)
   (catch 'foo

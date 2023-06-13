@@ -104,8 +104,8 @@ subforms to provide context to failures:
 ```
 
 This is a PAX transcript,
-output is prefixed with `..` and the unreadable return value with
-`==>`.
+output is prefixed with `..`. Readable and unreadable return values
+are prefixed with `=>` and `==>`, respectively.
 
 Note the `#N#` syntax due to [`*PRINT-CIRCLE*`][c8cb].
 
@@ -143,9 +143,9 @@ on top of it.
 
 ##### Writing Tests
 
-Beyond a fancy `ASSERT`, Try provides tests, which are Lisp functions
-that record their execution in [`TRIAL`][99d0] objects. Let's define a test
-and run it:
+Beyond `IS`, a fancy `ASSERT`, Try provides tests, which are Lisp
+functions that record their execution in [`TRIAL`][99d0] objects. Let's define
+a test and run it:
 
 ```common-lisp
 (deftest should-work ()
@@ -376,8 +376,8 @@ Also see [`WITH-EXPECTED-OUTCOME`][1d97].
 
 ##### Running Tests on Definition
 
-With [`*RUN-DEFTEST-WHEN*`][cfd3], one can run test on definition. To run
-tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
+With [`*RUN-DEFTEST-WHEN*`][cfd3], tests on in various [`EVAL-WHEN`][9c9c] situations.
+To run tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
 
 ```common-lisp
 (setq *run-deftest-when* :execute)
@@ -487,7 +487,7 @@ The condition [`EVENT`][955d] has 4 disjoint subclasses:
 
 - [`RESULT`][231f], the `OUTCOME` of a check (see [Checks][9a72]), and
 
-- [`ERROR*`][0321], an unexpected `CL:ERROR`([`0`][d162] [`1`][35ba]) or unadorned [non-local exit][43af].
+- [`ERROR*`][0321], an unexpected `CL:ERROR`([`0`][d162] [`1`][35ba]) or unadorned [non-local exit][b815].
 
 ```common-lisp
 (let (;; We don't want to debug nor print a backtrace for the error below.
@@ -531,7 +531,7 @@ signalled are called concrete.
    up by [`DEFTEST`][e7ca] or [`WITH-TEST`][8f5d], or when the debugger is invoked.
 
 - [`NLX`][b115], signalled when no error was detected by the handler, but the
-   trial finishes with a [non-local exit][43af].
+   trial finishes with a [non-local exit][b815].
 
 These are the 15 concrete event classes.
 
@@ -850,8 +850,8 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 <a id="x-28TRY-3ARETRY-CHECK-20FUNCTION-29"></a>
 - [function] **RETRY-CHECK** *&OPTIONAL CONDITION*
 
-    Initiate a [non-local exit][43af] to go reevaluate the forms wrapped by
-    the check without signalling an [`OUTCOME`][2656].
+    Initiate a [non-local exit][b815] to go reevaluate the forms
+    wrapped by the check without signalling an [`OUTCOME`][2656].
 
 <a id="x-28TRY-3A-40TRY-2FTRIALS-20MGL-PAX-3ASECTION-29"></a>
 #### 4.6.3 Trials
@@ -1084,8 +1084,8 @@ that case, any intervening trials are skipped.
 ==> #<TRIAL (WITH-TEST (OUTER)) SKIP 0.000s ⋅1>
 ```
 
-Furthermore, all three restarts initiate a [non-local exit][43af] to return
-from the trial. If during the unwinding of the stack, the
+Furthermore, all three restarts initiate a [non-local exit][b815] to
+return from the trial. If during the unwinding of the stack, the
 non-local-exit is cancelled (see [cancelled non-local exit][7ab6]), the appropriate
 restart will be invoked upon returning from the trial. In the
 following example, the non-local exit from a skip is cancelled by a
@@ -1135,11 +1135,11 @@ dropped.
     Invoke the `ABORT-TRIAL` restart of a [`RUNNINGP`][5d4a] `TRIAL`.
     
     When `CONDITION` is a [`VERDICT`][52e1] for `TRIAL`, `ABORT-TRIAL` signals a new
-    verdict of type VERDICT-ABORT*. This behavior is similar to that of
-    [`ABORT-CHECK`][826a]. Else, the `ABORT-TRIAL` restart may record `CONDITION`,
-    then it initiates a [non-local exit][43af] to return from the test function
-    with VERDICT-ABORT*. If during the unwinding [`SKIP-TRIAL`][f45a] or
-    [`RETRY-TRIAL`][fae3] is called, then the abort is cancelled.
+    verdict of type [`VERDICT-ABORT*`][4805]. This behavior is similar to that
+    of [`ABORT-CHECK`][826a]. Else, the `ABORT-TRIAL` restart may record `CONDITION`,
+    then it initiates a [non-local exit][b815] to return from the test
+    function with `VERDICT-ABORT*`. If during the unwinding [`SKIP-TRIAL`][f45a]
+    or [`RETRY-TRIAL`][fae3] is called, then the abort is cancelled.
     
     Since [`ABORT*`][8ec3] is an [`UNEXPECTED`][d6ad] [`EVENT`][955d], `ABORT-TRIAL` is rarely used
     programatically. Signalling any error in a trial that's not caught
@@ -1156,7 +1156,7 @@ dropped.
     When `CONDITION` is a [`VERDICT`][52e1] for `TRIAL`, `SKIP-TRIAL` signals a new
     verdict of type [`VERDICT-SKIP`][5786]. This behavior is similar to that of
     [`SKIP-CHECK`][fb0e]. Else, the `SKIP-TRIAL` restart may record `CONDITION`, then
-    it initiates a [non-local exit][43af] to return from the test function with
+    it initiates a [non-local exit][b815] to return from the test function with
     `VERDICT-SKIP`. If during the unwinding [`ABORT-TRIAL`][4f9f] or [`RETRY-TRIAL`][fae3] is
     called, then the skip is cancelled.
     
@@ -1191,9 +1191,9 @@ dropped.
 - [function] **RETRY-TRIAL** *&OPTIONAL CONDITION (TRIAL (CURRENT-TRIAL))*
 
     Invoke the `RETRY-TRIAL` restart of [`RUNNINGP`][5d4a] `TRIAL`. The `RETRY-TRIAL`
-    restart may record `CONDITION`, then it initiates a [non-local exit][43af] to
-    go back to the beginning of the test function. If the non-local exit
-    completes, then
+    restart may record `CONDITION`, then it initiates a non-local
+    exit to go back to the beginning of the test function. If the
+    non-local exit completes, then
     
     - ([`N-RETRIES`][b33f] `TRIAL`) is incremented,
     
@@ -1255,11 +1255,11 @@ dropped.
 <a id="x-28TRY-3ANLX-20CONDITION-29"></a>
 - [condition] **NLX** *[ERROR\*][0321]*
 
-    Representing a [non-local exit][43af] of unknown origin,
-    this is signalled if a [`TRIAL`][99d0] does not return normally although it
-    should have because it was not dismissed (see [`DISMISSAL`][0992], [`SKIP-TRIAL`][f45a],
-    [`ABORT-TRIAL`][4f9f]). In this case, there is no `CL:ERROR`([`0`][d162] [`1`][35ba]) associated with the
-    event.
+    Representing a [non-local exit][b815] of unknown
+    origin, this is signalled if a [`TRIAL`][99d0] does not return normally
+    although it should have because it was not dismissed (see [`DISMISSAL`][0992],
+    [`SKIP-TRIAL`][f45a], [`ABORT-TRIAL`][4f9f]). In this case, there is no `CL:ERROR`([`0`][d162] [`1`][35ba])
+    associated with the event.
 
 <a id="x-28TRY-3A-40TRY-2FCATEGORIES-20MGL-PAX-3ASECTION-29"></a>
 ### 4.8 Categories
@@ -1318,7 +1318,7 @@ counterpart.
 <a id="x-28TRY-3A-40TRY-2FIS-20MGL-PAX-3ASECTION-29"></a>
 ## 5 The `IS` Macro
 
-[`IS`][80d6] is the most fundamental one among [Checks][9a72], on which all
+[`IS`][80d6] is the fundamental one among [Checks][9a72], on which all
 the others are built, and it is a replacement for [`CL:ASSERT`][97ee] that can
 capture values of subforms to provide context to failures:
 
@@ -1678,7 +1678,7 @@ Many of them share a number of arguments, which are described here.
   macro that wraps `BODY` is made when `BODY` returns normally.
 
 - `ON-NLX` is a boolean that determines whether the check in a macro
-  that wraps `BODY` is made when `BODY` performs a [non-local exit][43af].
+  that wraps `BODY` is made when `BODY` performs a [non-local exit][b815].
 
 - `MSG` and `CTX` are [Format Specifier Forms][879c] as in `IS`.
 
@@ -1711,7 +1711,7 @@ around `BODY`.
 function, `T`, or `NIL`. When it is a function, it is called from the
 condition handler (`SIGNALS` and `SIGNALS-NOT`) or the debugger
 hook (invokes-debugger and `INVOKES-DEBUGGER-NOT`) with the matching
-condition. `HANDLER` may perform a [non-local exit][43af]. When `HANDLER` is `T`,
+condition. `HANDLER` may perform a [non-local exit][b815]. When `HANDLER` is `T`,
 the matching condition is handled by performing a non-local exit to
 just outside `BODY`. If the exit completes, `BODY` is treated as if it
 had returned normally, and `ON-RETURN` is consulted. When `HANDLER` is
@@ -1811,9 +1811,9 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
 <a id="x-28TRY-3AFAILS-20MGL-PAX-3AMACRO-29"></a>
 - [macro] **FAILS** *(&KEY NAME MSG CTX) &BODY BODY*
 
-    Check that `BODY` performs a [non-local exit][43af] but do not cancel
-    it (see [cancelled non-local exit][7ab6]). See [Check Library][9420] for the descriptions
-    of the other arguments.
+    Check that `BODY` performs a [non-local exit][b815] but do not
+    cancel it (see [cancelled non-local exit][7ab6]). See [Check Library][9420] for the
+    descriptions of the other arguments.
     
     In the following example, `FAILS` signals a [`SUCCESS`][269a].
     
@@ -2095,7 +2095,7 @@ functions. In more detail, tests
   the function,
 
 - signal a [`VERDICT`][52e1] condition before returning normally or via a
-  [non-local exit][43af],
+  [non-local exit][b815],
 
 - return the `TRIAL` object as the first value,
 
@@ -2171,8 +2171,8 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
 
     See if `SYMBOL` names a global test (i.e. a test defined with
     [`DEFTEST`][e7ca]). If since the execution of `DEFTEST`, the symbol has been
-    uninterned, [`FMAKUNBOUND`][609c], or redefined with [`DEFUN`][f472], then it no longer
-    names a global test.
+    [`UNINTERN`][cdba]ed, [`FMAKUNBOUND`][609c]ed, or redefined with [`DEFUN`][f472], then it no
+    longer names a global test.
 
 <a id="x-28TRY-3AWITH-TEST-20MGL-PAX-3AMACRO-29"></a>
 - [macro] **WITH-TEST** *(&OPTIONAL TRIAL-VAR &KEY NAME) &BODY BODY*
@@ -2574,7 +2574,7 @@ interactive one, but this is not enforced in any way.
 Valid first arguments to [`TRY`][b602] are called testables. A testable may
 be:
 
-- a [function designator][5652]
+- a [function designator][8aea]
 
     - the name of a global test
 
@@ -3017,13 +3017,6 @@ SBCL.
 <a id="x-28TRY-3A-40TRY-2FGLOSSARY-20MGL-PAX-3ASECTION-29"></a>
 ## 9 Glossary
 
-<a id="x-28TRY-3A-40FUNCTION-DESIGNATOR-20MGL-PAX-3AGLOSSARY-TERM-29"></a>
-- [glossary-term] **function designator**
-
-    This is a term from the Common Lisp ANSI standard. A function
-    designator is a symbol (denoting the function named by that symbol
-    in the global environment), or a function (denoting itself).
-
 <a id="x-28TRY-3A-40FUNCALLABLE-INSTANCE-20MGL-PAX-3AGLOSSARY-TERM-29"></a>
 - [glossary-term] **funcallable instance**
 
@@ -3031,22 +3024,14 @@ SBCL.
     of a class that's a subclass of `MOP:FUNCALLABLE-STANDARD-CLASS`. It
     is like a normal instance, but it can also be [`FUNCALL`][03c7]ed.
 
-<a id="x-28TRY-3A-40NON-LOCAL-EXIT-20MGL-PAX-3AGLOSSARY-TERM-29"></a>
-- [glossary-term] **non-local exit**
-
-    This is a term from the Common Lisp ANSI standard. If a form does
-    not return normally, but control is transferred via [`GO`][f2e5], [`RETURN`][5b0b],
-    [`RETURN-FROM`][3eef] or [`THROW`][e760], then it is said to have performed a non-local
-    exit.
-
 <a id="x-28TRY-3A-40CANCELLED-NLX-20MGL-PAX-3AGLOSSARY-TERM-29"></a>
 - [glossary-term] **cancelled non-local exit**
 
     This is a term from the Common Lisp ANSI standard. If during the
-    unwinding of the stack initiated by a [non-local exit][43af] another nlx is
-    initiated in, and exits from an [`UNWIND-PROTECT`][c93f] cleanup form, then
-    this second nlx is said to have cancelled the first, and the first
-    nlx will not continue.
+    unwinding of the stack initiated by a [non-local exit][b815] another
+    nlx is initiated in, and exits from an [`UNWIND-PROTECT`][c93f] cleanup form,
+    then this second nlx is said to have cancelled the first, and the
+    first nlx will not continue.
     
     ```common-lisp
     (catch 'foo
@@ -3107,7 +3092,6 @@ SBCL.
   [3cf4]: #x-28TRY-3A-2APRINT-COMPACTLY-2A-20VARIABLE-29 "TRY:*PRINT-COMPACTLY* VARIABLE"
   [3eef]: http://www.lispworks.com/documentation/HyperSpec/Body/s_ret_fr.htm "RETURN-FROM (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [4011]: #x-28TRY-3A-40TRY-2FCHECK-RESTARTS-20MGL-PAX-3ASECTION-29 "Check Restarts"
-  [43af]: #x-28TRY-3A-40NON-LOCAL-EXIT-20MGL-PAX-3AGLOSSARY-TERM-29 "TRY:@NON-LOCAL-EXIT MGL-PAX:GLOSSARY-TERM"
   [4444]: http://www.lispworks.com/documentation/HyperSpec/Body/m_mult_1.htm "MULTIPLE-VALUE-LIST (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [4573]: #x-28TRY-3A-40TRY-2FPRINTING-EVENTS-20MGL-PAX-3ASECTION-29 "Printing Events"
   [4754]: #x-28TRY-3A-40TRY-2FCOMPARING-FLOATS-20MGL-PAX-3ASECTION-29 "Comparing Floats"
@@ -3124,10 +3108,8 @@ SBCL.
   [5333]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq_sle.htm "> (MGL-PAX:CLHS FUNCTION)"
   [534b]: #x-28TRY-3A-40TRY-2FPRINT-20MGL-PAX-3ASECTION-29 "Printing Events"
   [55cd]: #x-28TRY-3AUNEXPECTED-SUCCESS-20TYPE-29 "TRY:UNEXPECTED-SUCCESS TYPE"
-  [5652]: #x-28TRY-3A-40FUNCTION-DESIGNATOR-20MGL-PAX-3AGLOSSARY-TERM-29 "TRY:@FUNCTION-DESIGNATOR MGL-PAX:GLOSSARY-TERM"
   [5786]: #x-28TRY-3AVERDICT-SKIP-20CONDITION-29 "TRY:VERDICT-SKIP CONDITION"
   [5a82]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq.htm "EQ (MGL-PAX:CLHS FUNCTION)"
-  [5b0b]: http://www.lispworks.com/documentation/HyperSpec/Body/m_return.htm "RETURN (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [5c01]: http://www.lispworks.com/documentation/HyperSpec/Body/m_lambda.htm "LAMBDA (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [5d4a]: #x-28TRY-3ARUNNINGP-20FUNCTION-29 "TRY:RUNNINGP FUNCTION"
   [609c]: http://www.lispworks.com/documentation/HyperSpec/Body/f_fmakun.htm "FMAKUNBOUND (MGL-PAX:CLHS FUNCTION)"
@@ -3161,6 +3143,7 @@ SBCL.
   [8620]: #x-28TRY-3AEXPECTED-FAILURE-20TYPE-29 "TRY:EXPECTED-FAILURE TYPE"
   [879c]: #x-28TRY-3A-40TRY-2FFORMAT-SPECIFIER-FORMS-20MGL-PAX-3ASECTION-29 "Format Specifier Forms"
   [883b]: #x-28TRY-3A-40TRY-2FCHECKING-CONDITIONS-20MGL-PAX-3ASECTION-29 "Checking Conditions"
+  [8aea]: http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#function_designator '"function designator" (MGL-PAX:CLHS MGL-PAX:GLOSSARY-TERM)'
   [8b69]: #x-28TRY-3AREPLAY-EVENTS-20FUNCTION-29 "TRY:REPLAY-EVENTS FUNCTION"
   [8cf6]: #x-28TRY-3ARETRY-CHECK-20FUNCTION-29 "TRY:RETRY-CHECK FUNCTION"
   [8ec3]: #x-28TRY-3AABORT-2A-20CONDITION-29 "TRY:ABORT* CONDITION"
@@ -3195,6 +3178,7 @@ SBCL.
   [b664]: #x-28TRY-3ATRIAL-START-20CONDITION-29 "TRY:TRIAL-START CONDITION"
   [b71e]: #x-28TRY-3AWITH-SKIP-20MGL-PAX-3AMACRO-29 "TRY:WITH-SKIP MGL-PAX:MACRO"
   [b72c]: #x-28TRY-3AUNEXPECTED-RESULT-SUCCESS-20CONDITION-29 "TRY:UNEXPECTED-RESULT-SUCCESS CONDITION"
+  [b815]: http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_n.htm#non-local_exit '"non-local exit" (MGL-PAX:CLHS MGL-PAX:GLOSSARY-TERM)'
   [b881]: #x-28TRY-3A-40TRY-2FCAPTURES-20MGL-PAX-3ASECTION-29 "Captures"
   [b94a]: http://www.lispworks.com/documentation/HyperSpec/Body/f_mismat.htm "MISMATCH (MGL-PAX:CLHS FUNCTION)"
   [b95c]: #x-28TRY-3A-40TRY-2FCATEGORIES-20MGL-PAX-3ASECTION-29 "Categories"
@@ -3235,7 +3219,6 @@ SBCL.
   [e8d7]: http://www.lispworks.com/documentation/HyperSpec/Body/f_endp.htm "ENDP (MGL-PAX:CLHS FUNCTION)"
   [eb5c]: #x-28TRY-3AON-VALUES-20MGL-PAX-3AMACRO-29 "TRY:ON-VALUES MGL-PAX:MACRO"
   [f001]: #x-28TRY-3ASET-TRY-DEBUG-20FUNCTION-29 "TRY:SET-TRY-DEBUG FUNCTION"
-  [f2e5]: http://www.lispworks.com/documentation/HyperSpec/Body/s_go.htm "GO (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [f3af]: #x-28TRY-3AIN-TIME-20MGL-PAX-3AMACRO-29 "TRY:IN-TIME MGL-PAX:MACRO"
   [f45a]: #x-28TRY-3ASKIP-TRIAL-20FUNCTION-29 "TRY:SKIP-TRIAL FUNCTION"
   [f472]: http://www.lispworks.com/documentation/HyperSpec/Body/m_defun.htm "DEFUN (MGL-PAX:CLHS MGL-PAX:MACRO)"

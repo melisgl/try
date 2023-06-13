@@ -36,11 +36,11 @@
 
 (define-condition nlx (error*)
   ((extra-message :initarg :extra-message :reader extra-message))
-  (:documentation "Representing a @NON-LOCAL-EXIT of unknown origin,
-  this is signalled if a TRIAL does not return normally although it
-  should have because it was not dismissed (see DISMISSAL, SKIP-TRIAL,
-  ABORT-TRIAL). In this case, there is no CL:ERROR associated with the
-  event."))
+  (:documentation "Representing a [non-local exit][clhs] of unknown
+  origin, this is signalled if a TRIAL does not return normally
+  although it should have because it was not dismissed (see DISMISSAL,
+  SKIP-TRIAL, ABORT-TRIAL). In this case, there is no CL:ERROR
+  associated with the event."))
 
 (defvar *print-backtrace* nil)
 

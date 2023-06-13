@@ -26,7 +26,7 @@
 
   - RESULT, the OUTCOME of a check (see @TRY/CHECKS), and
 
-  - ERROR*, an unexpected CL:ERROR or unadorned @NON-LOCAL-EXIT.
+  - ERROR*, an unexpected CL:ERROR or unadorned [non-local exit][clhs].
 
   ```cl-transcript (:dynenv try-transcript)
   (let (;; We don't want to debug nor print a backtrace for the error below.
@@ -68,7 +68,7 @@
     up by DEFTEST or WITH-TEST, or when the debugger is invoked.
 
   - NLX, signalled when no error was detected by the handler, but the
-    trial finishes with a @NON-LOCAL-EXIT.
+    trial finishes with a [non-local exit][clhs].
 
  These are the 15 concrete event classes.
  """)

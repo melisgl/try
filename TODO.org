@@ -21,10 +21,10 @@ Channel events from some other threads somehow.
 (with-test (t0)
   ...
   (make-thread (lambda()
-                 (with-borrowed-parent (t1 :parent t0)
+                 (into-funnel (t1 :parent t0)
                    ...)))
   ...
-  (wait-until-all-borrows-are-done)))
+  (wait-until-all-intos-are-done))
 * MAYBE tree-printer with outline-minor-mode?
 outline-minor-mode doesn't work in the SLIME repl buffer because
 outline-regex is set to a strange value.
@@ -41,3 +41,5 @@ better to invoke the debugger on the actual ERROR.
 * count skipped tests in parent?
 There should be a trace of what happened in the counts.
 * MAYBE integrate into Slime
+* MAYBE improve readability of backtrace
+I don't know how. See TRY::EXPAND-WITH-TRIAL-IN-DEFTEST-P.

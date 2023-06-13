@@ -24,8 +24,8 @@
   :components
   ;; We compile each file in a (WITH-COMPILATION-UNIT (:OVERRIDE T)
   ;; ...) so that they are treated as separate compilation units (even
-  ;; though they are all nested in another WITH-COMPILATION-UNIT), and
-  ;; we get warnings about forward references from one file to a later
+  ;; though they are all nested in another WITH-COMPILATION-UNIT) to
+  ;; get warnings about forward references from one file to a later
   ;; one.
   ((:file "package" :around-compile "try/asdf:compile-wrapper")
    (:file "util" :around-compile "try/asdf:compile-wrapper")

@@ -1,7 +1,7 @@
 # Try Manual
 
 ###### \[in package TRY\]
-## TRY ASDF System
+## The try ASDF System
 
 - Version: 0.0.1
 - Description: Try is an extensible test framework with equal support
@@ -55,8 +55,8 @@ subforms to provide context to failures:
 ```
 
 This is a PAX transcript,
-output is prefixed with `..` and the unreadable return value with
-`==>`.
+output is prefixed with `..`. Readable and unreadable return values
+are prefixed with `=>` and `==>`, respectively.
 
 Note the `#N#` syntax due to *PRINT-CIRCLE*.
 
@@ -94,9 +94,9 @@ on top of it.
 
 ##### Writing Tests
 
-Beyond a fancy ASSERT, Try provides tests, which are Lisp functions
-that record their execution in TRIAL objects. Let's define a test
-and run it:
+Beyond IS, a fancy ASSERT, Try provides tests, which are Lisp
+functions that record their execution in TRIAL objects. Let's define
+a test and run it:
 
 ```common-lisp
 (deftest should-work ()
@@ -327,8 +327,8 @@ Also see WITH-EXPECTED-OUTCOME.
 
 ##### Running Tests on Definition
 
-With *RUN-DEFTEST-WHEN*, one can run test on definition. To run
-tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
+With *RUN-DEFTEST-WHEN*, tests on in various EVAL-WHEN situations.
+To run tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
 
 ```common-lisp
 (setq *run-deftest-when* :execute)
@@ -436,7 +436,7 @@ The condition EVENT has 4 disjoint subclasses:
 
 - RESULT, the OUTCOME of a check (see @TRY/CHECKS), and
 
-- ERROR\*, an unexpected CL:ERROR or unadorned @NON-LOCAL-EXIT.
+- ERROR\*, an unexpected CL:ERROR or unadorned non-local exit.
 
 ```common-lisp
 (let (;; We don't want to debug nor print a backtrace for the error below.
@@ -479,7 +479,7 @@ ERROR\* is an abstract class with two concrete subclasses:
    up by DEFTEST or WITH-TEST, or when the debugger is invoked.
 
 - NLX, signalled when no error was detected by the handler, but the
-   trial finishes with a @NON-LOCAL-EXIT.
+   trial finishes with a non-local exit.
 
 These are the 15 concrete event classes.
 
@@ -756,12 +756,12 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
 
 - [function] RETRY-CHECK &OPTIONAL CONDITION
 
-    Initiate a @NON-LOCAL-EXIT to go reevaluate the forms wrapped by
-    the check without signalling an OUTCOME.
+    Initiate a non-local exit to go reevaluate the forms
+    wrapped by the check without signalling an OUTCOME.
 
 #### Trials
 
-- [type] TRIAL
+- [class] TRIAL FUNCALLABLE-STANDARD-OBJECT
 
     Trials are records of calls to tests (see
     @TRY/COUNT, @TRY/COLLECT). Their behaviour as @FUNCALLABLE-INSTANCEs
@@ -970,8 +970,8 @@ that case, any intervening trials are skipped.
 ==> #<TRIAL (WITH-TEST (OUTER)) SKIP 0.000s ⋅1>
 ```
 
-Furthermore, all three restarts initiate a @NON-LOCAL-EXIT to return
-from the trial. If during the unwinding of the stack, the
+Furthermore, all three restarts initiate a non-local exit to
+return from the trial. If during the unwinding of the stack, the
 non-local-exit is cancelled (see @CANCELLED-NLX), the appropriate
 restart will be invoked upon returning from the trial. In the
 following example, the non-local exit from a skip is cancelled by a
@@ -1020,11 +1020,11 @@ dropped.
     Invoke the ABORT-TRIAL restart of a RUNNINGP TRIAL.
     
     When CONDITION is a VERDICT for TRIAL, ABORT-TRIAL signals a new
-    verdict of type VERDICT-ABORT*. This behavior is similar to that of
-    ABORT-CHECK. Else, the ABORT-TRIAL restart may record CONDITION,
-    then it initiates a @NON-LOCAL-EXIT to return from the test function
-    with VERDICT-ABORT*. If during the unwinding SKIP-TRIAL or
-    RETRY-TRIAL is called, then the abort is cancelled.
+    verdict of type VERDICT-ABORT\*. This behavior is similar to that
+    of ABORT-CHECK. Else, the ABORT-TRIAL restart may record CONDITION,
+    then it initiates a non-local exit to return from the test
+    function with VERDICT-ABORT\*. If during the unwinding SKIP-TRIAL
+    or RETRY-TRIAL is called, then the abort is cancelled.
     
     Since ABORT\* is an UNEXPECTED EVENT, ABORT-TRIAL is rarely used
     programatically. Signalling any error in a trial that's not caught
@@ -1040,7 +1040,7 @@ dropped.
     When CONDITION is a VERDICT for TRIAL, SKIP-TRIAL signals a new
     verdict of type VERDICT-SKIP. This behavior is similar to that of
     SKIP-CHECK. Else, the SKIP-TRIAL restart may record CONDITION, then
-    it initiates a @NON-LOCAL-EXIT to return from the test function with
+    it initiates a non-local exit to return from the test function with
     VERDICT-SKIP. If during the unwinding ABORT-TRIAL or RETRY-TRIAL is
     called, then the skip is cancelled.
     
@@ -1074,9 +1074,9 @@ dropped.
 - [function] RETRY-TRIAL &OPTIONAL CONDITION (TRIAL (CURRENT-TRIAL))
 
     Invoke the RETRY-TRIAL restart of RUNNINGP TRIAL. The RETRY-TRIAL
-    restart may record CONDITION, then it initiates a @NON-LOCAL-EXIT to
-    go back to the beginning of the test function. If the non-local exit
-    completes, then
+    restart may record CONDITION, then it initiates a non-local
+    exit to go back to the beginning of the test function. If the
+    non-local exit completes, then
     
     - (N-RETRIES TRIAL) is incremented,
     
@@ -1128,11 +1128,11 @@ dropped.
 
 - [condition] NLX ERROR\*
 
-    Representing a @NON-LOCAL-EXIT of unknown origin,
-    this is signalled if a TRIAL does not return normally although it
-    should have because it was not dismissed (see DISMISSAL, SKIP-TRIAL,
-    ABORT-TRIAL). In this case, there is no CL:ERROR associated with the
-    event.
+    Representing a non-local exit of unknown
+    origin, this is signalled if a TRIAL does not return normally
+    although it should have because it was not dismissed (see DISMISSAL,
+    SKIP-TRIAL, ABORT-TRIAL). In this case, there is no CL:ERROR
+    associated with the event.
 
 ### Categories
 
@@ -1186,7 +1186,7 @@ counterpart.
 
 ## The IS Macro
 
-IS is the most fundamental one among @TRY/CHECKS, on which all
+IS is the fundamental one among @TRY/CHECKS, on which all
 the others are built, and it is a replacement for CL:ASSERT that can
 capture values of subforms to provide context to failures:
 
@@ -1525,7 +1525,7 @@ Many of them share a number of arguments, which are described here.
   macro that wraps BODY is made when BODY returns normally.
 
 - ON-NLX is a boolean that determines whether the check in a macro
-  that wraps BODY is made when BODY performs a @NON-LOCAL-EXIT.
+  that wraps BODY is made when BODY performs a non-local exit.
 
 - MSG and CTX are @TRY/FORMAT-SPECIFIER-FORMS as in IS.
 
@@ -1557,7 +1557,7 @@ HANDLER is called when a matching condition is found. It can be a
 function, T, or NIL. When it is a function, it is called from the
 condition handler (SIGNALS and SIGNALS-NOT) or the debugger
 hook (invokes-debugger and INVOKES-DEBUGGER-NOT) with the matching
-condition. HANDLER may perform a @NON-LOCAL-EXIT. When HANDLER is T,
+condition. HANDLER may perform a non-local exit. When HANDLER is T,
 the matching condition is handled by performing a non-local exit to
 just outside BODY. If the exit completes, BODY is treated as if it
 had returned normally, and ON-RETURN is consulted. When HANDLER is
@@ -1613,7 +1613,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
 
     Check that BODY does not signal a CONDITION of CONDITION-TYPE (not
     evaluated) that matches PRED. To detect matching conditions,
-    SIGNALS-NOT sets up a HANDLER-BIND. Thus it can only see what BODY
+    SIGNALS-NOT sets up a HANDLER-BIND. Thus, it can only see what BODY
     does not handle. The arguments are described in
     @TRY/CHECKING-CONDITIONS.
 
@@ -1621,13 +1621,13 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
 
     Check that BODY enters the debugger with a CONDITION of
     CONDITION-TYPE (not evaluated) that matches PRED. To detect matching
-    conditions, INVOKES-DEBUGGER sets up a *DEBUGGER-HOOK*. Thus if
+    conditions, INVOKES-DEBUGGER sets up a *DEBUGGER-HOOK*. Thus, if
     *DEBUGGER-HOOK* is changed by BODY, it may not detect the condition.
     The arguments are described in @TRY/CHECKING-CONDITIONS.
     
     Note that in a trial (see CURRENT-TRIAL), all ERRORs are handled,
-    and a *DEBUGGER-HOOK* is set up (see UNHANDLED-ERROR). Thus invoking
-    debugger would normally cause the trial to abort.
+    and a *DEBUGGER-HOOK* is set up (see UNHANDLED-ERROR). Thus,
+    invoking debugger would normally cause the trial to abort.
     
     ```common-lisp
     (invokes-debugger (error :pred "xxx")
@@ -1641,7 +1641,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
 
     Check that BODY does not enter the debugger with a CONDITION of
     CONDITION-TYPE (not evaluated) that matches PRED. To detect matching
-    conditions, INVOKES-DEBUGGER-NOT sets up a *DEBUGGER-HOOK*. Thus if
+    conditions, INVOKES-DEBUGGER-NOT sets up a *DEBUGGER-HOOK*. Thus, if
     *DEBUGGER-HOOK* is changed by BODY, it may not detect the condition.
     The arguments are described in @TRY/CHECKING-CONDITIONS.
 
@@ -1649,9 +1649,9 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
 
 - [macro] FAILS (&KEY NAME MSG CTX) &BODY BODY
 
-    Check that BODY performs a @NON-LOCAL-EXIT but do not cancel
-    it (see @CANCELLED-NLX). See @TRY/CHECK-LIBRARY for the descriptions
-    of the other arguments.
+    Check that BODY performs a non-local exit but do not
+    cancel it (see @CANCELLED-NLX). See @TRY/CHECK-LIBRARY for the
+    descriptions of the other arguments.
     
     In the following example, FAILS signals a SUCCESS.
     
@@ -1748,7 +1748,7 @@ functions and macros that may be useful for writing IS checks.
     
     The :ON-LENGTH-MISMATCH option may be NIL or a function of a single
     argument. If the number of values and the number of transformation
-    forms is different, then this function is called to transform the
+    forms are different, then this function is called to transform the
     list of values. :TRUNCATE is handled before :ON-LENGTH-MISMATCH.
     
     ```common-lisp
@@ -1763,8 +1763,8 @@ functions and macros that may be useful for writing IS checks.
     => "abc"
     ```
     
-    If the same option is specified multiple times, only the first one
-    is in effect.
+    If the same option is specified multiple times, the first one is in
+    effect.
 
 - [macro] MATCH-VALUES FORM &BODY BODY
 
@@ -1918,7 +1918,7 @@ functions. In more detail, tests
   the function,
 
 - signal a VERDICT condition before returning normally or via a
-  @NON-LOCAL-EXIT,
+  non-local exit,
 
 - return the TRIAL object as the first value,
 
@@ -1991,8 +1991,8 @@ See DEFTEST and WITH-TEST for more precise descriptions.
 
     See if SYMBOL names a global test (i.e. a test defined with
     DEFTEST). If since the execution of DEFTEST, the symbol has been
-    uninterned, FMAKUNBOUND, or redefined with DEFUN, then it no longer
-    names a global test.
+    UNINTERNed, FMAKUNBOUNDed, or redefined with DEFUN, then it no
+    longer names a global test.
 
 - [macro] WITH-TEST (&OPTIONAL TRIAL-VAR &KEY NAME) &BODY BODY
 
@@ -2364,7 +2364,7 @@ interactive one, but this is not enforced in any way.
 Valid first arguments to TRY are called testables. A testable may
 be:
 
-- a @FUNCTION-DESIGNATOR
+- a function designator
 
     - the name of a global test
 
@@ -2791,32 +2791,19 @@ SBCL.
 
 ## Glossary
 
-- [glossary-term] function designator
-
-    This is a term from the Common Lisp ANSI standard. A function
-    designator is a symbol (denoting the function named by that symbol
-    in the global environment), or a function (denoting itself).
-
 - [glossary-term] funcallable instance
 
     This is a term from the MOP. A funcallable instance is an instance
     of a class that's a subclass of `MOP:FUNCALLABLE-STANDARD-CLASS`. It
     is like a normal instance, but it can also be `FUNCALL`ed.
 
-- [glossary-term] non-local exit
-
-    This is a term from the Common Lisp ANSI standard. If a form does
-    not return normally, but control is transferred via `GO`, RETURN,
-    RETURN-FROM or THROW, then it is said to have performed a non-local
-    exit.
-
 - [glossary-term] cancelled non-local exit
 
     This is a term from the Common Lisp ANSI standard. If during the
-    unwinding of the stack initiated by a @NON-LOCAL-EXIT another nlx is
-    initiated in, and exits from an UNWIND-PROTECT cleanup form, then
-    this second nlx is said to have cancelled the first, and the first
-    nlx will not continue.
+    unwinding of the stack initiated by a non-local exit another
+    nlx is initiated in, and exits from an UNWIND-PROTECT cleanup form,
+    then this second nlx is said to have cancelled the first, and the
+    first nlx will not continue.
     
     ```common-lisp
     (catch 'foo

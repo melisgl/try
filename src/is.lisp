@@ -3,7 +3,7 @@
 (in-readtable pythonic-string-syntax)
 
 (defsection @try/is (:title "The IS Macro")
-  """IS is the most fundamental one among @TRY/CHECKS, on which all
+  """IS is the fundamental one among @TRY/CHECKS, on which all
   the others are built, and it is a replacement for CL:ASSERT that can
   capture values of subforms to provide context to failures:
 

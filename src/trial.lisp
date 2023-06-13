@@ -327,8 +327,8 @@
   ==> #<TRIAL (WITH-TEST (OUTER)) SKIP 0.000s ⋅1>
   ```
 
-  Furthermore, all three restarts initiate a @NON-LOCAL-EXIT to return
-  from the trial. If during the unwinding of the stack, the
+  Furthermore, all three restarts initiate a [non-local exit][clhs] to
+  return from the trial. If during the unwinding of the stack, the
   non-local-exit is cancelled (see @CANCELLED-NLX), the appropriate
   restart will be invoked upon returning from the trial. In the
   following example, the non-local exit from a skip is cancelled by a
@@ -381,11 +381,11 @@
   "Invoke the ABORT-TRIAL restart of a RUNNINGP TRIAL.
 
   When CONDITION is a VERDICT for TRIAL, ABORT-TRIAL signals a new
-  verdict of type VERDICT-ABORT*. This behavior is similar to that of
-  ABORT-CHECK. Else, the ABORT-TRIAL restart may record CONDITION,
-  then it initiates a @NON-LOCAL-EXIT to return from the test function
-  with VERDICT-ABORT*. If during the unwinding SKIP-TRIAL or
-  RETRY-TRIAL is called, then the abort is cancelled.
+  verdict of type VERDICT-ABORT\\*. This behavior is similar to that
+  of ABORT-CHECK. Else, the ABORT-TRIAL restart may record CONDITION,
+  then it initiates a [non-local exit][clhs] to return from the test
+  function with VERDICT-ABORT\\*. If during the unwinding SKIP-TRIAL
+  or RETRY-TRIAL is called, then the abort is cancelled.
 
   Since ABORT* is an UNEXPECTED EVENT, ABORT-TRIAL is rarely used
   programatically. Signalling any error in a trial that's not caught
@@ -403,7 +403,7 @@
   When CONDITION is a VERDICT for TRIAL, SKIP-TRIAL signals a new
   verdict of type VERDICT-SKIP. This behavior is similar to that of
   SKIP-CHECK. Else, the SKIP-TRIAL restart may record CONDITION, then
-  it initiates a @NON-LOCAL-EXIT to return from the test function with
+  it initiates a [non-local exit][clhs] to return from the test function with
   VERDICT-SKIP. If during the unwinding ABORT-TRIAL or RETRY-TRIAL is
   called, then the skip is cancelled.
 
@@ -439,9 +439,9 @@
 
 (defun retry-trial (&optional condition (trial (current-trial)))
   "Invoke the RETRY-TRIAL restart of RUNNINGP TRIAL. The RETRY-TRIAL
-  restart may record CONDITION, then it initiates a @NON-LOCAL-EXIT to
-  go back to the beginning of the test function. If the non-local exit
-  completes, then
+  restart may record CONDITION, then it initiates a [non-local
+  exit][clhs] to go back to the beginning of the test function. If the
+  non-local exit completes, then
 
   - (N-RETRIES TRIAL) is incremented,
   - collected results and trials are cleared (see @TRY/COLLECT),

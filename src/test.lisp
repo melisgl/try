@@ -11,7 +11,7 @@
     the function,
 
   - signal a VERDICT condition before returning normally or via a
-    @NON-LOCAL-EXIT,
+    [non-local exit][clhs],
 
   - return the TRIAL object as the first value,
 
@@ -369,8 +369,8 @@
 (defun test-bound-p (symbol)
   "See if SYMBOL names a global test (i.e. a test defined with
   DEFTEST). If since the execution of DEFTEST, the symbol has been
-  uninterned, FMAKUNBOUND, or redefined with DEFUN, then it no longer
-  names a global test."
+  UNINTERNed, FMAKUNBOUNDed, or redefined with DEFUN, then it no
+  longer names a global test."
   (and (fboundp symbol)
        (let* ((package (symbol-package symbol))
               (registry (get-deftest-registry package)))

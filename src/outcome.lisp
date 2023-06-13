@@ -322,8 +322,8 @@
   (invoke-restart 'skip-check))
 
 (defun retry-check (&optional condition)
-  "Initiate a @NON-LOCAL-EXIT to go reevaluate the forms wrapped by
-  the check without signalling an OUTCOME."
+  "Initiate a [non-local exit][clhs] to go reevaluate the forms
+  wrapped by the check without signalling an OUTCOME."
   (declare (ignore condition))
   (invoke-restart 'retry-check))
 

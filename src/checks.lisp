@@ -10,7 +10,7 @@
     macro that wraps BODY is made when BODY returns normally.
 
   - ON-NLX is a boolean that determines whether the check in a macro
-    that wraps BODY is made when BODY performs a @NON-LOCAL-EXIT.
+    that wraps BODY is made when BODY performs a [non-local exit][clhs].
 
   - MSG and CTX are @TRY/FORMAT-SPECIFIER-FORMS as in IS.
 
@@ -44,7 +44,7 @@
   function, T, or NIL. When it is a function, it is called from the
   condition handler (SIGNALS and SIGNALS-NOT) or the debugger
   hook (invokes-debugger and INVOKES-DEBUGGER-NOT) with the matching
-  condition. HANDLER may perform a @NON-LOCAL-EXIT. When HANDLER is T,
+  condition. HANDLER may perform a [non-local exit][clhs]. When HANDLER is T,
   the matching condition is handled by performing a non-local exit to
   just outside BODY. If the exit completes, BODY is treated as if it
   had returned normally, and ON-RETURN is consulted. When HANDLER is
@@ -326,9 +326,9 @@
 
 
 (defmacro fails ((&key name msg ctx) &body body)
-  """Check that BODY performs a @NON-LOCAL-EXIT but do not cancel
-  it (see @CANCELLED-NLX). See @TRY/CHECK-LIBRARY for the descriptions
-  of the other arguments.
+  """Check that BODY performs a [non-local exit][clhs] but do not
+  cancel it (see @CANCELLED-NLX). See @TRY/CHECK-LIBRARY for the
+  descriptions of the other arguments.
 
   In the following example, FAILS signals a SUCCESS.
 
