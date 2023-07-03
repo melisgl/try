@@ -175,7 +175,8 @@
     (with-test ("explicit %% dominates implicit capture")
       (is-ctx-captures '(((values (1+ 2) t) (3 t) t t))
         (is (equal (%% (values (1+ 2) t)) 5))))
-    ;; ECL has some EQness related issue.
+    ;; ABCL and ECL has some EQness related issue.
+    ;; https://github.com/armedbear/abcl/issues/606
     ;; https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665
     (with-test ("explicit CAPTURE-VALUES dominates implicit capture")
       (with-failure-expected ((alexandria:featurep '(:or :abcl :ecl :cmucl)))
