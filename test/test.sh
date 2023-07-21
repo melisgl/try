@@ -53,6 +53,8 @@ function run_tests {
   fi
 }
 
+export LC_ALL=en_US.UTF-8
+
 run_tests lisp_tests sbcl --noinform
 run_tests lisp_tests allegro --batch --backtrace-on-error
 run_tests lisp_tests ccl-bin
