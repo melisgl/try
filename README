@@ -666,9 +666,9 @@ Only RECORD-EVENT is applicable to all EVENTs. See
     A convenience macro on top of WITH-EXPECTED-OUTCOME,
     WITH-FAILURE-EXPECTED expects VERDICTs to have VERDICT-EXPECTED-TYPE
     and RESULTs to have RESULT-EXPECTED-TYPE. A simple
-    `(WITH-FAILURE-EXPECTED () ...)` makes all RESULT `SUCCESS`es and
+    `(WITH-FAILURE-EXPECTED () ...)` makes all RESULT SUCCESSes and
     FAILUREs EXPECTED. `(WITH-FAILURE-EXPECTED ('FAILURE) ..)` expects
-    FAILUREs only, and any `SUCCESS`es will be UNEXPECTED.
+    FAILUREs only, and any SUCCESSes will be UNEXPECTED.
 
 - [macro] WITH-SKIP (&OPTIONAL (SKIP T)) &BODY BODY
 
@@ -1405,13 +1405,13 @@ functionality such as MATCH-VALUES.
 
 - [function] MAKE-SUB VAR SUBFORM NEW-FORM VALUESP
 
-- [structure-accessor] SUB-VAR
+- [structure-accessor] SUB-VAR SUB
 
-- [structure-accessor] SUB-SUBFORM
+- [structure-accessor] SUB-SUBFORM SUB
 
-- [structure-accessor] SUB-NEW-FORM
+- [structure-accessor] SUB-NEW-FORM SUB
 
-- [structure-accessor] SUB-VALUESP
+- [structure-accessor] SUB-VALUESP SUB
 
 - [generic-function] SUBSTITUTE-IS-LIST-FORM FIRST FORM ENV
 
@@ -1799,7 +1799,7 @@ functions and macros that may be useful for writing IS checks.
     ```
 
 
-- [function] MISMATCH% SEQUENCE1 SEQUENCE2 &KEY FROM-END (TEST #'EQL) (START1 0) END1 (START2 0) END2 KEY MAX-PREFIX-LENGTH MAX-SUFFIX-LENGTH
+- [function] MISMATCH% SEQUENCE1 SEQUENCE2 &KEY FROM-END (TEST \#'EQL) (START1 0) END1 (START2 0) END2 KEY MAX-PREFIX-LENGTH MAX-SUFFIX-LENGTH
 
     Like CL:MISMATCH but CAPTUREs and returns the common prefix and
     the mismatched suffixes. The `TEST-NOT` argument is deprecated by
@@ -1834,7 +1834,7 @@ functions and macros that may be useful for writing IS checks.
     ```
 
 
-- [function] DIFFERENT-ELEMENTS SEQUENCE1 SEQUENCE2 &KEY (PRED #'EQL) (MISSING :MISSING)
+- [function] DIFFERENT-ELEMENTS SEQUENCE1 SEQUENCE2 &KEY (PRED \#'EQL) (MISSING :MISSING)
 
     Return the different elements under PRED in the given sequences as
     a list of `(:INDEX <INDEX> <E1> <E2>)` elements, where `E1` and `E2`
