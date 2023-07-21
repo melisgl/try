@@ -201,7 +201,8 @@
          (%print-leaf printer event))))))
 
 (defun %ensure-trial-printed (trial printer)
-  (with-slots (stream) printer
+  (let ((stream (stream-of printer)))
+    (declare (ignorable stream))
     (labels
         ((%ensure (ancestor trial-print-states)
            (when ancestor
@@ -486,6 +487,7 @@
 (defmethod print-event ((printer tree-printer) (leaf leaf))
   (let ((stream (stream-of printer))
         (print-state (first (trial-print-states printer))))
+    (declare (ignorable print-state))
     (cond ((safe-typep leaf (print-compactly printer))
            #+abcl
            (progn
