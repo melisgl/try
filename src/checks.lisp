@@ -104,7 +104,7 @@
                                     name msg ctx check-function)
                                    &body body)
   (with-gensyms (matchedp best-match handled %retry finishedp)
-    `(with-retry (:retry ,%retry)
+    `(with-retry/go (:retry ,%retry)
        (with-timing
          (with-condition-matching (,matchedp ,best-match)
              (,condition-type :pred ,pred :handler ,(if (eq handler t)
@@ -124,7 +124,7 @@
                               ,(canonicalize-format-specifier-form msg)
                               ,(canonicalize-format-specifier-form ctx)
                               ',body)))
-                   (,%retry))))))))))
+                   (go ,%retry))))))))))
 
 (defun %match-condition (condition condition-type pred)
   (cond ((not (typep condition condition-type))
@@ -355,7 +355,7 @@
   Note that there is no `FAILS-NOT` as WITH-TEST fills that role.
   """
   (with-gensyms (%retry finishedp)
-    `(with-retry (:retry ,%retry)
+    `(with-retry/go (:retry ,%retry)
        (with-timing
          (on-finish
              (progn ,@body)
@@ -365,7 +365,7 @@
                                ,(canonicalize-format-specifier-form msg)
                                ,(canonicalize-format-specifier-form ctx)
                                ',body))
-               (,%retry))))))))
+               (go ,%retry))))))))
 
 (defun check-fails (finishedp name msg ctx body)
   (is (not finishedp)
@@ -392,7 +392,7 @@
   RETRY-CHECK restarts timing.
   """
   (with-gensyms (%retry finishedp)
-    `(with-retry (:retry ,%retry)
+    `(with-retry/go (:retry ,%retry)
        (with-timing
          (on-finish (progn ,@body)
            (lambda (,finishedp)
@@ -409,7 +409,7 @@
                                :ctx (or ,ctx (list "Took ~,3Fs."
                                                    *in-time-elapsed-seconds*))
                                :capture nil)))
-                 (,%retry)))))))))
+                 (go ,%retry)))))))))
 
 (defvar *in-time-elapsed-seconds*)
 (setf (documentation '*in-time-elapsed-seconds* 'variable)

@@ -263,7 +263,7 @@
          ,@body))))
 
 (defun read-try-debug ()
-  (with-retry ()
+  (with-retry/go ()
     (handler-case
         (progn
           (format *query-io*
@@ -277,7 +277,7 @@
       (error (c)
         (format *query-io* "~&~@<~S retrying on error ~A~:@>"
                 'set-try-debug c)
-        (retry)))))
+        (go retry)))))
 
 (defun set-try-debug (debug)
   "Invoke the SET-TRY-DEBUG restart to override the DEBUG argument of

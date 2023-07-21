@@ -145,7 +145,7 @@
         (expected-outcome *expected-outcome*)
         (outcome nil)
         (successp nil))
-    (with-retry ()
+    (with-retry/go ()
       (restart-case
           (let ((outcome-type (determine-outcome-type checkp basic-outcome
                                                       expected-outcome)))
@@ -180,7 +180,7 @@
           (dbg "Restart ~S called on ~S." 'force-expected-success outcome)
           (setq basic-outcome 'success
                 expected-outcome t)
-          (retry))
+          (go retry))
         (force-unexpected-success ()
           :report (report-change-outcome-to
                    stream (determine-outcome-type checkp 'success nil))
@@ -189,7 +189,7 @@
           (dbg "Restart ~S called on ~S." 'force-unexpected-success outcome)
           (setq basic-outcome 'success
                 expected-outcome nil)
-          (retry))
+          (go retry))
         (force-expected-failure ()
           :report (report-change-outcome-to
                    stream (determine-outcome-type checkp 'failure t))
@@ -198,7 +198,7 @@
           (dbg "Restart ~S called on ~S." 'force-expected-failure outcome)
           (setq basic-outcome 'failure
                 expected-outcome t)
-          (retry))
+          (go retry))
         (force-unexpected-failure ()
           :report (report-change-outcome-to
                    stream (determine-outcome-type checkp 'failure nil))
@@ -207,7 +207,7 @@
           (dbg "Restart ~S called on ~S." 'force-unexpected-failure outcome)
           (setq basic-outcome 'failure
                 expected-outcome nil)
-          (retry))
+          (go retry))
         (abort-check ()
           :report (report-change-outcome-to
                    stream (determine-outcome-type checkp 'abort*))
@@ -215,7 +215,7 @@
                      (not (typep outcome 'abort*)))
           (dbg "Restart ~S called on ~S." 'abort-check outcome)
           (setq basic-outcome 'abort*)
-          (retry))
+          (go retry))
         (skip-check ()
           :report (report-change-outcome-to
                    stream (determine-outcome-type checkp 'skip))
@@ -223,7 +223,7 @@
                      (not (typep outcome 'skip)))
           (dbg "Restart ~S called on ~S." 'skip-check outcome)
           (setq basic-outcome 'skip)
-          (retry))
+          (go retry))
         (retry-check ()
           :report "Retry check."
           :test (and (eq *try-id* try-id) checkp

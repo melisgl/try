@@ -328,7 +328,7 @@
 (defmacro with-retry/catch ((&key catch on-retry) &body body)
   `(block nil
      (loop
-       ;; KLUDGE: Clisp complain about illegal syntax without the
+       ;; KLUDGE: CLISP complains about illegal syntax without the
        ;; PROGN.
        (progn
          (catch ,catch
@@ -336,7 +336,7 @@
          ,on-retry))))
 
 ;;;; Same thing with TAGBODY and GO instead of CATCH and THROW.
-(defmacro with-retry ((&key (retry 'retry) on-retry) &body body)
+(defmacro with-retry/go ((&key (retry 'retry) on-retry) &body body)
   (cond ((and retry on-retry)
          (with-gensyms (body-tag)
            `(block ,retry
@@ -345,16 +345,14 @@
                  ,retry
                  ,on-retry
                  ,body-tag
-                 (macrolet ((,retry () (list 'go ',retry)))
-                   (return-from ,retry
-                     (progn ,@body)))))))
+                 (return-from ,retry
+                   (progn ,@body))))))
         (retry
          `(block ,retry
             (tagbody
                ,retry
-               (macrolet ((,retry () (list 'go ',retry)))
-                 (return-from ,retry
-                   (progn ,@body))))))
+               (return-from ,retry
+                 (progn ,@body)))))
         (t
          `(block nil
             ,@body))))

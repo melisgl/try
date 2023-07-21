@@ -106,56 +106,57 @@
   and signals a new RESULT. If RETRY is NIL, then the RETRY-CHECK
   restart returns :RETRY, which allows complex checks such as SIGNALS
   to implement their own retry mechanism."""
-  (with-gensyms (%form basic-outcome)
+  (with-gensyms (%form)
     (multiple-value-bind (is-substituted-form subs)
         (if capture
             (substitute-is-form form env)
             (values form ()))
       (let ((signal-form
-              `(signal-outcome t
-                               ;; This can change *IS-CAPTURES* via
-                               ;; CAPTURE.
-                               (let ((,basic-outcome (if ,is-substituted-form
-                                                         'success
-                                                         'failure)))
-                                 (if *skip* 'skip ,basic-outcome))
-                               (list
-                                :check '(is ,form)
-                                ;; Must be after the evaluation of the
-                                ;; form.
-                                :elapsed-seconds (get-elapsed-seconds)
-                                ;; Now that IS-SUBSTITUTED-FORM is
-                                ;; evaluated, change *IS-CAPTURES* to
-                                ;; evaluation order before MSG and CTX
-                                ;; get to see it.
-                                :captures (setq *is-captures*
-                                                (scrub-captures
-                                                 (nreverse *is-captures*)))
-                                :print-captures ,print-captures
-                                :msg ,(canonicalize-format-specifier-form msg)
-                                :ctx ,(canonicalize-format-specifier-form
-                                       ctx)))))
+              `(signal-is-outcome
+                ;; This can change *IS-CAPTURES* via
+                ;; CAPTURE.
+                (if ,is-substituted-form 'success 'failure)
+                ',form
+                ,print-captures
+                ,(canonicalize-format-specifier-form msg)
+                ,(canonicalize-format-specifier-form ctx))))
         (let ((%retry-name (if retry (make-gensym '#:retry) nil)))
           `(macrolet ((% (,%form)
                         `(capture ,,%form))
                       (%% (,%form)
                         `(capture-values ,,%form)))
-             (with-retry (:retry ,%retry-name)
+             (with-retry/go (:retry ,%retry-name)
                (with-timing
-                 (let ((*is-captures* ()))
-                   ;; The above binding of *IS-CAPTURES* may be
-                   ;; modified by CAPTURE during the evaluation these
-                   ;; bindings.
-                   (let* ,(%subs-to-bindings subs)
-                     (let* ((*is-form* ',form)
-                            (*is-captures* (nconc ,(%subs-to-captures subs)
-                                                  *is-captures*)))
-                       ,(if retry
-                            `(ecase ,signal-form
-                               ((:retry) (,%retry-name))
-                               ((t) t)
-                               ((nil) nil))
-                            signal-form))))))))))))
+                 (let* ((*is-captures* ())
+                        ;; The above binding of *IS-CAPTURES* may be
+                        ;; modified by CAPTURE during the evaluation
+                        ;; these bindings.
+                        ,@(%subs-to-bindings subs)
+                        (*is-form* ',form)
+                        ,@(when subs
+                            `((*is-captures* (nconc ,(%subs-to-captures subs)
+                                                    *is-captures*)))))
+                   ,(if retry
+                        `(case ,signal-form
+                           (:retry (go ,%retry-name))
+                           ((t) t))
+                        signal-form))))))))))
+
+(defun signal-is-outcome (basic-outcome form print-captures msg ctx)
+  (signal-outcome t
+                  (if *skip* 'skip basic-outcome)
+                  (list
+                   :check `(is ,form)
+                   ;; Must be after the evaluation of the form.
+                   :elapsed-seconds (get-elapsed-seconds)
+                   ;; Now that IS-SUBSTITUTED-FORM is evaluated,
+                   ;; change *IS-CAPTURES* to evaluation order before
+                   ;; MSG and CTX get to see it.
+                   :captures (setq *is-captures*
+                                   (scrub-captures (nreverse *is-captures*)))
+                   :print-captures print-captures
+                   :msg msg
+                   :ctx ctx)))
 
 
 (defsection @try/format-specifier-forms (:title "Format Specifier Forms")
