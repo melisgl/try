@@ -79,19 +79,23 @@
      ,@body))
 
 (defmacro with-failure-expected ((&optional (result-expected-type t)
-                                  (verdict-expected-type ''success))
+                                    (verdict-expected-type ''success))
                                  &body body)
   "A convenience macro on top of WITH-EXPECTED-OUTCOME,
   WITH-FAILURE-EXPECTED expects VERDICTs to have VERDICT-EXPECTED-TYPE
   and RESULTs to have RESULT-EXPECTED-TYPE. A simple
-  `(WITH-FAILURE-EXPECTED () ...)` makes all RESULT `SUCCESS`es and
+  `(WITH-FAILURE-EXPECTED () ...)` makes all RESULT SUCCESSes and
   FAILUREs EXPECTED. `(WITH-FAILURE-EXPECTED ('FAILURE) ..)` expects
-  FAILUREs only, and any `SUCCESS`es will be UNEXPECTED."
-  `(with-expected-outcome (`(or (and result ,(or ,result-expected-type
-                                                'success))
-                                (and verdict ,(or ,verdict-expected-type
-                                                  'success))))
-     ,@body))
+  FAILUREs only, and any SUCCESSes will be UNEXPECTED."
+  (with-gensyms (ret vet)
+    `(let* ((,ret ,result-expected-type)
+            ;; This could be an OR but is written like this to avoid
+            ;; unreachable code warning on Allegro.
+            (,ret (if ,ret ,ret 'success))
+            (,vet ,verdict-expected-type)
+            (,vet (if ,vet ,vet 'success)))
+       (with-expected-outcome (`(or (and result ,,ret) (and verdict ,,vet)))
+         ,@body))))
 
 (defun determine-outcome-type (checkp basic-outcome &optional expected-type)
   (case basic-outcome
