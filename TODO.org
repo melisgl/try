@@ -15,16 +15,46 @@ handler outside TRY.
 * MAYBE *DESCRIBE* vs verdicts?
 * MAYBE tests rely on default values of specials
 Add more vars to WITH-STD-TRY. Actually, use DEFVAR* to capture those
-defaults according OAOO.
-* MAYBE threads
-Channel events from some other threads somehow.
+defaults according to OAOO.
+
+Or, just make the global binding immutable?
+* CANCELLED threads
+CLOSED: [2023-08-05 Sat 09:32]
+- State "CANCELLED"  from "MAYBE"      [2023-08-05 Sat 09:32]
 (with-test (t0)
-  ...
-  (make-thread (lambda()
-                 (into-funnel (t1 :parent t0)
-                   ...)))
-  ...
-  (wait-until-all-intos-are-done))
+  (adopting (c0)
+    (make-thread (lambda()
+                   (reparenting (t0 c0)
+                     (with-test (t1)
+                       ...))))))
+
+- ADOPTING binds C0 to a semaphore. REPARENTING arranges for T1 to be
+  added to a dedicated slot (ADOPTEES) in T0 in a thread safe manner
+  and signals C0 when it's done. CHILDREN continues to be accessed
+  without synchronization overhead.
+
+- ADOPTING captures the relevant dynamic environment, and REPARENTING
+  reinstates it.
+
+- ADOPTING waits on the semaphores it created at the end.
+
+- There may be REPARENTINGs without semaphores. ADOPTING cannot wait
+  for those, and it is the user's responsibility to synchronize.
+
+- Printing semantics are nasty. Events must be printed at the latest
+  when the debugger is entered, so maybe print with thread ids? Use
+  different printer objects to keep things simple. This maintains
+  simple nesting structure in TRIALs and CHILDREN but breaks nesting
+  in the output, of course.
+
+- The ordering of events is lost (some are in CHILDREN some in
+  ADOPTEES). Printed output cannot be reproduced on reruns. Rerunning
+  semantics is a headache more generally. This is not great.
+
+Maybe it's better to provide a simple macro that waits for threads
+created with a timeout and leaves it to the user to perform the checks
+in the right thread. The problem is that which threads to wait for
+cannot be decided automatically.
 * MAYBE tree-printer with outline-minor-mode?
 outline-minor-mode doesn't work in the SLIME repl buffer because
 outline-regex is set to a strange value.
@@ -41,5 +71,6 @@ better to invoke the debugger on the actual ERROR.
 * count skipped tests in parent?
 There should be a trace of what happened in the counts.
 * MAYBE integrate into Slime
+Something like ert?
 * MAYBE improve readability of backtrace
 I don't know how. See TRY::EXPAND-WITH-TRIAL-IN-DEFTEST-P.
