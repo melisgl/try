@@ -58,22 +58,24 @@
 (defvar *count* 'leaf
   "Although the default value of *CATEGORIES* lumps RESULTs and
   VERDICTs together, with the default of LEAF, VERDICTs are not
-  counted.")
+  counted. See @TRY/COUNT.")
 
 (defvar *collect* 'unexpected
-  "To save memory, only the UNEXPECTED are collected by default.")
+  "To save memory, only the UNEXPECTED are collected by default.
+  See @TRY/COLLECT.")
 
 (defvar *rerun* 'unexpected
-  "The default matches that of *COLLECT*.")
+  "The default matches that of *COLLECT*. See @TRY/RERUN.")
 
 (defvar *print* 'leaf
   "With the default of LEAF combined with the default *PRINT-PARENT*
   T, only TRIALs with checks or ERROR* in them are printed. If
-  UNEXPECTED, only the interesting things are printed.")
+  UNEXPECTED, only the interesting things are printed. See @TRY/PRINT.")
 
 (defvar *describe* '(or unexpected failure)
   "By default, the context (e.g. @TRY/CAPTURES, and the CTX argument
-  of is and other checks) of UNEXPECTED events is described.")
+  of is and other checks) of UNEXPECTED events is described. See
+  @TRY/PRINT.")
 
 (defvar *stream* (make-synonym-stream '*debug-io*))
 
@@ -222,9 +224,9 @@
      ,@body))
 
 ;;; Check that user specified types are valid. Even after these
-;;; checks, we use SAFE-TYPEP and SAFE-SUBTYPEP with these as they may
-;;; become invalid while running and the resulting cascade of errors
-;;; is really unpleasant.
+;;; checks, we use SAFE-TYPEP and SAFE-SUBTYPEP as they may become
+;;; invalid while running, and the resulting cascade of errors is
+;;; really unpleasant.
 (defun check-event-type (type arg-name)
   (assert (valid-type-specifier-p type) ()
           "~@<~A, the ~S argument of ~S, must be a valid type specifier.~:@>"
@@ -366,7 +368,9 @@
                                   :print-type print
                                   :describe-type describe))
           (rerun-trial-event-handler
-            (when (and (typep testable 'trial) (not (runningp testable)))
+            (when (and (not (eq rerun t))
+                       (typep testable 'trial)
+                       (not (runningp testable)))
               (%make-rerun-trial-event-handler testable rerun))))
       (with-current-debug (debug debug)
         (labels ((really-record-event (event)
@@ -393,3 +397,18 @@
   (when (safe-typep outcome debug-outcome-type)
     (let ((*invoking-debugger* t))
       (invoke-debugger outcome))))
+
+
+(defun try-for-emacs (testable &key rerun-all)
+  (let ((*package* (find-package :common-lisp))
+        (*printer* 'tree-printer)
+        (*print-indentation* :outline)
+        (*print-parent* t)
+        (*categories* (fancy-std-categories)))
+    (with-output-to-string (out)
+      (catch 'nlx-barrier
+        (unwind-protect
+             (try testable
+                  :stream (make-broadcast-stream *standard-output* out)
+                  :rerun (if rerun-all t *try-rerun*))
+          (throw 'nlx-barrier nil))))))

@@ -418,6 +418,55 @@ LIST-PACKAGE-TESTS.
 This style allows higher level tests to establish the dynamic
 environment necessary for lower level tests.
 
+## Emacs Integration
+
+The Elisp `mgl-try` interactive command runs a Try test and
+displays its output in a `lisp-mode` buffer with minor modes
+`outline-mode` and `mgl-try-mode`. In the buffer,
+
+- use `M-.` to visit a test function;
+
+- move between UNEXPECTED events with keys `p` and `n`;
+
+- rerun the most recent trial (TRY:!) with `r` (subject to the
+  filtering described @TRY/RERUN);
+
+- rerun the most recently finished test with `R` (and all tests it
+  calls);
+
+- run an arbitrary test with `t` (defaults to symbol under point);
+
+- some low-level outline mode commands are also given convenient
+  bindings:
+
+        <tab>           outline-cycle
+        N               outline-next-visible-heading
+        P               outline-previous-visible-heading
+        U               outline-up-heading
+
+
+### Emacs Setup
+
+Load `src/mgl-try.el` in Emacs.
+
+If you installed Try with Quicklisp, the location of `mgl-try.el`
+may change with updates, and you may want to copy the current
+version of `mgl-try.el` to a stable location:
+
+    (try:install-try-elisp "~/quicklisp/")
+
+Then, assuming the Elisp file is in the quicklisp directory, add
+something like this to your `.emacs`:
+
+```elisp
+(load "~/quicklisp/mgl-try.el")
+```
+
+
+- [function] INSTALL-TRY-ELISP TARGET-DIR
+
+    Copy `mgl-try.el` distributed with this package to TARGET-DIR.
+
 ## Events
 
 Try is built around events implemented as CONDITIONs.
@@ -1268,8 +1317,8 @@ on top of it.
     CTX via *IS-CAPTURES*. See @TRY/CAPTURES for more.
     
     If PRINT-CAPTURES is true, the captures made are printed when the
-    RESULT condition is displayed in the debugger or `DESCRIBE`d (see
-    @TRY/PRINT). This is the `where (PRIN1-TO-STRING 'HELLO) = "HELLO"`
+    RESULT condition is displayed in the debugger or `*DESCRIBE*`d (see
+    @TRY/PRINT). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
     part above. If PRINT-CAPTURES is NIL, the captures are still
     available in *IS-CAPTURES* for writing custom CTX messages.
     
@@ -2178,26 +2227,28 @@ The rest of the behaviour is described in @TRY/EXPLICIT-TRY.
 
     Although the default value of *CATEGORIES* lumps RESULTs and
     VERDICTs together, with the default of LEAF, VERDICTs are not
-    counted.
+    counted. See @TRY/COUNT.
 
 - [variable] *COLLECT* UNEXPECTED
 
     To save memory, only the UNEXPECTED are collected by default.
+    See @TRY/COLLECT.
 
 - [variable] *RERUN* UNEXPECTED
 
-    The default matches that of *COLLECT*.
+    The default matches that of *COLLECT*. See @TRY/RERUN.
 
 - [variable] *PRINT* LEAF
 
     With the default of LEAF combined with the default *PRINT-PARENT*
     T, only TRIALs with checks or ERROR\* in them are printed. If
-    UNEXPECTED, only the interesting things are printed.
+    UNEXPECTED, only the interesting things are printed. See @TRY/PRINT.
 
 - [variable] *DESCRIBE* (OR UNEXPECTED FAILURE)
 
     By default, the context (e.g. @TRY/CAPTURES, and the CTX argument
-    of is and other checks) of UNEXPECTED events is described.
+    of is and other checks) of UNEXPECTED events is described. See
+    @TRY/PRINT.
 
 - [variable] *STREAM* (MAKE-SYNONYM-STREAM '\*DEBUG-IO\*)
 
@@ -2599,7 +2650,7 @@ setups.
 
 - [variable] *DEFER-DESCRIBE* NIL
 
-    When an EVENT is to be `DESCRIBE`d and its type matches
+    When an EVENT is to be `*DESCRIBE*`d and its type matches
     *DEFER-DESCRIBE*, then instead of printing the often longish context
     information in the tree of events, it is deferred until after TRY
     has finished. The following example only prints LEAF events (due to
@@ -2689,43 +2740,51 @@ the enclosing trials.
 
 ### Rerunning Trials
 
-When a TRIAL is `FUNCALL`ed or passed to TRY, the same tests that
-instantiated TRIAL are executed.
+When a TRIAL is `FUNCALL`ed or passed to TRY, the *test that
+created the trial* is invoked, and it may be run again in its
+entirety or in part. As the test runs, it may invoke other tests.
+Any test (including the top-level one) is skipped if it does not
+correspond to a collected trial or its TRIAL-START
+event and VERDICT do not match the RERUN argument of TRY. When that
+happens, the corresponding function call immediately returns the
+TRIAL object.
 
-- If the trial was created by calling a DEFTEST function, then the
-  test currently associated with that symbol naming the function is
-  called with the arguments of the original function call. If the
-  symbol is no longer FBOUNDP (because it was FMAKUNBOUND) or it no
-  longer names a DEFTEST (it was redefined with DEFUN), then an
-  error is signalled.
+- A new trial is skipped (as if with SKIP-TRIAL) if RERUN is not T
+  and
 
-- If the trial was created by entering a WITH-TEST form, then its
-  body is executed again in the original lexical but the current
-  dynamic environment. Implementationally speaking, WITH-TEST
-  defines a local function of no arguments (likely a closure) that
-  wraps its body, stores the closure in the trial object and calls
-  it on a rerun in a WITH-TEST of the same TRIAL-VAR and same NAME.
+    - there is no trial representing the same function call among
+      the collected but not yet rerun trials in the trial being
+      rerun, or
 
-- If the trial was created by TRY itself to ensure that all events
-  are signalled in a trial (see @TRY/EXPLICIT-TRY), then on a rerun
-  the same TESTABLE is run again.
+    - the first such trial does not match the RERUN type argument of
+      TRY in that neither its TRIAL-START, VERDICT events match the
+      type RERUN, nor do any of its collected RESULTs and trials.
 
-All three possibilities involve entering DEFTEST or WITH-TEST, or
-invoking TRY: the same cases that we have when calling tests
-functions (see @TRY/IMPLICIT-TRY). Thus even if a trial is rerun
-with FUNCALL, execution is guaranteed to happen under an TRY, so we
-can talk about its RERUN parameter.
+- The *test that created the trial* is determined as follows.
 
-As the test functions are being rerun, some trials are automatically
-skipped. When that happens the corresponding function call
-immediately returns the TRIAL object. A new trial is skipped if
+    - If the trial was created by calling a DEFTEST function, then
+      the test currently associated with that symbol naming the
+      function is called with the arguments of the original function
+      call. If the symbol is no longer FBOUNDP (because it was
+      FMAKUNBOUND) or it no longer names a DEFTEST (it was redefined
+      with DEFUN), then an error is signalled.
 
-- among the collected but not yet rerun trials in the trial being
-  rerun, there is no trial representing the same function call, or
+    - If the trial was created by entering a WITH-TEST form, then
+      its body is executed again in the original lexical but the
+      current dynamic environment. Implementationally speaking,
+      WITH-TEST defines a local function of no arguments (likely a
+      closure) that wraps its body, stores the closure in the trial
+      object and calls it on a rerun in a WITH-TEST of the same
+      TRIAL-VAR and same NAME.
 
-- the first such trial does not match the RERUN type argument of TRY
-  in that neither its TRIAL-START, VERDICT events match the type
-  RERUN, nor do any of its collected RESULTs and trials.
+    - If the trial was created by TRY itself to ensure that all
+      events are signalled in a trial (see @TRY/EXPLICIT-TRY), then
+      on a rerun the same TESTABLE is run again.
+
+    All three possibilities involve entering DEFTEST or WITH-TEST, or
+    invoking TRY: the same cases that we have when calling tests
+    functions (see @TRY/IMPLICIT-TRY). Thus, even if a trial is rerun
+    with FUNCALL, execution is guaranteed to happen under TRY.
 
 
 ### Reprocessing Trials

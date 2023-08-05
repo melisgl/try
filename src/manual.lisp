@@ -6,6 +6,7 @@
   (try asdf:system)
   (@try/links section)
   (@try/tutorial section)
+  (@try/emacs section)
   (@try/events section)
   (@try/is section)
   (@try/check-library section)
@@ -412,6 +413,57 @@
   This style allows higher level tests to establish the dynamic
   environment necessary for lower level tests.
   """)
+
+
+(defsection @try/emacs (:title "Emacs Integration")
+  "The Elisp `mgl-try` interactive command runs a Try test and
+  displays its output in a `lisp-mode` buffer with minor modes
+  `outline-mode` and `mgl-try-mode`. In the buffer,
+
+  - use `\\M-.` to visit a test function;
+
+  - move between UNEXPECTED events with keys `p` and `n`;
+
+  - rerun the most recent trial (TRY:!) with `r` (subject to the
+    filtering described @TRY/RERUN);
+
+  - rerun the most recently finished test with `R` (and all tests it
+    calls);
+
+  - run an arbitrary test with `t` (defaults to symbol under point);
+
+  - some low-level outline mode commands are also given convenient
+    bindings:
+
+          <tab>           outline-cycle
+          N               outline-next-visible-heading
+          P               outline-previous-visible-heading
+          U               outline-up-heading"
+  (@try/emacs-setup section))
+
+(defsection @try/emacs-setup (:title "Emacs Setup")
+  """Load `src/mgl-try.el` in Emacs.
+
+  If you installed Try with Quicklisp, the location of `mgl-try.el`
+  may change with updates, and you may want to copy the current
+  version of `mgl-try.el` to a stable location:
+
+      (try:install-try-elisp "~/quicklisp/")
+
+  Then, assuming the Elisp file is in the quicklisp directory, add
+  something like this to your `.emacs`:
+  
+  ```elisp
+  (load "~/quicklisp/mgl-try.el")
+  ```"""
+  (install-try-elisp function))
+
+(defun install-try-elisp (target-dir)
+  "Copy `mgl-try.el` distributed with this package to TARGET-DIR."
+  (uiop:copy-file (asdf:system-relative-pathname "try" "src/mgl-try.el")
+                  (merge-pathnames "mgl-try.el"
+                                   (uiop:ensure-directory-pathname
+                                    target-dir))))
 
 
 (defsection @try/implementation-notes (:title "Implementation Notes")

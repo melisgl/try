@@ -97,8 +97,8 @@
   CTX via *IS-CAPTURES*. See @TRY/CAPTURES for more.
 
   If PRINT-CAPTURES is true, the captures made are printed when the
-  RESULT condition is displayed in the debugger or `DESCRIBE`d (see
-  @TRY/PRINT). This is the `where (PRIN1-TO-STRING 'HELLO) = "HELLO"`
+  RESULT condition is displayed in the debugger or `*DESCRIBE*`d (see
+  @TRY/PRINT). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
   part above. If PRINT-CAPTURES is NIL, the captures are still
   available in *IS-CAPTURES* for writing custom CTX messages.
 

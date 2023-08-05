@@ -1,43 +1,51 @@
 (in-package :try)
 
 (defsection @try/rerun (:title "Rerunning Trials")
-  "When a TRIAL is `FUNCALL`ed or passed to TRY, the same tests that
-  instantiated TRIAL are executed.
+  "When a TRIAL is `FUNCALL`ed or passed to TRY, the _test that
+  created the trial_ is invoked, and it may be run again in its
+  entirety or in part. As the test runs, it may invoke other tests.
+  Any test (including the top-level one) is skipped if it does not
+  correspond to a [collected][@try/collect] trial or its TRIAL-START
+  event and VERDICT do not match the RERUN argument of TRY. When that
+  happens, the corresponding function call immediately returns the
+  TRIAL object.
 
-  - If the trial was created by calling a DEFTEST function, then the
-    test currently associated with that symbol naming the function is
-    called with the arguments of the original function call. If the
-    symbol is no longer FBOUNDP (because it was FMAKUNBOUND) or it no
-    longer names a DEFTEST (it was redefined with DEFUN), then an
-    error is signalled.
+  - A new trial is skipped (as if with SKIP-TRIAL) if RERUN is not T
+    and
 
-  - If the trial was created by entering a WITH-TEST form, then its
-    body is executed again in the original lexical but the current
-    dynamic environment. Implementationally speaking, WITH-TEST
-    defines a local function of no arguments (likely a closure) that
-    wraps its body, stores the closure in the trial object and calls
-    it on a rerun in a WITH-TEST of the same TRIAL-VAR and same NAME.
+      - there is no trial representing the same function call among
+        the collected but not yet rerun trials in the trial being
+        rerun, or
 
-  - If the trial was created by TRY itself to ensure that all events
-    are signalled in a trial (see @TRY/EXPLICIT-TRY), then on a rerun
-    the same TESTABLE is run again.
+      - the first such trial does not match the RERUN type argument of
+        TRY in that neither its TRIAL-START, VERDICT events match the
+        type RERUN, nor do any of its collected RESULTs and trials.
 
-  All three possibilities involve entering DEFTEST or WITH-TEST, or
-  invoking TRY: the same cases that we have when calling tests
-  functions (see @TRY/IMPLICIT-TRY). Thus even if a trial is rerun
-  with FUNCALL, execution is guaranteed to happen under an TRY, so we
-  can talk about its RERUN parameter.
+  - The _test that created the trial_ is determined as follows.
 
-  As the test functions are being rerun, some trials are automatically
-  skipped. When that happens the corresponding function call
-  immediately returns the TRIAL object. A new trial is skipped if
+      - If the trial was created by calling a DEFTEST function, then
+        the test currently associated with that symbol naming the
+        function is called with the arguments of the original function
+        call. If the symbol is no longer FBOUNDP (because it was
+        FMAKUNBOUND) or it no longer names a DEFTEST (it was redefined
+        with DEFUN), then an error is signalled.
 
-  - among the collected but not yet rerun trials in the trial being
-    rerun, there is no trial representing the same function call, or
+      - If the trial was created by entering a WITH-TEST form, then
+        its body is executed again in the original lexical but the
+        current dynamic environment. Implementationally speaking,
+        WITH-TEST defines a local function of no arguments (likely a
+        closure) that wraps its body, stores the closure in the trial
+        object and calls it on a rerun in a WITH-TEST of the same
+        TRIAL-VAR and same NAME.
 
-  - the first such trial does not match the RERUN type argument of TRY
-    in that neither its TRIAL-START, VERDICT events match the type
-    RERUN, nor do any of its collected RESULTs and trials.")
+      - If the trial was created by TRY itself to ensure that all
+        events are signalled in a trial (see @TRY/EXPLICIT-TRY), then
+        on a rerun the same TESTABLE is run again.
+
+      All three possibilities involve entering DEFTEST or WITH-TEST, or
+      invoking TRY: the same cases that we have when calling tests
+      functions (see @TRY/IMPLICIT-TRY). Thus, even if a trial is rerun
+      with FUNCALL, execution is guaranteed to happen under TRY.")
 
 (declaim (ftype (function (t) t) try/implicit))
 

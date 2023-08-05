@@ -319,7 +319,7 @@
   """)
 
 (defvar *defer-describe* nil
-  "When an EVENT is to be `DESCRIBE`d and its type matches
+  "When an EVENT is to be `*DESCRIBE*`d and its type matches
   *DEFER-DESCRIBE*, then instead of printing the often longish context
   information in the tree of events, it is deferred until after TRY
   has finished. The following example only prints LEAF events (due to
@@ -413,17 +413,19 @@
   """))
 
 (defun %print-indent-for (printer event)
-  (write-string (%make-indent (* (indentation printer)
-                                 (event-print-depth event printer)))
+  (write-string (%make-indent (indentation printer)
+                              (event-print-depth event printer))
                 (stream-of printer)))
 
-(defun %make-indent (n)
-  (make-string n :initial-element #\Space)
-  ;; For Emacs outline-mode.
-  #+nil
-  (concatenate 'string
-               (make-string (+ (* depth) extra 1) :initial-element #\*)
-               " "))
+(defun %make-indent (indentation depth)
+  (cond ((numberp indentation)
+         (make-string (* indentation depth) :initial-element #\Space))
+        ((eq indentation :outline)
+         (concatenate 'string
+                      (make-string (+ depth 1) :initial-element #\*)
+                      " "))
+        (t
+         (assert nil))))
 
 ;;; The depth of the printer is the number of trials (more precisely
 ;;; PRINT-STATEs) on TRIAL-PRINT-STATES that have been printed.
