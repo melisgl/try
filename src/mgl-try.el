@@ -86,7 +86,7 @@ with minor mode `mgl-try-mode'."
                                                    'mgl-try-history)
                      nil))
   (if (slime-eval '(cl:not (cl:find-package :try)))
-      (message "Try is not loaded on Common Lisp side.")
+      (message "Try is not loaded on the Common Lisp side.")
     (slime-eval-async `(swank::with-buffer-syntax
                         ()
                         (try::try-for-emacs ,(if (stringp test-name)
@@ -121,7 +121,7 @@ with minor mode `mgl-try-mode'."
   (outline-hide-body))
 
 (defun mgl-try-try (test-name)
-  "Like `mgl-try' but defaults to the symbol under point."
+  "Like `mgl-try', but defaults to the symbol under point."
   (interactive (list (mgl-try-read-from-minibuffer "Run test"
                                                    (slime-symbol-at-point)
                                                    (car mgl-try-history)

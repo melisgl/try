@@ -11,7 +11,7 @@
   :source-control (:git "https://github.com/melisgl/try.git")
   :description "Try is an extensible test framework with equal support
   for interactive and non-interactive workflows."
-  :long-description "Try stays as close to normal Lisp evaulation
+  :long-description "Try stays as close to normal Lisp evaluation
   rules as possible. Tests are functions that record the checks they
   perform as events. These events provide the means of customization
   of what to debug, print, rerun. There is a single fundamental check,

@@ -57,7 +57,7 @@
 - Version: 0.0.1
 - Description: Try is an extensible test framework with equal support
   for interactive and non-interactive workflows.
-- Long Description: Try stays as close to normal Lisp evaulation
+- Long Description: Try stays as close to normal Lisp evaluation
   rules as possible. Tests are functions that record the checks they
   perform as events. These events provide the means of customization
   of what to debug, print, rerun. There is a single fundamental check,

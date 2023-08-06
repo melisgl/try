@@ -416,7 +416,7 @@
 
 
 (defsection @try/emacs (:title "Emacs Integration")
-  "The Elisp `mgl-try` interactive command runs a Try test and
+  """The Elisp `mgl-try` interactive command runs a Try test and
   displays its output in a `lisp-mode` buffer with minor modes
   `outline-mode` and `mgl-try-mode`. It is assumed that the lisp is
   running under [Slime](https://slime.common-lisp.dev/). In the
@@ -443,7 +443,7 @@
           <tab>           outline-cycle
           N               outline-next-visible-heading
           P               outline-previous-visible-heading
-          U               outline-up-heading"
+          U               outline-up-heading"""
   (@try/emacs-setup section))
 
 (defsection @try/emacs-setup (:title "Emacs Setup")

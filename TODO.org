@@ -11,7 +11,6 @@ Portable seeding?
 That is, instead of DEBUG we could say (UNEXPECTED-FAILURE
 #'INVOKE-DEBUGGER) or (UNEXPECTED-FAILURE nil) and establish our own
 handler outside TRY.
-* MAYBE remember printer parameters for !?
 * MAYBE *DESCRIBE* vs verdicts?
 * MAYBE tests rely on default values of specials
 Add more vars to WITH-STD-TRY. Actually, use DEFVAR* to capture those
@@ -66,3 +65,4 @@ better to invoke the debugger on the actual ERROR.
 There should be a trace of what happened in the counts.
 * MAYBE improve readability of backtrace
 I don't know how. See TRY::EXPAND-WITH-TRIAL-IN-DEFTEST-P.
+* MAYBE rerun by name?
