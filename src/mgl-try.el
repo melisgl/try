@@ -85,7 +85,7 @@ with minor mode `mgl-try-mode'."
                                                    (car mgl-try-history)
                                                    'mgl-try-history)
                      nil))
-  (if (null (slime-eval '(cl:find-package :try)))
+  (if (slime-eval '(cl:not (cl:find-package :try)))
       (message "Try is not loaded on Common Lisp side.")
     (slime-eval-async `(swank::with-buffer-syntax
                         ()
