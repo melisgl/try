@@ -41,25 +41,22 @@
 (defvar mgl-try-expected-failure-regexp "^\\*+ ×")
 (defvar mgl-try-expected-success-regexp "^\\*+ ⋅")
 
-(defvar mgl-try-unexpected-regexp
-  (concat "\\(" mgl-try-abort-regexp
-          "\\)\\|\\(" mgl-try-unexpected-failure-regexp
-          "\\)\\|\\(" mgl-try-unexpected-success-regexp "\\)"))
-
 (defvar mgl-try-history '()
   "History list of expressions read from the minibuffer.")
 
 (defvar mgl-try-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<tab>") 'outline-cycle)
-    (define-key map "P" 'outline-previous-visible-heading)
-    (define-key map "N" 'outline-next-visible-heading)
-    (define-key map "U" 'outline-up-heading)
-    (define-key map "p" 'mgl-try-previous-unexpected)
-    (define-key map "n" 'mgl-try-next-unexpected)
-    (define-key map "t" 'mgl-try-try)
-    (define-key map "r" 'mgl-try-rerun-!)
-    (define-key map "R" 'mgl-try-rerun-!-all)
+    (define-key map (kbd "P") 'outline-previous-visible-heading)
+    (define-key map (kbd "N") 'outline-next-visible-heading)
+    (define-key map (kbd "U") 'outline-up-heading)
+    (define-key map (kbd "p") 'mgl-try-previous-unexpected)
+    (define-key map (kbd "n") 'mgl-try-next-unexpected)
+    (define-key map (kbd "C-p") 'mgl-try-previous-not-expected-success)
+    (define-key map (kbd "C-n") 'mgl-try-next-not-expected-success)
+    (define-key map (kbd "t") 'mgl-try-try)
+    (define-key map (kbd "r") 'mgl-try-rerun-!)
+    (define-key map (kbd "R") 'mgl-try-rerun-!-all)
     map))
 
 (define-minor-mode mgl-try-mode
@@ -141,21 +138,55 @@ This unconditionally reruns all tests. It's not subject to
 TRY:*TRY-RERUN*."
   (interactive)
   (mgl-try 'try:! t))
+
+
+(defvar mgl-try-unexpected-regexp
+  (concat "\\(" mgl-try-abort-regexp
+          "\\)\\|\\(" mgl-try-unexpected-failure-regexp
+          "\\)\\|\\(" mgl-try-unexpected-success-regexp "\\)"))
 
 (defun mgl-try-previous-unexpected ()
-  "Move point to the previous unexpected event and show its subtree."
+  "Move point to the previous unexpected event, and show its subtree."
   (interactive)
-  (when (ignore-errors
-          (search-backward-regexp mgl-try-unexpected-regexp nil nil))
-    (outline-show-subtree)))
+  (mgl-try-previous-regexp mgl-try-unexpected-regexp "unexpected event"))
 
 (defun mgl-try-next-unexpected ()
-  "Move point to the next unexpected event and show its subtree."
+  "Move point to the next unexpected event, and show its subtree."
   (interactive)
+  (mgl-try-next-regexp mgl-try-unexpected-regexp "unexpected event"))
+
+(defvar mgl-try-not-expected-success-regexp
+  (concat "\\(" mgl-try-abort-regexp
+          "\\)\\|\\(" mgl-try-unexpected-failure-regexp
+          "\\)\\|\\(" mgl-try-unexpected-success-regexp
+          "\\)\\|\\(" mgl-try-skip-regexp
+          "\\)\\|\\(" mgl-try-expected-failure-regexp "\\)"))
+
+(defun mgl-try-previous-not-expected-success ()
+  "Move point to the previous event that's not an expected success,
+and show its subtree."
+  (interactive)
+  (mgl-try-previous-regexp mgl-try-unexpected-regexp
+                           "event that's not an expected succcess"))
+
+(defun mgl-try-next-not-expected-success ()
+  "Move point to the next event that's not an expected success,
+and show its subtree."
+  (interactive)
+  (mgl-try-next-regexp mgl-try-unexpected-regexp
+                       "event that's not an expected succcess"))
+
+(defun mgl-try-previous-regexp (regexp what)
+  (if (ignore-errors (search-backward-regexp regexp nil nil))
+      (outline-show-subtree)
+    (message "No previous %s" what)))
+
+(defun mgl-try-next-regexp (regexp what)
   (let ((pos (save-excursion
                (ignore-errors
-                 (search-forward-regexp mgl-try-unexpected-regexp nil nil)))))
-    (when pos
+                 (search-forward-regexp regexp nil nil)))))
+    (if (null pos)
+        (message "No next %s" what)
       (ignore-errors (outline-hide-leaves))
       (goto-char pos)
       (outline-show-subtree))))

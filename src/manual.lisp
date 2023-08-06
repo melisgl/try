@@ -418,11 +418,16 @@
 (defsection @try/emacs (:title "Emacs Integration")
   "The Elisp `mgl-try` interactive command runs a Try test and
   displays its output in a `lisp-mode` buffer with minor modes
-  `outline-mode` and `mgl-try-mode`. In the buffer,
+  `outline-mode` and `mgl-try-mode`. It is assumed that the lisp is
+  running under [Slime](https://slime.common-lisp.dev/). In the
+  buffer,
 
   - use `\\M-.` to visit a test function;
 
   - move between UNEXPECTED events with keys `p` and `n`;
+
+  - move between events which are not EXPECTED-SUCCESSes with `C-p`
+    and `C-n`;
 
   - rerun the most recent trial (TRY:!) with `r` (subject to the
     filtering described @TRY/RERUN);
