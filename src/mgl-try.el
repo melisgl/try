@@ -85,14 +85,16 @@ with minor mode `mgl-try-mode'."
                                                    (car mgl-try-history)
                                                    'mgl-try-history)
                      nil))
-  (slime-eval-async `(swank::with-buffer-syntax
-                      ()
-                      (try::try-for-emacs ,(if (stringp test-name)
-                                               `(cl:read-from-string
-                                                 ,test-name)
-                                             test-name)
-                                          :rerun-all ,rerun-all))
-    'mgl-try-display))
+  (if (null (slime-eval '(cl:find-package :try)))
+      (message "Try is not loaded on Common Lisp side.")
+    (slime-eval-async `(swank::with-buffer-syntax
+                        ()
+                        (try::try-for-emacs ,(if (stringp test-name)
+                                                 `(cl:read-from-string
+                                                   ,test-name)
+                                               test-name)
+                                            :rerun-all ,rerun-all))
+      'mgl-try-display)))
 
 (defun mgl-try-display (output)
   (switch-to-buffer "*try*")
