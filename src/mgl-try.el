@@ -118,9 +118,23 @@ with minor mode `mgl-try-mode'."
          (" ×[0-9]+" . 'mgl-try-expected-failure-face)
          (" ⋅[0-9]+" . 'mgl-try-expected-success-face)))
   (insert output)
+  (mgl-try-insert-with-face "⊟: TRY:ABORT\n" 'mgl-try-abort-face)
+  (mgl-try-insert-with-face "⊠: TRY:UNEXPECTED-FAILURE\n"
+                            'mgl-try-unexpected-failure-face)
+  (mgl-try-insert-with-face "⊠: TRY:UNEXPECTED-SUCCESS\n"
+                            'mgl-try-unexpected-success-face)
+  (mgl-try-insert-with-face "⊠: TRY:SKIP\n" 'mgl-try-skip-face)
+  (mgl-try-insert-with-face "⊠: TRY:EXPECTED-FAILURE\n"
+                            'mgl-try-expected-failure-face)
+  (mgl-try-insert-with-face "⊠: TRY:EXPECTED-SUCCESS\n"
+                            'mgl-try-expected-success-face)
   (read-only-mode)
   (outline-show-all)
   (outline-hide-body))
+
+(defun mgl-try-insert-with-face (string face)
+  (put-text-property 0 (length string) 'font-lock-face face string)
+  (insert string))
 
 (defun mgl-try-try (test-name)
   "Like `mgl-try', but defaults to the symbol under point."
