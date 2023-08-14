@@ -426,8 +426,8 @@
 
   - move between UNEXPECTED events with keys `p` and `n`;
 
-  - move between events which are not EXPECTED-SUCCESSes with `C-p`
-    and `C-n`;
+  - move between events which are not EXPECTED-SUCCESSes with `\\P`
+    and `\\N`;
 
   - rerun the most recent trial (TRY:!) with `r` (subject to the
     filtering described @TRY/RERUN);
@@ -441,8 +441,8 @@
     bindings:
 
           <tab>           outline-cycle
-          N               outline-next-visible-heading
-          P               outline-previous-visible-heading
+          C-p             outline-previous-visible-heading
+          C-n             outline-next-visible-heading
           U               outline-up-heading"""
   (@try/emacs-setup section))
 

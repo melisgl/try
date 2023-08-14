@@ -487,8 +487,8 @@ buffer,
 
 - move between [`UNEXPECTED`][d6ad] events with keys `p` and `n`;
 
-- move between events which are not [`EXPECTED-SUCCESS`][c96a]es with `C-p`
-  and `C-n`;
+- move between events which are not [`EXPECTED-SUCCESS`][c96a]es with `P`
+  and `N`;
 
 - rerun the most recent trial ([`TRY:!`][92af]) with `r` (subject to the
   filtering described [Rerunning Trials][7005]);
@@ -502,8 +502,8 @@ buffer,
   bindings:
 
         <tab>           outline-cycle
-        N               outline-next-visible-heading
-        P               outline-previous-visible-heading
+        C-p             outline-previous-visible-heading
+        C-n             outline-next-visible-heading
         U               outline-up-heading
 
 
