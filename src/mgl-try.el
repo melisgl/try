@@ -170,14 +170,14 @@ TRY:*TRY-RERUN*."
   "Move point to the previous event that's not an expected success,
 and show its subtree."
   (interactive)
-  (mgl-try-previous-regexp mgl-try-unexpected-regexp
+  (mgl-try-previous-regexp mgl-try-not-expected-success-regexp
                            "event that's not an expected succcess"))
 
 (defun mgl-try-next-not-expected-success ()
   "Move point to the next event that's not an expected success,
 and show its subtree."
   (interactive)
-  (mgl-try-next-regexp mgl-try-unexpected-regexp
+  (mgl-try-next-regexp mgl-try-not-expected-success-regexp
                        "event that's not an expected succcess"))
 
 (defun mgl-try-previous-regexp (regexp what)
