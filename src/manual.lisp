@@ -432,7 +432,7 @@
   - rerun the most recent trial (TRY:!) with `r` (subject to the
     filtering described @TRY/RERUN);
 
-  - rerun the most recently finished test with `R` (and all tests it
+  - rerun the most recently finished test with `\\R` (and all tests it
     calls);
 
   - run an arbitrary test with `t` (defaults to symbol under point);
