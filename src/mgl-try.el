@@ -98,6 +98,7 @@ with minor mode `mgl-try-mode'."
 
 (defun mgl-try-display (output)
   (switch-to-buffer "*try*")
+  (read-only-mode -1)
   (erase-buffer)
   (lisp-mode)
   (outline-minor-mode)
@@ -117,6 +118,7 @@ with minor mode `mgl-try-mode'."
          (" ×[0-9]+" . 'mgl-try-expected-failure-face)
          (" ⋅[0-9]+" . 'mgl-try-expected-success-face)))
   (insert output)
+  (read-only-mode)
   (outline-show-all)
   (outline-hide-body))
 
