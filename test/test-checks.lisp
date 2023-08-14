@@ -7,7 +7,8 @@
   (test-invokes-debugger-not)
   (test-fails)
   (test-in-time)
-  (test-match-values))
+  (test-match-values)
+  (test-same-set-p))
 
 
 (deftest test-signals ()
@@ -521,4 +522,11 @@
              (= * 1)
              (= * 2)))))
 
+
 
+(deftest test-same-set-p ()
+  (is (same-set-p '() '()))
+  (is (same-set-p '("x") '("x") :test #'equal))
+  (is-ctx-captures '((try::only-in-1 (1) nil t)
+                     (try::only-in-2 (2) nil t))
+    (is (not (same-set-p '(1) '(2))))))

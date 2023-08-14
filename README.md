@@ -2206,6 +2206,13 @@ functions and macros that may be useful for writing [`IS`][80d6] checks.
     ```
 
 
+<a id="x-28try-3asame-set-p-20function-29"></a>
+
+- [function] **SAME-SET-P** *LIST1 LIST2 &KEY KEY (TEST \#'EQL)*
+
+    See if `LIST1` and `LIST2` represent the same set.
+    See [`CL:SET-DIFFERENCE`][f8bf] for a description of the `KEY` and `TEST` arguments.
+
 <a id="x-28try-3awith-shuffling-20mgl-pax-3amacro-29"></a>
 
 - [macro] **WITH-SHUFFLING** *NIL &BODY BODY*
@@ -3481,6 +3488,7 @@ SBCL.
   [f472]: http://www.lispworks.com/documentation/HyperSpec/Body/m_defun.htm "DEFUN (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [f4bf]: http://www.lispworks.com/documentation/HyperSpec/Body/v_debug_.htm "*QUERY-IO* (MGL-PAX:CLHS VARIABLE)"
   [f58d]: #x-28try-3aleaf-20condition-29 "TRY:LEAF CONDITION"
+  [f8bf]: http://www.lispworks.com/documentation/HyperSpec/Body/f_set_di.htm "SET-DIFFERENCE (MGL-PAX:CLHS FUNCTION)"
   [f92d]: #x-28try-3afailure-20condition-29 "TRY:FAILURE CONDITION"
   [fae3]: #x-28try-3aretry-trial-20function-29 "TRY:RETRY-TRIAL FUNCTION"
   [fb0e]: #x-28try-3askip-check-20function-29 "TRY:SKIP-CHECK FUNCTION"

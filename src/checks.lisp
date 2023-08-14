@@ -424,6 +424,7 @@
   (match-values macro)
   (mismatch% function)
   (different-elements function)
+  (same-set-p function)
   (with-shuffling macro)
   (@try/comparing-floats section))
 
@@ -568,6 +569,28 @@
                        missing)
           unless (funcall pred x1 x2)
             collect (list :index i x1 x2))))
+
+
+(defun same-set-p (list1 list2 &key key (test #'eql))
+  """See if LIST1 and LIST2 represent the same set.
+  See CL:SET-DIFFERENCE for a description of the KEY and TEST arguments.
+
+  ```cl-transcript (:dynenv try-transcript)
+  (try:is (try:same-set-p '(1) '(2)))
+  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+  ..   UNEXPECTED-FAILURE in check:
+  ..     (IS (SAME-SET-P '(1) '(2)))
+  ..   where
+  ..     ONLY-IN-1 = (1)
+  ..     ONLY-IN-2 = (2)
+  ```"""
+  (let ((only-in-1 (set-difference list1 list2 :key key :test test))
+        (only-in-2 (set-difference list2 list1 :key key :test test)))
+    ;; Always capture both.
+    (capture only-in-1)
+    (capture only-in-2)
+    (and (endp only-in-1) (endp only-in-2))))
+
 
 ;;; Lifted from Parachute.
 (defmacro with-shuffling (() &body body)

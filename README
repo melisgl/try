@@ -1905,6 +1905,11 @@ functions and macros that may be useful for writing IS checks.
     ```
 
 
+- [function] SAME-SET-P LIST1 LIST2 &KEY KEY (TEST \#'EQL)
+
+    See if LIST1 and LIST2 represent the same set.
+    See CL:SET-DIFFERENCE for a description of the KEY and TEST arguments.
+
 - [macro] WITH-SHUFFLING NIL &BODY BODY
 
     Execute the forms that make up the list of forms BODY in random
