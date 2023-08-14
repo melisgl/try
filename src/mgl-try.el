@@ -121,12 +121,12 @@ with minor mode `mgl-try-mode'."
   (mgl-try-insert-with-face "⊟: TRY:ABORT\n" 'mgl-try-abort-face)
   (mgl-try-insert-with-face "⊠: TRY:UNEXPECTED-FAILURE\n"
                             'mgl-try-unexpected-failure-face)
-  (mgl-try-insert-with-face "⊠: TRY:UNEXPECTED-SUCCESS\n"
+  (mgl-try-insert-with-face "⊡: TRY:UNEXPECTED-SUCCESS\n"
                             'mgl-try-unexpected-success-face)
-  (mgl-try-insert-with-face "⊠: TRY:SKIP\n" 'mgl-try-skip-face)
-  (mgl-try-insert-with-face "⊠: TRY:EXPECTED-FAILURE\n"
+  (mgl-try-insert-with-face "-: TRY:SKIP\n" 'mgl-try-skip-face)
+  (mgl-try-insert-with-face "×: TRY:EXPECTED-FAILURE\n"
                             'mgl-try-expected-failure-face)
-  (mgl-try-insert-with-face "⊠: TRY:EXPECTED-SUCCESS\n"
+  (mgl-try-insert-with-face "⋅: TRY:EXPECTED-SUCCESS\n"
                             'mgl-try-expected-success-face)
   (read-only-mode)
   (outline-show-all)
