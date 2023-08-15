@@ -94,7 +94,9 @@ with minor mode `mgl-try-mode'."
                                                    ,test-name)
                                                test-name)
                                             :rerun-all ,rerun-all))
-      'mgl-try-display)))
+      (lambda (output)
+        (when (< 0 (length output))
+          (mgl-try-display output))))))
 
 (defun mgl-try-display (output)
   (switch-to-buffer "*try*")
