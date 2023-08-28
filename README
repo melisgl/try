@@ -1909,6 +1909,17 @@ functions and macros that may be useful for writing IS checks.
 
     See if LIST1 and LIST2 represent the same set.
     See CL:SET-DIFFERENCE for a description of the KEY and TEST arguments.
+    
+    ```common-lisp
+    (try:is (try:same-set-p '(1) '(2)))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (SAME-SET-P '(1) '(2)))
+    ..   where
+    ..     ONLY-IN-1 = (1)
+    ..     ONLY-IN-2 = (2)
+    ```
+
 
 - [macro] WITH-SHUFFLING NIL &BODY BODY
 
