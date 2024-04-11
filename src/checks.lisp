@@ -43,13 +43,13 @@
   HANDLER is called when a matching condition is found. It can be a
   function, T, or NIL. When it is a function, it is called from the
   condition handler (SIGNALS and SIGNALS-NOT) or the debugger
-  hook (invokes-debugger and INVOKES-DEBUGGER-NOT) with the matching
-  condition. HANDLER may perform a [non-local exit][clhs]. When HANDLER is T,
-  the matching condition is handled by performing a non-local exit to
-  just outside BODY. If the exit completes, BODY is treated as if it
-  had returned normally, and ON-RETURN is consulted. When HANDLER is
-  NIL, no addition action is performed when a matching condition is
-  found.
+  hook (INVOKES-DEBUGGER and INVOKES-DEBUGGER-NOT) with the matching
+  condition. HANDLER may perform a [non-local exit][clhs]. When
+  HANDLER is T, the matching condition is handled by performing a
+  non-local exit to just outside BODY. If the exit completes, BODY is
+  treated as if it had returned normally, and ON-RETURN is consulted.
+  When HANDLER is NIL, no addition action is performed when a matching
+  condition is found.
 
   The default CTX describes the result of the matching process in
   terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
