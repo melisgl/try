@@ -66,3 +66,12 @@ There should be a trace of what happened in the counts.
 * MAYBE improve readability of backtrace
 I don't know how. See TRY::EXPAND-WITH-TRIAL-IN-DEFTEST-P.
 * MAYBE rerun by name?
+* TODO rethink nesting of explicit/implicit try
+It would be nice to be able to force a configuration on nested try
+calls from the outside. TRY-FOR-EMACS would like to. We are not far
+from this: TRY uses specials only for the argument defaults; after
+that, everything should be passed around in objects, so what happens
+to the specials doesn't matter. But nested TRYs establish a new
+context (new event handlers, printer object, etc). This can be
+prevented, but that would break other code (maybe Try's own tests).
+Maybe the right default is use the outer context but allows opt out?
