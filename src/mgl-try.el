@@ -119,7 +119,7 @@ with minor mode `mgl-try-mode'."
          (" -[0-9]+" . 'mgl-try-skip-face)
          (" ×[0-9]+" . 'mgl-try-expected-failure-face)
          (" ⋅[0-9]+" . 'mgl-try-expected-success-face)))
-  (insert output)
+  (insert "Legend:\n")
   (mgl-try-insert-with-face "⊟: TRY:ABORT\n" 'mgl-try-abort-face)
   (mgl-try-insert-with-face "⊠: TRY:UNEXPECTED-FAILURE\n"
                             'mgl-try-unexpected-failure-face)
@@ -128,8 +128,9 @@ with minor mode `mgl-try-mode'."
   (mgl-try-insert-with-face "-: TRY:SKIP\n" 'mgl-try-skip-face)
   (mgl-try-insert-with-face "×: TRY:EXPECTED-FAILURE\n"
                             'mgl-try-expected-failure-face)
-  (mgl-try-insert-with-face "⋅: TRY:EXPECTED-SUCCESS\n"
+  (mgl-try-insert-with-face "⋅: TRY:EXPECTED-SUCCESS\n\n"
                             'mgl-try-expected-success-face)
+  (insert output)
   (read-only-mode)
   (outline-show-all)
   (outline-hide-body))
