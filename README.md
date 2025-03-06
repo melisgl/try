@@ -2836,9 +2836,9 @@ be:
 - a [`PACKAGE`][1d5a]
 
 In the function designator cases, `TRY` calls the designated function.
-[`TRIAL`][99d0]s, being [funcallable instance][2eef]s, designate themselves. If the
-trial is not [`RUNNINGP`][5d4a], then it will be rerun (see [Rerunning Trials][7005]). Don't
-invoke `TRY` with `RUNNINGP` trials (but see
+[`TRIAL`][99d0]s, being [funcallable instance][2eef]s, designate themselves.
+If the trial is not [`RUNNINGP`][5d4a], then it will be rerun (see
+[Rerunning Trials][7005]). Don't invoke `TRY` with `RUNNINGP` trials (but see
 [Implementation of Implicit `TRY`][2971] for discussion).
 
 When given a list of testables, `TRY` calls each testable one by one.

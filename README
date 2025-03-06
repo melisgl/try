@@ -2451,9 +2451,9 @@ be:
 - a PACKAGE
 
 In the function designator cases, TRY calls the designated function.
-TRIALs, being @FUNCALLABLE-INSTANCEs, designate themselves. If the
-trial is not RUNNINGP, then it will be rerun (see @TRY/RERUN). Don't
-invoke TRY with RUNNINGP trials (but see
+TRIALs, being @FUNCALLABLE-INSTANCEs, designate themselves.
+If the trial is not RUNNINGP, then it will be rerun (see
+@TRY/RERUN). Don't invoke TRY with RUNNINGP trials (but see
 @TRY/IMPLICIT-TRY-IMPLEMENTATION for discussion).
 
 When given a list of testables, TRY calls each testable one by one.
