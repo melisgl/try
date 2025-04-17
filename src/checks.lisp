@@ -432,8 +432,9 @@
 (defmacro match-values (form &body body)
   """MATCH-VALUES returns true iff all return values of FORM satisfy
   the predicates given by BODY, which are described in ON-VALUES. The
-  :TRUNCATE option of ON-VALUES is supported, but :ON-LENGTH-MISMATCH
-  always returns NIL.
+  :ON-LENGTH-MISMATCH and :TRUNCATE options of ON-VALUES are
+  supported. If no :ON-LENGTH-MISMATCH option is specified, then
+  MATCH-VALUES returns NIL on length mismatch.
 
   ```cl-transcript (:dynenv try-transcript)
   ;; no values
@@ -462,13 +463,17 @@
   """
   `(every #'identity (multiple-value-list
                       (on-values ,form
-                        (:on-length-mismatch (return nil))
+                        ,@(unless (%extract-options '(:on-length-mismatch) body
+                                                    :options-first t)
+                            '((:on-length-mismatch (return nil))))
                         ,@body))))
 
 (defmacro match-values% (form &body body)
   `(every #'identity (multiple-value-list
                       (on-values (capture-values ,form)
-                        (:on-length-mismatch (return nil))
+                        ,@(unless (%extract-options '(:on-length-mismatch) body
+                                                    :options-first t)
+                            '((:on-length-mismatch (return nil))))
                         ,@body))))
 
 ;;; Get VALUES-FORM from (MATCH-VALUES VALUES-FORM ...).

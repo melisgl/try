@@ -1,22 +1,23 @@
 # Try Manual
 
 ###### \[in package TRY\]
-## The try ASDF System
-
-- Version: 0.0.1
-- Description: Try is an extensible test framework with equal support
-  for interactive and non-interactive workflows.
-- Long Description: Try stays as close to normal Lisp evaluation
-  rules as possible. Tests are functions that record the checks they
-  perform as events. These events provide the means of customization
-  of what to debug, print, rerun. There is a single fundamental check,
-  the extensible IS macro. Everything else is built on top.
-- Licence: MIT, see COPYING.
-- Author: Gábor Melis
-- Mailto: [mega@retes.hu](mailto:mega@retes.hu)
-- Homepage: [http://melisgl.github.io/try](http://melisgl.github.io/try)
-- Bug tracker: [https://github.com/melisgl/try/issues](https://github.com/melisgl/try/issues)
-- Source control: [GIT](https://github.com/melisgl/try.git)
+- [system] "try"
+    - Version: 0.0.1
+    - Description: Try is an extensible test framework with equal support
+        for interactive and non-interactive workflows.
+    - Long Description: Try stays as close to normal Lisp evaluation
+        rules as possible. Tests are functions that record the checks they
+        perform as events. These events provide the means of customization
+        of what to debug, print, rerun. There is a single fundamental check,
+        the extensible IS macro. Everything else is built on top.
+    - Licence: MIT, see COPYING.
+    - Author: Gábor Melis
+    - Mailto: [mega@retes.hu](mailto:mega@retes.hu)
+    - Homepage: [http://melisgl.github.io/try](http://melisgl.github.io/try)
+    - Bug tracker: [https://github.com/melisgl/try/issues](https://github.com/melisgl/try/issues)
+    - Source control: [GIT](https://github.com/melisgl/try.git)
+    - Depends on: alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
+    - Defsystem depends on: try.asdf
 
 ## Links
 
@@ -858,7 +859,7 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     A TRIAL-EVENT is either a TRIAL-START or a
     VERDICT.
 
-- [reader] TRIAL TRIAL-EVENT (:TRIAL)
+- [reader] TRIAL [TRIAL-EVENT][b36a] (:TRIAL)
 
 - [condition] TRIAL-START TRIAL-EVENT
 
@@ -976,7 +977,7 @@ The verdict of this type is signalled, but its type can be changed
 by the @TRY/OUTCOME-RESTARTS or the @TRY/TRIAL-RESTARTS before
 RECORD-EVENT is invoked on it.
 
-- [reader] VERDICT TRIAL (= NIL)
+- [reader] VERDICT [TRIAL][99d0] (= NIL)
 
     The VERDICT EVENT signalled when this
     TRIAL finished or NIL if it has not finished yet.
@@ -1146,7 +1147,7 @@ dropped.
     CONDITION (which may be NIL) is recorded if it is an EVENT but not
     the VERDICT of TRIAL, and the RECORD-EVENT restart is available.
 
-- [reader] N-RETRIES TRIAL (:N-RETRIES = 0)
+- [reader] N-RETRIES [TRIAL][99d0] (:N-RETRIES = 0)
 
     The number of times this TRIAL has
     been retried. See RETRY-TRIAL.
@@ -1160,7 +1161,7 @@ dropped.
     called with ERROR\*s, but there is little need for explicitly doing
     so as RECORD-EVENT, which TRY invokes, takes care of this.
 
-- [reader] TEST-NAME ERROR\* (:TEST-NAME)
+- [reader] TEST-NAME [ERROR\*][0321] (:TEST-NAME)
 
 - [condition] UNHANDLED-ERROR ERROR\*
 
@@ -1168,11 +1169,11 @@ dropped.
     handlers set up DEFTEST or WITH-TEST, or when their *DEBUGGER-HOOK*
     is invoked with a condition that's not an EVENT.
 
-- [reader] NESTED-CONDITION UNHANDLED-ERROR (:CONDITION = 'NIL)
+- [reader] NESTED-CONDITION [UNHANDLED-ERROR][8f78] (:CONDITION = 'NIL)
 
-- [reader] BACKTRACE-OF UNHANDLED-ERROR (:BACKTRACE = 'NIL)
+- [reader] BACKTRACE-OF [UNHANDLED-ERROR][8f78] (:BACKTRACE = 'NIL)
 
-- [reader] DEBUGGER-INVOKED-P UNHANDLED-ERROR (:DEBUGGER-INVOKED-P = 'NIL)
+- [reader] DEBUGGER-INVOKED-P [UNHANDLED-ERROR][8f78] (:DEBUGGER-INVOKED-P = 'NIL)
 
 - [variable] *GATHER-BACKTRACE* T
 
@@ -1824,8 +1825,9 @@ functions and macros that may be useful for writing IS checks.
 
     MATCH-VALUES returns true iff all return values of FORM satisfy
     the predicates given by BODY, which are described in ON-VALUES. The
-    :TRUNCATE option of ON-VALUES is supported, but :ON-LENGTH-MISMATCH
-    always returns NIL.
+    :ON-LENGTH-MISMATCH and :TRUNCATE options of ON-VALUES are
+    supported. If no :ON-LENGTH-MISMATCH option is specified, then
+    MATCH-VALUES returns NIL on length mismatch.
     
     ```common-lisp
     ;; no values
@@ -2752,7 +2754,7 @@ By default, both implicit and explicit calls to TRY collect the
 UNEXPECTED (see *COLLECT* and *TRY-COLLECT*), and consequently all
 the enclosing trials.
 
-- [reader] CHILDREN TRIAL (:CHILDREN = NIL)
+- [reader] CHILDREN [TRIAL][99d0] (:CHILDREN = NIL)
 
     A list of immediate child VERDICTs, RESULTs, and
     ERROR\*s collected in reverse chronological order (see
@@ -2894,6 +2896,11 @@ SBCL.
     => BAR
     ```
 
+
+  [0321]: #TRY:ERROR*%20CONDITION "TRY:ERROR* CONDITION"
+  [8f78]: #TRY:UNHANDLED-ERROR%20CONDITION "TRY:UNHANDLED-ERROR CONDITION"
+  [99d0]: #TRY:TRIAL%20CLASS "TRY:TRIAL CLASS"
+  [b36a]: #TRY:TRIAL-EVENT%20CONDITION "TRY:TRIAL-EVENT CONDITION"
 
 * * *
 ###### \[generated by [MGL-PAX](https://github.com/melisgl/mgl-pax)\]

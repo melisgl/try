@@ -84,6 +84,10 @@
         (:truncate t)
         (= * 1)
         (string= * "sdf")))
+  (is (match-values 7
+        (:on-length-mismatch nil)
+        (eql * 7)
+        (null *)))
   (is-ctx-captures '(((values 1 7) (1 7) t t))
     (is (match-values (values 1 7)
           (= * 2)

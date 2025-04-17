@@ -4,74 +4,74 @@
 
 ## Table of Contents
 
-- [1 The try ASDF System][4c97]
-- [2 Links][a565]
-- [3 Tutorial][c7f7]
-- [4 Emacs Integration][5b47]
-    - [4.1 Emacs Setup][805a]
-- [5 Events][fe18]
-    - [5.1 Middle Layer of Events][2f9f]
-    - [5.2 Concrete Events][4d5b]
-    - [5.3 Event Glue][1a75]
-    - [5.4 Printing Events][4573]
-    - [5.5 Event Restarts][66c5]
-    - [5.6 Outcomes][ab72]
-        - [5.6.1 Outcome Restarts][0247]
-        - [5.6.2 Checks][9a72]
-            - [5.6.2.1 Check Restarts][4011]
-        - [5.6.3 Trials][bfad]
-            - [5.6.3.1 Trial Events][3351]
-            - [5.6.3.2 Trial Verdicts][b324]
-            - [5.6.3.3 Trial Restarts][39b3]
-    - [5.7 Errors][cb2b]
-    - [5.8 Categories][b95c]
-- [6 The `IS` Macro][6cc6]
-    - [6.1 Format Specifier Forms][879c]
-    - [6.2 Captures][b881]
-        - [6.2.1 Automatic Captures][9c16]
-            - [6.2.1.1 Writing Automatic Capture Rules][4fbb]
-        - [6.2.2 Explicit Captures][ff6f]
-- [7 Check Library][9420]
-    - [7.1 Checking Conditions][883b]
-    - [7.2 Miscellaneous Checks][a4c2]
-    - [7.3 Check Utilities][d97f]
-        - [7.3.1 Comparing Floats][4754]
-- [8 Tests][1688]
-    - [8.1 Calling Test Functions][c8d9]
-    - [8.2 Explicit `TRY`][2b2c]
-        - [8.2.1 Testables][8ed8]
-        - [8.2.2 Implementation of Implicit `TRY`][2971]
-    - [8.3 Printing Events][534b]
-    - [8.4 Counting Events][e726]
-    - [8.5 Collecting Events][0575]
-    - [8.6 Rerunning Trials][7005]
-    - [8.7 Reprocessing Trials][61b3]
-- [9 Implementation Notes][6a5d]
-- [10 Glossary][60b4]
+- [1 Links][a565]
+- [2 Tutorial][c7f7]
+- [3 Emacs Integration][5b47]
+    - [3.1 Emacs Setup][805a]
+- [4 Events][fe18]
+    - [4.1 Middle Layer of Events][2f9f]
+    - [4.2 Concrete Events][4d5b]
+    - [4.3 Event Glue][1a75]
+    - [4.4 Printing Events][4573]
+    - [4.5 Event Restarts][66c5]
+    - [4.6 Outcomes][ab72]
+        - [4.6.1 Outcome Restarts][0247]
+        - [4.6.2 Checks][9a72]
+            - [4.6.2.1 Check Restarts][4011]
+        - [4.6.3 Trials][bfad]
+            - [4.6.3.1 Trial Events][3351]
+            - [4.6.3.2 Trial Verdicts][b324]
+            - [4.6.3.3 Trial Restarts][39b3]
+    - [4.7 Errors][cb2b]
+    - [4.8 Categories][b95c]
+- [5 The `IS` Macro][6cc6]
+    - [5.1 Format Specifier Forms][879c]
+    - [5.2 Captures][b881]
+        - [5.2.1 Automatic Captures][9c16]
+            - [5.2.1.1 Writing Automatic Capture Rules][4fbb]
+        - [5.2.2 Explicit Captures][ff6f]
+- [6 Check Library][9420]
+    - [6.1 Checking Conditions][883b]
+    - [6.2 Miscellaneous Checks][a4c2]
+    - [6.3 Check Utilities][d97f]
+        - [6.3.1 Comparing Floats][4754]
+- [7 Tests][1688]
+    - [7.1 Calling Test Functions][c8d9]
+    - [7.2 Explicit `TRY`][2b2c]
+        - [7.2.1 Testables][8ed8]
+        - [7.2.2 Implementation of Implicit `TRY`][2971]
+    - [7.3 Printing Events][534b]
+    - [7.4 Counting Events][e726]
+    - [7.5 Collecting Events][0575]
+    - [7.6 Rerunning Trials][7005]
+    - [7.7 Reprocessing Trials][61b3]
+- [8 Implementation Notes][6a5d]
+- [9 Glossary][60b4]
 
 ###### \[in package TRY\]
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
 
-## 1 The try ASDF System
-
-- Version: 0.0.1
-- Description: Try is an extensible test framework with equal support
-  for interactive and non-interactive workflows.
-- Long Description: Try stays as close to normal Lisp evaluation
-  rules as possible. Tests are functions that record the checks they
-  perform as events. These events provide the means of customization
-  of what to debug, print, rerun. There is a single fundamental check,
-  the extensible [`IS`][80d6] macro. Everything else is built on top.
-- Licence: MIT, see COPYING.
-- Author: Gábor Melis
-- Mailto: [mega@retes.hu](mailto:mega@retes.hu)
-- Homepage: [http://melisgl.github.io/try](http://melisgl.github.io/try)
-- Bug tracker: [https://github.com/melisgl/try/issues](https://github.com/melisgl/try/issues)
-- Source control: [GIT](https://github.com/melisgl/try.git)
+- [system] **"try"**
+    - Version: 0.0.1
+    - Description: Try is an extensible test framework with equal support
+        for interactive and non-interactive workflows.
+    - Long Description: Try stays as close to normal Lisp evaluation
+        rules as possible. Tests are functions that record the checks they
+        perform as events. These events provide the means of customization
+        of what to debug, print, rerun. There is a single fundamental check,
+        the extensible [`IS`][80d6] macro. Everything else is built on top.
+    - Licence: MIT, see COPYING.
+    - Author: Gábor Melis
+    - Mailto: [mega@retes.hu](mailto:mega@retes.hu)
+    - Homepage: [http://melisgl.github.io/try](http://melisgl.github.io/try)
+    - Bug tracker: [https://github.com/melisgl/try/issues](https://github.com/melisgl/try/issues)
+    - Source control: [GIT](https://github.com/melisgl/try.git)
+    - Depends on: alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
+    - Defsystem depends on: try.asdf
 
 <a id="x-28TRY-3A-40TRY-2FLINKS-20MGL-PAX-3ASECTION-29"></a>
 
-## 2 Links
+## 1 Links
 
 Here is the [official repository](https://github.com/melisgl/try)
 and the [HTML
@@ -80,7 +80,7 @@ for the latest version.
 
 <a id="x-28TRY-3A-40TRY-2FTUTORIAL-20MGL-PAX-3ASECTION-29"></a>
 
-## 3 Tutorial
+## 2 Tutorial
 
 Try is a library for unit testing with equal support for
 interactive and non-interactive workflows. Tests are functions, and
@@ -475,7 +475,7 @@ environment necessary for lower level tests.
 
 <a id="x-28TRY-3A-40TRY-2FEMACS-20MGL-PAX-3ASECTION-29"></a>
 
-## 4 Emacs Integration
+## 3 Emacs Integration
 
 The Elisp `mgl-try` interactive command runs a Try test and
 displays its output in a `lisp-mode` buffer with minor modes
@@ -509,7 +509,7 @@ buffer,
 
 <a id="x-28TRY-3A-40TRY-2FEMACS-SETUP-20MGL-PAX-3ASECTION-29"></a>
 
-### 4.1 Emacs Setup
+### 3.1 Emacs Setup
 
 Load `src/mgl-try.el` in Emacs.
 
@@ -535,7 +535,7 @@ something like this to your `.emacs`:
 
 <a id="x-28TRY-3A-40TRY-2FEVENTS-20MGL-PAX-3ASECTION-29"></a>
 
-## 5 Events
+## 4 Events
 
 Try is built around events implemented as [`CONDITION`][83e1]s.
 Matching the types of events to [`*DEBUG*`][856d], [`*COUNT*`][3bb4], [`*COLLECT*`][307c], [`*RERUN*`][63db],
@@ -543,7 +543,7 @@ Matching the types of events to [`*DEBUG*`][856d], [`*COUNT*`][3bb4], [`*COLLECT
 
 <a id="x-28TRY-3A-40TRY-2FMIDDLE-LAYER-OF-EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
-### 5.1 Middle Layer of Events
+### 4.1 Middle Layer of Events
 
 The event hierarchy is fairly involved, so let's start in the middle.
 The condition [`EVENT`][955d] has 4 disjoint subclasses:
@@ -578,7 +578,7 @@ The condition [`EVENT`][955d] has 4 disjoint subclasses:
 
 <a id="x-28TRY-3A-40TRY-2FCONCRETE-EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
-### 5.2 Concrete Events
+### 4.2 Concrete Events
 
 The non-abstract condition classes of events that are actually
 signalled are called concrete.
@@ -606,7 +606,7 @@ These are the 15 concrete event classes.
 
 <a id="x-28TRY-3A-40TRY-2FEVENT-GLUE-20MGL-PAX-3ASECTION-29"></a>
 
-### 5.3 Event Glue
+### 4.3 Event Glue
 
 These condition classes group various bits of the
 [Concrete Events][4d5b] and the [Middle Layer of Events][2f9f] for ease of
@@ -716,7 +716,7 @@ RESULT)`.
 
 <a id="x-28TRY-3A-40TRY-2FPRINTING-EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
-### 5.4 Printing Events
+### 4.4 Printing Events
 
 <a id="x-28TRY-3A-2AEVENT-PRINT-BINDINGS-2A-20VARIABLE-29"></a>
 
@@ -740,7 +740,7 @@ RESULT)`.
 
 <a id="x-28TRY-3A-40TRY-2FEVENT-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
 
-### 5.5 Event Restarts
+### 4.5 Event Restarts
 
 Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
 [Check Restarts][4011], [Trial Restarts][39b3] for more.
@@ -755,7 +755,7 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
 
 <a id="x-28TRY-3A-40TRY-2FOUTCOMES-20MGL-PAX-3ASECTION-29"></a>
 
-### 5.6 Outcomes
+### 4.6 Outcomes
 
 <a id="x-28TRY-3AOUTCOME-20CONDITION-29"></a>
 
@@ -851,7 +851,7 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
 
 <a id="x-28TRY-3A-40TRY-2FOUTCOME-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
 
-#### 5.6.1 Outcome Restarts
+#### 4.6.1 Outcome Restarts
 
 <a id="x-28TRY-3AFORCE-EXPECTED-SUCCESS-20FUNCTION-29"></a>
 
@@ -885,7 +885,7 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
 
 <a id="x-28TRY-3A-40TRY-2FCHECKS-20MGL-PAX-3ASECTION-29"></a>
 
-#### 5.6.2 Checks
+#### 4.6.2 Checks
 
 Checks are like [`CL:ASSERT`][97ee]s, they check whether some condition holds
 and signal an [`OUTCOME`][2656]. The outcome signalled for checks is a
@@ -939,7 +939,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 
 <a id="x-28TRY-3A-40TRY-2FCHECK-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
 
-##### 5.6.2.1 Check Restarts
+##### 4.6.2.1 Check Restarts
 
 <a id="x-28TRY-3AABORT-CHECK-20FUNCTION-29"></a>
 
@@ -966,7 +966,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 
 <a id="x-28TRY-3A-40TRY-2FTRIALS-20MGL-PAX-3ASECTION-29"></a>
 
-#### 5.6.3 Trials
+#### 4.6.3 Trials
 
 <a id="x-28TRY-3ATRIAL-20CLASS-29"></a>
 
@@ -1010,7 +1010,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 
 <a id="x-28TRY-3A-40TRY-2FTRIAL-EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
-##### 5.6.3.1 Trial Events
+##### 4.6.3.1 Trial Events
 
 <a id="x-28TRY-3ATRIAL-EVENT-20CONDITION-29"></a>
 
@@ -1021,7 +1021,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 
 <a id="x-28TRY-3ATRIAL-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-EVENT-29-29"></a>
 
-- [reader] **TRIAL** *TRIAL-EVENT (:TRIAL)*
+- [reader] **TRIAL** *[TRIAL-EVENT][b36a] (:TRIAL)*
 
 <a id="x-28TRY-3ATRIAL-START-20CONDITION-29"></a>
 
@@ -1127,7 +1127,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 
 <a id="x-28TRY-3A-40TRY-2FTRIAL-VERDICTS-20MGL-PAX-3ASECTION-29"></a>
 
-##### 5.6.3.2 Trial Verdicts
+##### 4.6.3.2 Trial Verdicts
 
 When a trial finished, a [`VERDICT`][52e1] is signalled. The verdict's type
 is determined as follows.
@@ -1159,7 +1159,7 @@ by the [Outcome Restarts][0247] or the [Trial Restarts][39b3] before
 
 <a id="x-28TRY-3AVERDICT-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29"></a>
 
-- [reader] **VERDICT** *TRIAL (= NIL)*
+- [reader] **VERDICT** *[TRIAL][99d0] (= NIL)*
 
     The [`VERDICT`][52e1] [`EVENT`][955d] signalled when this
     `TRIAL` finished or `NIL` if it has not finished yet.
@@ -1188,7 +1188,7 @@ by the [Outcome Restarts][0247] or the [Trial Restarts][39b3] before
 
 <a id="x-28TRY-3A-40TRY-2FTRIAL-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
 
-##### 5.6.3.3 Trial Restarts
+##### 4.6.3.3 Trial Restarts
 
 There are three restarts available for manipulating running
 trials: [`ABORT-TRIAL`][4f9f], [`SKIP-TRIAL`][f45a], and [`RETRY-TRIAL`][fae3]. They may be
@@ -1345,14 +1345,14 @@ dropped.
 
 <a id="x-28TRY-3AN-RETRIES-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29"></a>
 
-- [reader] **N-RETRIES** *TRIAL (:N-RETRIES = 0)*
+- [reader] **N-RETRIES** *[TRIAL][99d0] (:N-RETRIES = 0)*
 
     The number of times this `TRIAL` has
     been retried. See [`RETRY-TRIAL`][fae3].
 
 <a id="x-28TRY-3A-40TRY-2FERRORS-20MGL-PAX-3ASECTION-29"></a>
 
-### 5.7 Errors
+### 4.7 Errors
 
 <a id="x-28TRY-3AERROR-2A-20CONDITION-29"></a>
 
@@ -1365,7 +1365,7 @@ dropped.
 
 <a id="x-28TRY-3ATEST-NAME-20-28MGL-PAX-3AREADER-20TRY-3AERROR-2A-29-29"></a>
 
-- [reader] **TEST-NAME** *ERROR\* (:TEST-NAME)*
+- [reader] **TEST-NAME** *[ERROR\*][0321] (:TEST-NAME)*
 
 <a id="x-28TRY-3AUNHANDLED-ERROR-20CONDITION-29"></a>
 
@@ -1377,15 +1377,15 @@ dropped.
 
 <a id="x-28TRY-3ANESTED-CONDITION-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29"></a>
 
-- [reader] **NESTED-CONDITION** *UNHANDLED-ERROR (:CONDITION = 'NIL)*
+- [reader] **NESTED-CONDITION** *[UNHANDLED-ERROR][8f78] (:CONDITION = 'NIL)*
 
 <a id="x-28TRY-3ABACKTRACE-OF-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29"></a>
 
-- [reader] **BACKTRACE-OF** *UNHANDLED-ERROR (:BACKTRACE = 'NIL)*
+- [reader] **BACKTRACE-OF** *[UNHANDLED-ERROR][8f78] (:BACKTRACE = 'NIL)*
 
 <a id="x-28TRY-3ADEBUGGER-INVOKED-P-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29"></a>
 
-- [reader] **DEBUGGER-INVOKED-P** *UNHANDLED-ERROR (:DEBUGGER-INVOKED-P = 'NIL)*
+- [reader] **DEBUGGER-INVOKED-P** *[UNHANDLED-ERROR][8f78] (:DEBUGGER-INVOKED-P = 'NIL)*
 
 <a id="x-28TRY-3A-2AGATHER-BACKTRACE-2A-20VARIABLE-29"></a>
 
@@ -1407,7 +1407,7 @@ dropped.
 
 <a id="x-28TRY-3A-40TRY-2FCATEGORIES-20MGL-PAX-3ASECTION-29"></a>
 
-### 5.8 Categories
+### 4.8 Categories
 
 Categories determine how event types are printed and events of
 what types are counted together.
@@ -1465,7 +1465,7 @@ counterpart.
 
 <a id="x-28TRY-3A-40TRY-2FIS-20MGL-PAX-3ASECTION-29"></a>
 
-## 6 The `IS` Macro
+## 5 The `IS` Macro
 
 [`IS`][80d6] is the fundamental one among [Checks][9a72], on which all
 the others are built, and it is a replacement for [`CL:ASSERT`][97ee] that can
@@ -1576,7 +1576,7 @@ on top of it.
 
 <a id="x-28TRY-3A-40TRY-2FFORMAT-SPECIFIER-FORMS-20MGL-PAX-3ASECTION-29"></a>
 
-### 6.1 Format Specifier Forms
+### 5.1 Format Specifier Forms
 
 A format specifier form is a Lisp form, typically an argument to
 macro, standing for the `FORMAT-CONTROL` and `FORMAT-ARGS` arguments to
@@ -1623,7 +1623,7 @@ default is implied.
 
 <a id="x-28TRY-3A-40TRY-2FCAPTURES-20MGL-PAX-3ASECTION-29"></a>
 
-### 6.2 Captures
+### 5.2 Captures
 
 During the evaluation of the `FORM` argument of [`IS`][80d6], evaluation of any
 form (e.g. a subform of `FORM`) may be recorded, which are called
@@ -1631,7 +1631,7 @@ captures.
 
 <a id="x-28TRY-3A-40TRY-2FAUTOMATIC-CAPTURES-20MGL-PAX-3ASECTION-29"></a>
 
-#### 6.2.1 Automatic Captures
+#### 5.2.1 Automatic Captures
 
 [`IS`][80d6] automatically captures some subforms of `FORM` that are likely
 to be informative. In particular, if `FORM` is a function call, then
@@ -1688,7 +1688,7 @@ functionality such as [`MATCH-VALUES`][162a].
 
 <a id="x-28TRY-3A-40TRY-2FWRITING-AUTOMATIC-CAPTURE-RULES-20MGL-PAX-3ASECTION-29"></a>
 
-##### 6.2.1.1 Writing Automatic Capture Rules
+##### 5.2.1.1 Writing Automatic Capture Rules
 
 <a id="x-28TRY-3ASUB-20CLASS-29"></a>
 
@@ -1755,7 +1755,7 @@ functionality such as [`MATCH-VALUES`][162a].
 
 <a id="x-28TRY-3A-40TRY-2FEXPLICIT-CAPTURES-20MGL-PAX-3ASECTION-29"></a>
 
-#### 6.2.2 Explicit Captures
+#### 5.2.2 Explicit Captures
 
 In addition to automatic captures, which are prescribed by
 rewriting rules (see [Writing Automatic Capture Rules][4fbb]),
@@ -1839,7 +1839,7 @@ is a multiple value capture.
 
 <a id="x-28TRY-3A-40TRY-2FCHECK-LIBRARY-20MGL-PAX-3ASECTION-29"></a>
 
-## 7 Check Library
+## 6 Check Library
 
 In the following, various checks built on top of [`IS`][80d6] are described.
 Many of them share a number of arguments, which are described here.
@@ -1858,7 +1858,7 @@ Many of them share a number of arguments, which are described here.
 
 <a id="x-28TRY-3A-40TRY-2FCHECKING-CONDITIONS-20MGL-PAX-3ASECTION-29"></a>
 
-### 7.1 Checking Conditions
+### 6.1 Checking Conditions
 
 The macros [`SIGNALS`][6d4e], [`SIGNALS-NOT`][7af9], [`INVOKES-DEBUGGER`][12ce], and
 [`INVOKES-DEBUGGER-NOT`][aaaa] all check whether a condition of a given type,
@@ -1984,7 +1984,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
 
 <a id="x-28TRY-3A-40TRY-2FMISC-CHECKS-20MGL-PAX-3ASECTION-29"></a>
 
-### 7.2 Miscellaneous Checks
+### 6.2 Miscellaneous Checks
 
 <a id="x-28TRY-3AFAILS-20MGL-PAX-3AMACRO-29"></a>
 
@@ -2045,7 +2045,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
 
 <a id="x-28TRY-3A-40TRY-2FCHECK-UTILITIES-20MGL-PAX-3ASECTION-29"></a>
 
-### 7.3 Check Utilities
+### 6.3 Check Utilities
 
 These utilities are not checks (which signal [`OUTCOME`][2656]s) but simple
 functions and macros that may be useful for writing [`IS`][80d6] checks.
@@ -2121,8 +2121,9 @@ functions and macros that may be useful for writing [`IS`][80d6] checks.
 
     `MATCH-VALUES` returns true iff all return values of `FORM` satisfy
     the predicates given by `BODY`, which are described in [`ON-VALUES`][eb5c]. The
-    `:TRUNCATE` option of `ON-VALUES` is supported, but `:ON-LENGTH-MISMATCH`
-    always returns `NIL`.
+    `:ON-LENGTH-MISMATCH` and `:TRUNCATE` options of `ON-VALUES` are
+    supported. If no `:ON-LENGTH-MISMATCH` option is specified, then
+    `MATCH-VALUES` returns `NIL` on length mismatch.
     
     ```common-lisp
     ;; no values
@@ -2244,7 +2245,7 @@ functions and macros that may be useful for writing [`IS`][80d6] checks.
 
 <a id="x-28TRY-3A-40TRY-2FCOMPARING-FLOATS-20MGL-PAX-3ASECTION-29"></a>
 
-#### 7.3.1 Comparing Floats
+#### 6.3.1 Comparing Floats
 
 Float comparisons following
 [https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/](https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/).
@@ -2297,7 +2298,7 @@ Float comparisons following
 
 <a id="x-28TRY-3A-40TRY-2FTESTS-20MGL-PAX-3ASECTION-29"></a>
 
-## 8 Tests
+## 7 Tests
 
 In Try, tests are Lisp functions that record their execution in
 [`TRIAL`][99d0] objects. `TRIAL`s are to tests what function call traces are to
@@ -2530,7 +2531,7 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
 
 <a id="x-28TRY-3A-40TRY-2FIMPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
 
-### 8.1 Calling Test Functions
+### 7.1 Calling Test Functions
 
 Tests can be run explicitly by invoking the [`TRY`][b602] function or
 implicitly by calling a test function:
@@ -2628,7 +2629,7 @@ The rest of the behaviour is described in [Explicit `TRY`][2b2c].
 
 <a id="x-28TRY-3A-40TRY-2FEXPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
 
-### 8.2 Explicit `TRY`
+### 7.2 Explicit `TRY`
 
 Instead of invoking the test function directly, tests can also be
 run by invoking the [`TRY`][b602] function.
@@ -2816,7 +2817,7 @@ interactive one, but this is not enforced in any way.
 
 <a id="x-28TRY-3A-40TRY-2FTESTABLES-20MGL-PAX-3ASECTION-29"></a>
 
-#### 8.2.1 Testables
+#### 7.2.1 Testables
 
 Valid first arguments to [`TRY`][b602] are called testables. A testable may
 be:
@@ -2848,7 +2849,7 @@ Finally, a `PACKAGE` stands for the result of calling
 
 <a id="x-28TRY-3A-40TRY-2FIMPLICIT-TRY-IMPLEMENTATION-20MGL-PAX-3ASECTION-29"></a>
 
-#### 8.2.2 Implementation of Implicit `TRY`
+#### 7.2.2 Implementation of Implicit `TRY`
 
 What's happening in the implementation is that a test function,
 when it is called, checks whether it is running under the [`TRY`][b602]
@@ -2870,7 +2871,7 @@ are infinite recursions:
 
 <a id="x-28TRY-3A-40TRY-2FPRINT-20MGL-PAX-3ASECTION-29"></a>
 
-### 8.3 Printing Events
+### 7.3 Printing Events
 
 [`TRY`][b602] instantiates a printer of the type given by its `PRINTER`
 argument. All [`EVENT`][955d]s recorded by `TRY` are sent to this printer. The
@@ -3103,7 +3104,7 @@ setups.
 
 <a id="x-28TRY-3A-40TRY-2FCOUNT-20MGL-PAX-3ASECTION-29"></a>
 
-### 8.4 Counting Events
+### 7.4 Counting Events
 
 [`TRIAL`][99d0]s have a counter for each category in [`*CATEGORIES*`][e949]. When an
 [`EVENT`][955d] is recorded by [`TRY`][b602] and its type matches [`*COUNT*`][3bb4], the counters
@@ -3141,7 +3142,7 @@ As the above example shows, [`EXPECTED-VERDICT-SUCCESS`][06c2] and
 
 <a id="x-28TRY-3A-40TRY-2FCOLLECT-20MGL-PAX-3ASECTION-29"></a>
 
-### 8.5 Collecting Events
+### 7.5 Collecting Events
 
 When an [`EVENT`][955d] is recorded and the type of the `EVENT` matches the
 `COLLECT` type argument of [`TRY`][b602], then a corresponding object is pushed
@@ -3159,7 +3160,7 @@ the enclosing trials.
 
 <a id="x-28TRY-3ACHILDREN-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29"></a>
 
-- [reader] **CHILDREN** *TRIAL (:CHILDREN = NIL)*
+- [reader] **CHILDREN** *[TRIAL][99d0] (:CHILDREN = NIL)*
 
     A list of immediate child [`VERDICT`][52e1]s, [`RESULT`][231f]s, and
     [`ERROR*`][0321]s collected in reverse chronological order (see
@@ -3168,7 +3169,7 @@ the enclosing trials.
 
 <a id="x-28TRY-3A-40TRY-2FRERUN-20MGL-PAX-3ASECTION-29"></a>
 
-### 8.6 Rerunning Trials
+### 7.6 Rerunning Trials
 
 When a [`TRIAL`][99d0] is [`FUNCALL`][03c7]ed or passed to [`TRY`][b602], the *test that
 created the trial* is invoked, and it may be run again in its
@@ -3219,7 +3220,7 @@ happens, the corresponding function call immediately returns the
 
 <a id="x-28TRY-3A-40TRY-2FREPLAY-20MGL-PAX-3ASECTION-29"></a>
 
-### 8.7 Reprocessing Trials
+### 7.7 Reprocessing Trials
 
 <a id="x-28TRY-3AREPLAY-EVENTS-20FUNCTION-29"></a>
 
@@ -3266,7 +3267,7 @@ happens, the corresponding function call immediately returns the
 
 <a id="x-28TRY-3A-40TRY-2FIMPLEMENTATION-NOTES-20MGL-PAX-3ASECTION-29"></a>
 
-## 9 Implementation Notes
+## 8 Implementation Notes
 
 Try is supported on ABCL, AllegroCL, CLISP, CCL, CMUCL, ECL and
 SBCL.
@@ -3286,7 +3287,7 @@ SBCL.
 
 <a id="x-28TRY-3A-40TRY-2FGLOSSARY-20MGL-PAX-3ASECTION-29"></a>
 
-## 10 Glossary
+## 9 Glossary
 
 <a id="x-28TRY-3A-40FUNCALLABLE-INSTANCE-20MGL-PAX-3AGLOSSARY-TERM-29"></a>
 
@@ -3370,7 +3371,6 @@ SBCL.
   [4754]: #x-28TRY-3A-40TRY-2FCOMPARING-FLOATS-20MGL-PAX-3ASECTION-29 "Comparing Floats"
   [4805]: #x-28TRY-3AVERDICT-ABORT-2A-20CONDITION-29 "TRY:VERDICT-ABORT* CONDITION"
   [4bec]: #x-28TRY-3AVERDICT-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29 "TRY:VERDICT (MGL-PAX:READER TRY:TRIAL)"
-  [4c97]: #x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29 '"try" ASDF/SYSTEM:SYSTEM'
   [4d5b]: #x-28TRY-3A-40TRY-2FCONCRETE-EVENTS-20MGL-PAX-3ASECTION-29 "Concrete Events"
   [4e46]: http://www.lispworks.com/documentation/HyperSpec/Body/f_find_.htm "FIND (MGL-PAX:CLHS FUNCTION)"
   [4f9f]: #x-28TRY-3AABORT-TRIAL-20FUNCTION-29 "TRY:ABORT-TRIAL FUNCTION"

@@ -75,3 +75,5 @@ to the specials doesn't matter. But nested TRYs establish a new
 context (new event handlers, printer object, etc). This can be
 prevented, but that would break other code (maybe Try's own tests).
 Maybe the right default is use the outer context but allows opt out?
+* MAYBE find the exact source location somehow with M-. on the repl output?
+* MAYBE define try:% and try:%% globally for C-x C-e?

@@ -490,7 +490,7 @@
     (find temp1 temp2))
   ```
 
-  TEMP1 and TEMP2 may then be reported in the OUTCOME condition
+  `TEMP1` and `TEMP2` may then be reported in the OUTCOME condition
   signalled by IS like this:
 
       The following check failed:
