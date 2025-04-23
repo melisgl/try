@@ -1743,7 +1743,7 @@ functionality such as [`MATCH-VALUES`][162a].
       (find temp1 temp2))
     ```
     
-    TEMP1 and TEMP2 may then be reported in the [`OUTCOME`][2656] condition
+    `TEMP1` and `TEMP2` may then be reported in the [`OUTCOME`][2656] condition
     signalled by [`IS`][80d6] like this:
     
         The following check failed:
