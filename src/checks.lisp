@@ -140,8 +140,7 @@
 
 (defun %describe-condition-for-matching (condition &optional stream)
   (with-standard-io-syntax
-    ;; With *PRINT-READABLY*, CLISP insists on printing FOO as |FOO|.
-    (let (#+clisp (*print-readably* nil))
+    (let ((*print-readably* nil))
       (if (typep condition 'simple-condition)
           (apply #'format stream
                  (simple-condition-format-control condition)
