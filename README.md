@@ -612,8 +612,8 @@ These condition classes group various bits of the
 [Concrete Events][4d5b] and the [Middle Layer of Events][2f9f] for ease of
 reference.
 
-Concrete event classes except [`TRIAL-START`][b664] are subclasses of
-hyphen-separated words in their name. For example,
+Concrete event classes except [`TRIAL-START`][b664] are subclasses of the
+hyphen-separated words constituting their name. For example,
 [`UNEXPECTED-RESULT-FAILURE`][daeb] inherits from [`UNEXPECTED`][d6ad], [`RESULT`][231f], and
 [`FAILURE`][f92d], so it matches types such as `UNEXPECTED` or `(AND UNEXPECTED
 RESULT)`.
@@ -1356,7 +1356,7 @@ dropped.
 
 <a id="x-28TRY-3AERROR-2A-20CONDITION-29"></a>
 
-- [condition] **ERROR\*** *[ABORT\*][8ec3] [TRIAL-EVENT][b36a] [LEAF][f58d]*
+- [condition] **ERROR\*** *[ABORT\*][8ec3] [LEAF][f58d]*
 
     Either [`UNHANDLED-ERROR`][8f78] or [`NLX`][b115], `ERROR*` causes or
     represents abnormal termination of a [`TRIAL`][99d0]. [`ABORT-TRIAL`][4f9f] can be

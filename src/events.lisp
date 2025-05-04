@@ -78,8 +78,8 @@
   @TRY/CONCRETE-EVENTS and the @TRY/MIDDLE-LAYER-OF-EVENTS for ease of
   reference.
 
-  Concrete event classes except TRIAL-START are subclasses of
-  hyphen-separated words in their name. For example,
+  Concrete event classes except TRIAL-START are subclasses of the
+  hyphen-separated words constituting their name. For example,
   UNEXPECTED-RESULT-FAILURE inherits from UNEXPECTED, RESULT, and
   FAILURE, so it matches types such as UNEXPECTED or `(AND UNEXPECTED
   RESULT)`."

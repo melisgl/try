@@ -10,7 +10,7 @@
   (*gather-backtrace* variable)
   (nlx condition))
 
-(define-condition error* (abort* trial-event leaf)
+(define-condition error* (abort* leaf)
   ((test-name :initarg :test-name :reader test-name))
   (:documentation "Either UNHANDLED-ERROR or NLX, ERROR* causes or
   represents abnormal termination of a TRIAL. ABORT-TRIAL can be

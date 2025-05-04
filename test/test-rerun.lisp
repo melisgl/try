@@ -5,7 +5,8 @@
   (test-try/rerun/call-non-root-deftest-trial)
   (test-try/rerun/skipping)
   (test-try/rerun/retry)
-  (test-try/rerun/implicit))
+  (test-try/rerun/implicit)
+  (test-try/rerun/failure/nlx))
 
 
 (deftest test-try/rerun/list-function-designators ()
@@ -390,3 +391,23 @@ T0
       X = 5
 × %SIMPLE-FAILURE-WITH-ARGS ×1
 ")))
+
+
+(defvar *fail-or-die*)
+
+(deftest %fail-or-die ()
+  (if (eq *fail-or-die* :fail)
+      (is (= 2 3))
+      (throw 'die nil)))
+
+(deftest test-try/rerun/failure/nlx ()
+  (let ((*fail-or-die* :fail))
+    (with-std-try
+      (with-silent-implicit-try
+        (%fail-or-die :print nil))))
+  (signals-not (try::try-internal-error)
+    (let ((*fail-or-die* :die))
+      (catch 'die
+        (with-std-try
+          (with-silent-implicit-try
+            (funcall !)))))))
