@@ -9,22 +9,22 @@ documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
 for the latest version.
 
 - [system] "try"
-    - Version: 0.0.1
-    - Description: Try is an extensible test framework with equal support
+    - _Version:_ 0.0.1
+    - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
-    - Long Description: Try stays as close to normal Lisp evaluation
+    - _Long Description:_ Try stays as close to normal Lisp evaluation
         rules as possible. Tests are functions that record the checks they
         perform as events. These events provide the means of customization
         of what to debug, print, rerun. There is a single fundamental check,
         the extensible IS macro. Everything else is built on top.
-    - Licence: MIT, see COPYING.
-    - Author: Gábor Melis
-    - Mailto: [mega@retes.hu](mailto:mega@retes.hu)
-    - Homepage: [http://melisgl.github.io/try](http://melisgl.github.io/try)
-    - Bug tracker: [https://github.com/melisgl/try/issues](https://github.com/melisgl/try/issues)
-    - Source control: [GIT](https://github.com/melisgl/try.git)
-    - Depends on: alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
-    - Defsystem depends on: try.asdf
+    - _Licence:_ MIT, see COPYING.
+    - _Author:_ Gábor Melis
+    - _Mailto:_ [mega@retes.hu](mailto:mega@retes.hu)
+    - _Homepage:_ [http://github.com/melisgl/try](http://github.com/melisgl/try)
+    - _Bug tracker:_ [https://github.com/melisgl/try/issues](https://github.com/melisgl/try/issues)
+    - _Source control:_ [GIT](https://github.com/melisgl/try.git)
+    - *Depends on:* alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
+    - *Defsystem depends on:* try.asdf
 
 ## Tutorial
 

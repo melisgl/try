@@ -6,7 +6,7 @@
   :version "0.0.1"
   :author "Gábor Melis"
   :mailto "mega@retes.hu"
-  :homepage "http://melisgl.github.io/try"
+  :homepage "http://github.com/melisgl/try"
   :bug-tracker "https://github.com/melisgl/try/issues"
   :source-control (:git "https://github.com/melisgl/try.git")
   :description "Try is an extensible test framework with equal support
