@@ -2,7 +2,7 @@
 
 (in-readtable pythonic-string-syntax)
 
-(defsection @try/print (:title "Printing Events")
+(defsection @print (:title "Printing Events")
   "TRY instantiates a printer of the type given by its PRINTER
   argument. All EVENTs recorded by TRY are sent to this printer. The
   printer then prints events that match the type given by the PRINT
@@ -24,7 +24,7 @@
 
 ;;; FIXME: document this properly.
 #+nil
-(defsection @try/print/extension-api (:title "Printer Extension API")
+(defsection @print/extension-api (:title "Printer Extension API")
   (printer class)
   (stream-of (reader printer))
   (stream-line generic-function)
@@ -281,10 +281,10 @@
   ==> #<TRIAL (WITH-TEST (TIMED)) ABORT* 0.504s ⊟1 ⋅2>
   ```
 
-  Timing is available for all OUTCOMEs (i.e. for @TRY/CHECKS and
-  TRIALs). Checks generally measure the time spent during evaluation
-  the form they are wrapping. Trials measure the time between
-  TRIAL-START and the VERDICT.
+  Timing is available for all OUTCOMEs (i.e. for @CHECKS and TRIALs).
+  Checks generally measure the time spent during evaluation the form
+  they are wrapping. Trials measure the time between TRIAL-START and
+  the VERDICT.
 
   Timing information is not available for TRIAL-START and ERROR*
   events.
@@ -358,7 +358,7 @@
   TRIAL. This is the default printer (according to *PRINTER* and
   *TRY-PRINTER*) and currently the only one.
 
-  The following example prints all @TRY/CONCRETE-EVENTS.
+  The following example prints all @CONCRETE-EVENTS.
 
   ```cl-transcript (:dynenv try-transcript)
   (let ((*debug* nil)

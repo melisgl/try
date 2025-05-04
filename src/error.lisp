@@ -1,6 +1,6 @@
 (in-package :try)
 
-(defsection @try/errors (:title "Errors")
+(defsection @errors (:title "Errors")
   (error* condition)
   (test-name (reader error*))
   (unhandled-error condition)

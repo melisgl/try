@@ -3,24 +3,24 @@
 (in-readtable pythonic-string-syntax)
 
 (defsection @try-manual (:title "Try Manual")
-  (try asdf:system)
-  (@try/links section)
-  (@try/tutorial section)
-  (@try/emacs section)
-  (@try/events section)
-  (@try/is section)
-  (@try/check-library section)
-  (@try/tests section)
-  (@try/implementation-notes section)
-  (@try/glossary section))
+  (@links section)
+  (@tutorial section)
+  (@emacs section)
+  (@events section)
+  (@is section)
+  (@check-library section)
+  (@tests section)
+  (@implementation-notes section)
+  (@glossary section))
 
-(defsection @try/links (:title "Links")
+(defsection @links (:title "Links and Systems")
   "Here is the [official repository](https://github.com/melisgl/try)
   and the [HTML
   documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
-  for the latest version.")
+  for the latest version."
+  (try asdf:system))
 
-(defsection @try/tutorial (:title "Tutorial")
+(defsection @tutorial (:title "Tutorial")
   """Try is a library for unit testing with equal support for
   interactive and non-interactive workflows. Tests are functions, and
   almost everything else is a condition, whose types feature
@@ -29,14 +29,14 @@
   Try is is what we get if we make tests functions and build a test
   framework on top of the condition system as
   [Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
-  but also address the issue of rerunning and replaying, make the
-  IS check more capable, use the types of the condition hierarchy
-  to parameterize what to debug, print, rerun, and finally document
-  the whole thing.
+  but also address the issue of rerunning and replaying, make the IS
+  check more capable, use the types of the condition hierarchy to
+  parametrize what to debug, print, rerun, and finally document the
+  whole thing.
 
   ##### Looking for Truth
 
-  @TRY/IS is a replacement for CL:ASSERT, that can capture values of
+  @IS is a replacement for CL:ASSERT, that can capture values of
   subforms to provide context to failures:
 
   ```cl-transcript (:dynenv try-transcript)
@@ -56,12 +56,12 @@
 
   ##### Checking Multiple Values
 
-  IS [automatically captures][@TRY/AUTOMATIC-CAPTURES] values of
-  arguments to functions like `1+` in the above example. Values of
-  other interesting subforms can be [explicitly
-  captured][@TRY/EXPLICIT-CAPTURES]. IS supports capturing multiple
-  values and can be taught [how to deal with macros][
-  @TRY/WRITING-AUTOMATIC-CAPTURE-RULES]. The combination of these
+  IS [automatically captures][@AUTOMATIC-CAPTURES] values of arguments
+  to functions like `1+` in the above example. Values of other
+  interesting subforms can be [explicitly captured]
+  [@EXPLICIT-CAPTURES]. IS supports capturing multiple values and can
+  be taught [how to deal with macros]
+  [@WRITING-AUTOMATIC-CAPTURE-RULES]. The combination of these
   features allows MATCH-VALUES to be implementable as tiny extension:
 
   ```cl-transcript (:dynenv try-transcript)
@@ -152,7 +152,7 @@
   `⊠` marks UNEXPECTED-FAILUREs. Note how the failure of `(IS (= (FOO)
   5))` caused `MY-SUITE` to fail as well. Finally, the `⊠1` and the
   `⋅1` in the TRIAL's printed representation are the [event
-  counts][@try/count].
+  counts][@count].
 
   ##### Filtering Output
 
@@ -267,12 +267,12 @@
   trial is passed to TRY or is `FUNCALL`ed, trials in it that match
   the type in TRY's RERUN argument are rerun (here, UNEXPECTED by
   default). `SHOULD-WORK` and its check are `EXPECTED-SUCCESS`es,
-  hence they don't match UNEXPECTED and are not [rerun][@TRY/RERUN].
+  hence they don't match UNEXPECTED and are not [rerun][@RERUN].
 
   ##### Conditional Execution
 
   Conditional execution can be achieved simply testing the TRIAL
-  object returned by @TRY/TESTS.
+  object returned by @TESTS.
 
   ```
   (deftest my-suite ()
@@ -356,8 +356,8 @@
              (with-xxx-body)))))
   ```
 
-  Plus, with support for selectively @TRY/RERUN, the need for fixtures
-  is lessened.
+  Plus, with support for selectively @RERUN, the need for fixtures is
+  lessened.
 
   ##### Packages
 
@@ -415,10 +415,10 @@
   """)
 
 
-(defsection @try/emacs (:title "Emacs Integration")
+(defsection @emacs (:title "Emacs Integration")
   """The Elisp `mgl-try` interactive command runs a Try test and
   displays its output in a `lisp-mode` buffer with minor modes
-  `outline-mode` and `mgl-try-mode`. It is assumed that the lisp is
+  `outline-mode` and `mgl-try-mode`. It is assumed that the Lisp is
   running under [Slime](https://slime.common-lisp.dev/). In the
   buffer,
 
@@ -430,7 +430,7 @@
     and `\\N`;
 
   - rerun the most recent trial (TRY:!) with `r` (subject to the
-    filtering described @TRY/RERUN);
+    filtering described @RERUN);
 
   - rerun the most recently finished test with `\\R` (and all tests it
     calls);
@@ -444,9 +444,9 @@
           C-p             outline-previous-visible-heading
           C-n             outline-next-visible-heading
           U               outline-up-heading"""
-  (@try/emacs-setup section))
+  (@emacs-setup section))
 
-(defsection @try/emacs-setup (:title "Emacs Setup")
+(defsection @emacs-setup (:title "Emacs Setup")
   """Load `src/mgl-try.el` in Emacs.
 
   If you installed Try with Quicklisp, the location of `mgl-try.el`
@@ -471,7 +471,7 @@
                                     target-dir))))
 
 
-(defsection @try/implementation-notes (:title "Implementation Notes")
+(defsection @implementation-notes (:title "Implementation Notes")
   """Try is supported on ABCL, AllegroCL, CLISP, CCL, CMUCL, ECL and
   SBCL.
 
@@ -489,7 +489,7 @@
   """)
 
 
-(defsection @try/glossary (:title "Glossary" :export nil)
+(defsection @glossary (:title "Glossary" :export nil)
   (@funcallable-instance glossary-term)
   (@cancelled-nlx glossary-term))
 

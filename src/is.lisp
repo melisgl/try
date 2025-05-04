@@ -2,8 +2,8 @@
 
 (in-readtable pythonic-string-syntax)
 
-(defsection @try/is (:title "The IS Macro")
-  """IS is the fundamental one among @TRY/CHECKS, on which all
+(defsection @is (:title "The IS Macro")
+  """IS is the fundamental one among @CHECKS, on which all
   the others are built, and it is a replacement for CL:ASSERT that can
   capture values of subforms to provide context to failures:
 
@@ -45,8 +45,8 @@
   (is macro)
   (*is-form* variable)
   (*is-captures* variable)
-  (@try/format-specifier-forms section)
-  (@try/captures section))
+  (@format-specifier-forms section)
+  (@captures section))
 
 (defvar *is-form*)
 (setf (documentation '*is-form* 'variable)
@@ -59,8 +59,8 @@
 (defmacro is (form &key msg ctx (capture t) (print-captures t) (retry t)
               &environment env)
   """Evaluate FORM and signal a RESULT SUCCESS if its first return
-  value is not NIL, else signal a RESULT FAILURE (see @TRY/OUTCOMES).
-  IS returns normally if
+  value is not NIL, else signal a RESULT FAILURE (see @OUTCOMES). IS
+  returns normally if
 
   - the RECORD-EVENT restart is invoked (available when running in a
     trial), or
@@ -72,11 +72,10 @@
   The return value of IS is T if the last condition signalled is a
   SUCCESS, and NIL otherwise.
 
-  MSG and CTX are @TRY/FORMAT-SPECIFIER-FORMS. MSG prints a
-  description of the check being made, which is by default the whole
-  IS form. Due to how conditions are printed, MSG says what the
-  desired outcome is, and CTX provides information about the
-  evaluation.
+  MSG and CTX are @FORMAT-SPECIFIER-FORMS. MSG prints a description of
+  the check being made, which is by default the whole IS form. Due to
+  how conditions are printed, MSG says what the desired outcome is,
+  and CTX provides information about the evaluation.
 
   ```cl-transcript (:check-consistency #+sbcl t #-sbcl nil)
   (is (equal (prin1-to-string 'hello) "hello")
@@ -94,11 +93,11 @@
 
   If CAPTURE is true, the value(s) of some subforms of FORM may be
   automatically recorded in the condition and also made available for
-  CTX via *IS-CAPTURES*. See @TRY/CAPTURES for more.
+  CTX via *IS-CAPTURES*. See @CAPTURES for more.
 
   If PRINT-CAPTURES is true, the captures made are printed when the
   RESULT condition is displayed in the debugger or `*DESCRIBE*`d (see
-  @TRY/PRINT). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
+  @PRINT). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
   part above. If PRINT-CAPTURES is NIL, the captures are still
   available in *IS-CAPTURES* for writing custom CTX messages.
 
@@ -159,7 +158,7 @@
                    :ctx ctx)))
 
 
-(defsection @try/format-specifier-forms (:title "Format Specifier Forms")
+(defsection @format-specifier-forms (:title "Format Specifier Forms")
   """A format specifier form is a Lisp form, typically an argument to
   macro, standing for the FORMAT-CONTROL and FORMAT-ARGS arguments to
   the FORMAT function.
@@ -210,18 +209,18 @@
          form)))
 
 
-(defsection @try/captures (:title "Captures")
+(defsection @captures (:title "Captures")
   "During the evaluation of the FORM argument of IS, evaluation of any
   form (e.g. a subform of FORM) may be recorded, which are called
   captures."
-  (@try/automatic-captures section)
-  (@try/explicit-captures section))
+  (@automatic-captures section)
+  (@explicit-captures section))
 
 
-(defsection @try/explicit-captures (:title "Explicit Captures")
+(defsection @explicit-captures (:title "Explicit Captures")
   """In addition to automatic captures, which are prescribed by
-  rewriting rules (see @TRY/WRITING-AUTOMATIC-CAPTURE-RULES),
-  explicit, ad-hoc captures can also be made.
+  rewriting rules (see @WRITING-AUTOMATIC-CAPTURE-RULES), explicit,
+  ad-hoc captures can also be made.
 
   ```cl-transcript (:dynenv try-transcript)
   (is (let ((x 1))
@@ -308,7 +307,7 @@
 
 
 
-(defsection @try/automatic-captures (:title "Automatic Captures")
+(defsection @automatic-captures (:title "Automatic Captures")
   """IS automatically captures some subforms of FORM that are likely
   to be informative. In particular, if FORM is a function call, then
   non-constant arguments are automatically captured:
@@ -362,7 +361,7 @@
   Other automatic captures are discussed with the relevant
   functionality such as MATCH-VALUES.
   """
-  (@try/writing-automatic-capture-rules section))
+  (@writing-automatic-capture-rules section))
 
 (defstruct (sub (:constructor make-sub (var subform new-form valuesp)))
   "A SUB (short for substitution) says that in the original form IS is
@@ -456,7 +455,7 @@
           captures))
 
 
-(defsection @try/writing-automatic-capture-rules
+(defsection @writing-automatic-capture-rules
     (:title "Writing Automatic Capture Rules")
   (sub class)
   (make-sub function)

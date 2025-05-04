@@ -4,51 +4,60 @@
 
 ## Table of Contents
 
-- [1 Links][a565]
-- [2 Tutorial][c7f7]
-- [3 Emacs Integration][5b47]
-    - [3.1 Emacs Setup][805a]
-- [4 Events][fe18]
-    - [4.1 Middle Layer of Events][2f9f]
-    - [4.2 Concrete Events][4d5b]
-    - [4.3 Event Glue][1a75]
-    - [4.4 Printing Events][4573]
-    - [4.5 Event Restarts][66c5]
-    - [4.6 Outcomes][ab72]
-        - [4.6.1 Outcome Restarts][0247]
-        - [4.6.2 Checks][9a72]
-            - [4.6.2.1 Check Restarts][4011]
-        - [4.6.3 Trials][bfad]
-            - [4.6.3.1 Trial Events][3351]
-            - [4.6.3.2 Trial Verdicts][b324]
-            - [4.6.3.3 Trial Restarts][39b3]
-    - [4.7 Errors][cb2b]
-    - [4.8 Categories][b95c]
-- [5 The `IS` Macro][6cc6]
-    - [5.1 Format Specifier Forms][879c]
-    - [5.2 Captures][b881]
-        - [5.2.1 Automatic Captures][9c16]
-            - [5.2.1.1 Writing Automatic Capture Rules][4fbb]
-        - [5.2.2 Explicit Captures][ff6f]
-- [6 Check Library][9420]
-    - [6.1 Checking Conditions][883b]
-    - [6.2 Miscellaneous Checks][a4c2]
-    - [6.3 Check Utilities][d97f]
-        - [6.3.1 Comparing Floats][4754]
-- [7 Tests][1688]
-    - [7.1 Calling Test Functions][c8d9]
-    - [7.2 Explicit `TRY`][2b2c]
-        - [7.2.1 Testables][8ed8]
-        - [7.2.2 Implementation of Implicit `TRY`][2971]
-    - [7.3 Printing Events][534b]
-    - [7.4 Counting Events][e726]
-    - [7.5 Collecting Events][0575]
-    - [7.6 Rerunning Trials][7005]
-    - [7.7 Reprocessing Trials][61b3]
-- [8 Implementation Notes][6a5d]
-- [9 Glossary][60b4]
+- [1 Links and Systems][628a]
+- [2 Tutorial][b949]
+- [3 Emacs Integration][4c86]
+    - [3.1 Emacs Setup][4fc4]
+- [4 Events][aaf2]
+    - [4.1 Middle Layer of Events][3e0c]
+    - [4.2 Concrete Events][279a]
+    - [4.3 Event Glue][5237]
+    - [4.4 Printing Events][afb9]
+    - [4.5 Event Restarts][d4ce]
+    - [4.6 Outcomes][e514]
+        - [4.6.1 Outcome Restarts][7ef5]
+        - [4.6.2 Checks][bb56]
+            - [4.6.2.1 Check Restarts][2364]
+        - [4.6.3 Trials][e6be]
+            - [4.6.3.1 Trial Events][514a]
+            - [4.6.3.2 Trial Verdicts][5e1a]
+            - [4.6.3.3 Trial Restarts][5355]
+    - [4.7 Errors][7f8e]
+    - [4.8 Categories][03ec]
+- [5 The `IS` Macro][e2e0]
+    - [5.1 Format Specifier Forms][3233]
+    - [5.2 Captures][3d27]
+        - [5.2.1 Automatic Captures][56ae]
+            - [5.2.1.1 Writing Automatic Capture Rules][0743]
+        - [5.2.2 Explicit Captures][20d8]
+- [6 Check Library][f7f7]
+    - [6.1 Checking Conditions][ff2c]
+    - [6.2 Miscellaneous Checks][37c1]
+    - [6.3 Check Utilities][906a]
+        - [6.3.1 Comparing Floats][9fa9]
+- [7 Tests][dc28]
+    - [7.1 Calling Test Functions][012f]
+    - [7.2 Explicit `TRY`][1720]
+        - [7.2.1 Testables][cdc3]
+        - [7.2.2 Implementation of Implicit `TRY`][8b9c]
+    - [7.3 Printing Events][b3f9]
+    - [7.4 Counting Events][886e]
+    - [7.5 Collecting Events][52e5]
+    - [7.6 Rerunning Trials][e4ac]
+    - [7.7 Reprocessing Trials][2337]
+- [8 Implementation Notes][3eef]
+- [9 Glossary][c759]
 
 ###### \[in package TRY\]
+<a id="x-28TRY-3A-40LINKS-20MGL-PAX-3ASECTION-29"></a>
+
+## 1 Links and Systems
+
+Here is the [official repository](https://github.com/melisgl/try)
+and the [HTML
+documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
+for the latest version.
+
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
 
 - [system] **"try"**
@@ -69,16 +78,7 @@
     - Depends on: alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
     - Defsystem depends on: try.asdf
 
-<a id="x-28TRY-3A-40TRY-2FLINKS-20MGL-PAX-3ASECTION-29"></a>
-
-## 1 Links
-
-Here is the [official repository](https://github.com/melisgl/try)
-and the [HTML
-documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
-for the latest version.
-
-<a id="x-28TRY-3A-40TRY-2FTUTORIAL-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40TUTORIAL-20MGL-PAX-3ASECTION-29"></a>
 
 ## 2 Tutorial
 
@@ -90,14 +90,14 @@ prominently in parameterization.
 Try is is what we get if we make tests functions and build a test
 framework on top of the condition system as
 [Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
-but also address the issue of rerunning and replaying, make the
-[`IS`][80d6] check more capable, use the types of the condition hierarchy
-to parameterize what to debug, print, rerun, and finally document
-the whole thing.
+but also address the issue of rerunning and replaying, make the [`IS`][80d6]
+check more capable, use the types of the condition hierarchy to
+parametrize what to debug, print, rerun, and finally document the
+whole thing.
 
 ##### Looking for Truth
 
-[The `IS` Macro][6cc6] is a replacement for [`CL:ASSERT`][97ee], that can capture values of
+[The `IS` Macro][e2e0] is a replacement for [`CL:ASSERT`][97ee], that can capture values of
 subforms to provide context to failures:
 
 ```common-lisp
@@ -117,11 +117,10 @@ Note the `#N#` syntax due to [`*PRINT-CIRCLE*`][c8cb].
 
 ##### Checking Multiple Values
 
-`IS` [automatically captures][9c16] values of
-arguments to functions like [`1+`][1eb3] in the above example. Values of
-other interesting subforms can be [explicitly
-captured][ff6f]. `IS` supports capturing multiple
-values and can be taught [how to deal with macros][4fbb]. The combination of these
+`IS` [automatically captures][56ae] values of arguments
+to functions like [`1+`][1eb3] in the above example. Values of other
+interesting subforms can be [explicitly captured][20d8]. `IS` supports capturing multiple values and can
+be taught [how to deal with macros][0743]. The combination of these
 features allows [`MATCH-VALUES`][162a] to be implementable as tiny extension:
 
 ```common-lisp
@@ -212,7 +211,7 @@ Test suites are just tests that call other tests.
 `⊠` marks [`UNEXPECTED-FAILURE`][b5cb]s. Note how the failure of `(IS (= (FOO)
 5))` caused `MY-SUITE` to fail as well. Finally, the `⊠1` and the
 `⋅1` in the `TRIAL`'s printed representation are the [event
-counts][e726].
+counts][886e].
 
 ##### Filtering Output
 
@@ -327,12 +326,12 @@ Here, [`!`][92af] refers to the most recent `TRIAL` returned by [`TRY`][b602]. W
 trial is passed to `TRY` or is [`FUNCALL`][03c7]ed, trials in it that match
 the type in `TRY`'s `RERUN` argument are rerun (here, `UNEXPECTED` by
 default). `SHOULD-WORK` and its check are [`EXPECTED-SUCCESS`][c96a]es,
-hence they don't match `UNEXPECTED` and are not [rerun][7005].
+hence they don't match `UNEXPECTED` and are not [rerun][e4ac].
 
 ##### Conditional Execution
 
 Conditional execution can be achieved simply testing the `TRIAL`
-object returned by [Tests][1688].
+object returned by [Tests][dc28].
 
 ```
 (deftest my-suite ()
@@ -416,8 +415,8 @@ macros like the following.
            (with-xxx-body)))))
 ```
 
-Plus, with support for selectively [Rerunning Trials][7005], the need for fixtures
-is lessened.
+Plus, with support for selectively [Rerunning Trials][e4ac], the need for fixtures is
+lessened.
 
 ##### Packages
 
@@ -473,13 +472,13 @@ deleted by [`FMAKUNBOUND`][609c], [`UNINTERN`][cdba], or by redefining the funct
 This style allows higher level tests to establish the dynamic
 environment necessary for lower level tests.
 
-<a id="x-28TRY-3A-40TRY-2FEMACS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40EMACS-20MGL-PAX-3ASECTION-29"></a>
 
 ## 3 Emacs Integration
 
 The Elisp `mgl-try` interactive command runs a Try test and
 displays its output in a `lisp-mode` buffer with minor modes
-`outline-mode` and `mgl-try-mode`. It is assumed that the lisp is
+`outline-mode` and `mgl-try-mode`. It is assumed that the Lisp is
 running under [Slime](https://slime.common-lisp.dev/). In the
 buffer,
 
@@ -491,7 +490,7 @@ buffer,
   and `N`;
 
 - rerun the most recent trial ([`TRY:!`][92af]) with `r` (subject to the
-  filtering described [Rerunning Trials][7005]);
+  filtering described [Rerunning Trials][e4ac]);
 
 - rerun the most recently finished test with `R` (and all tests it
   calls);
@@ -507,7 +506,7 @@ buffer,
         U               outline-up-heading
 
 
-<a id="x-28TRY-3A-40TRY-2FEMACS-SETUP-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40EMACS-SETUP-20MGL-PAX-3ASECTION-29"></a>
 
 ### 3.1 Emacs Setup
 
@@ -533,7 +532,7 @@ something like this to your `.emacs`:
 
     Copy `mgl-try.el` distributed with this package to `TARGET-DIR`.
 
-<a id="x-28TRY-3A-40TRY-2FEVENTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
 ## 4 Events
 
@@ -541,19 +540,20 @@ Try is built around events implemented as [`CONDITION`][83e1]s.
 Matching the types of events to [`*DEBUG*`][856d], [`*COUNT*`][3bb4], [`*COLLECT*`][307c], [`*RERUN*`][63db],
 [`*PRINT*`][7ee9], and [`*DESCRIBE*`][aa6d] is what gives Try its flexibility.
 
-<a id="x-28TRY-3A-40TRY-2FMIDDLE-LAYER-OF-EVENTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40MIDDLE-LAYER-OF-EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
 ### 4.1 Middle Layer of Events
 
-The event hierarchy is fairly involved, so let's start in the middle.
-The condition [`EVENT`][955d] has 4 disjoint subclasses:
+The event hierarchy is fairly involved, so let's start with the middle
+layer because it is smallest. The condition [`EVENT`][955d] has 4 disjoint
+subclasses:
 
 - [`TRIAL-START`][b664], which corresponds to the entry to a test (see
-  [Tests][1688]),
+  [Tests][dc28]),
 
 - [`VERDICT`][52e1], the [`OUTCOME`][2656] of a [`TRIAL`][99d0],
 
-- [`RESULT`][231f], the `OUTCOME` of a check (see [Checks][9a72]), and
+- [`RESULT`][231f], the `OUTCOME` of a check (see [Checks][bb56]), and
 
 - [`ERROR*`][0321], an unexpected `CL:ERROR`([`0`][d162] [`1`][35ba]) or unadorned [non-local exit][b815].
 
@@ -576,7 +576,7 @@ The condition [`EVENT`][955d] has 4 disjoint subclasses:
 ```
 
 
-<a id="x-28TRY-3A-40TRY-2FCONCRETE-EVENTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40CONCRETE-EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
 ### 4.2 Concrete Events
 
@@ -604,13 +604,12 @@ signalled are called concrete.
 
 These are the 15 concrete event classes.
 
-<a id="x-28TRY-3A-40TRY-2FEVENT-GLUE-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40EVENT-GLUE-20MGL-PAX-3ASECTION-29"></a>
 
 ### 4.3 Event Glue
 
-These condition classes group various bits of the
-[Concrete Events][4d5b] and the [Middle Layer of Events][2f9f] for ease of
-reference.
+These condition classes group various bits of the [Concrete Events][279a]
+ and the [Middle Layer of Events][3e0c] for ease of reference.
 
 Concrete event classes except [`TRIAL-START`][b664] are subclasses of the
 hyphen-separated words constituting their name. For example,
@@ -644,7 +643,7 @@ RESULT)`.
 
 - [condition] **SUCCESS** *[EVENT][955d]*
 
-    See [Checks][9a72] and [Trial Verdicts][b324] for how
+    See [Checks][bb56] and [Trial Verdicts][5e1a] for how
     `SUCCESS` or [`FAILURE`][f92d] is decided.
 
 <a id="x-28TRY-3AFAILURE-20CONDITION-29"></a>
@@ -707,14 +706,15 @@ RESULT)`.
 - [type] **PASS**
 
     An [`OUTCOME`][2656] that's not an [`ABORT*`][8ec3] or an [`UNEXPECTED`][d6ad] [`FAILURE`][f92d].
+    `PASS` is equivalent to `(NOT FAIL)`.
 
 <a id="x-28TRY-3AFAIL-20TYPE-29"></a>
 
 - [type] **FAIL**
 
-    An [`ABORT*`][8ec3] or an [`UNEXPECTED`][d6ad] [`FAILURE`][f92d].
+    An [`ABORT*`][8ec3] or an [`UNEXPECTED`][d6ad] [`FAILURE`][f92d]. See [`PASS`][21d9].
 
-<a id="x-28TRY-3A-40TRY-2FPRINTING-EVENTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40PRINTING-EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
 ### 4.4 Printing Events
 
@@ -735,15 +735,15 @@ RESULT)`.
     ```
     
     The default value ensures that shared structure is recognized (see
-    [Captures][b881]). If the `#N#` syntax feels cumbersome, then change
-    this variable.
+    [Captures][3d27]). If the `#N#` syntax feels cumbersome, then change this
+    variable.
 
-<a id="x-28TRY-3A-40TRY-2FEVENT-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40EVENT-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
 
 ### 4.5 Event Restarts
 
 Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
-[Check Restarts][4011], [Trial Restarts][39b3] for more.
+[Check Restarts][2364], [Trial Restarts][5355] for more.
 
 <a id="x-28TRY-3ARECORD-EVENT-20FUNCTION-29"></a>
 
@@ -753,7 +753,7 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
     signalled running under [`TRY`][b602] (i.e. there is a [`CURRENT-TRIAL`][e186]). `TRY`
     always invokes `RECORD-EVENT` when handling events.
 
-<a id="x-28TRY-3A-40TRY-2FOUTCOMES-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40OUTCOMES-20MGL-PAX-3ASECTION-29"></a>
 
 ### 4.6 Outcomes
 
@@ -762,8 +762,7 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
 - [condition] **OUTCOME** *[EVENT][955d]*
 
     An `OUTCOME` is the resolution of either a [`TRIAL`][99d0] or a
-    check (see [Checks][9a72]), corresponding to subclasses [`VERDICT`][52e1] and
-    [`RESULT`][231f].
+    check (see [Checks][bb56]), corresponding to subclasses [`VERDICT`][52e1] and [`RESULT`][231f].
 
 <a id="x-28TRY-3AWITH-EXPECTED-OUTCOME-20MGL-PAX-3AMACRO-29"></a>
 
@@ -772,7 +771,7 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
     When an [`OUTCOME`][2656] is to be signalled, `EXPECTED-TYPE` determines
     whether it's going to be [`EXPECTED`][b194]. The concrete `OUTCOME` classes are
     `{EXPECTED,UNEXPECTED}-{RESULT,VERDICT}-{SUCCESS,FAILURE}` (see
-    [Events][fe18]), of which [`RESULT`][231f] or [`VERDICT`][52e1] and [`SUCCESS`][269a] or [`FAILURE`][f92d] are
+    [Events][aaf2]), of which [`RESULT`][231f] or [`VERDICT`][52e1] and [`SUCCESS`][269a] or [`FAILURE`][f92d] are
     already known. If a `RESULT` `FAILURE` is to be signalled, then the
     moral equivalent of `(SUBTYPEP '(AND RESULT FAILURE) EXPECTED-TYPE)`
     is evaluated and depending on whether it's true,
@@ -849,7 +848,7 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
     course) evaluate normally but signal [`RESULT-SKIP`][7c3f]. `SKIP` is `NIL`
     cancels the effect of any enclosing `WITH-SKIP` with `SKIP` true.
 
-<a id="x-28TRY-3A-40TRY-2FOUTCOME-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40OUTCOME-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
 
 #### 4.6.1 Outcome Restarts
 
@@ -883,7 +882,7 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
     Change the type of [`OUTCOME`][2656] being signalled to [`UNEXPECTED`][d6ad] and
     [`FAILURE`][f92d].
 
-<a id="x-28TRY-3A-40TRY-2FCHECKS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40CHECKS-20MGL-PAX-3ASECTION-29"></a>
 
 #### 4.6.2 Checks
 
@@ -902,12 +901,12 @@ effect, then [`RESULT-SKIP`][7c3f] is signalled.
 The result is signalled with `#'SIGNAL` if it is a [`PASS`][21d9], else it's
 signalled with `#'ERROR`. This distinction matters only if the event
 is not handled, which is never the case in a [`TRIAL`][99d0]. Standalone
-checks though - those that are not enclosed by a trial - invoke the
-debugger on `RESULT`s which are not of type [`PASS`][21d9].
+checks though – those not enclosed by a trial – invoke the debugger on
+`RESULT`s which are not of type [`PASS`][21d9].
 
 The signalled `RESULT` is not final until [`RECORD-EVENT`][ce49] is invoked on
-it, and it can be changed with the [Outcome Restarts][0247] and the
-[Check Restarts][4011].
+it, and it can be changed with the [Outcome Restarts][7ef5] and the
+[Check Restarts][2364].
 
 <a id="x-28TRY-3ARESULT-20CONDITION-29"></a>
 
@@ -937,7 +936,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 
 - [condition] **RESULT-ABORT\*** *[RESULT][231f] [ABORT\*][8ec3] [DISMISSAL][0992]*
 
-<a id="x-28TRY-3A-40TRY-2FCHECK-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40CHECK-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
 
 ##### 4.6.2.1 Check Restarts
 
@@ -946,8 +945,8 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 - [function] **ABORT-CHECK** *&OPTIONAL CONDITION*
 
     Change the [`OUTCOME`][2656] of the check being signalled to [`RESULT-ABORT*`][ffab].
-    `RESULT-ABORT*`, being `(NOT PASS)`, will cause the check to return
-    `NIL` if [`RECORD-EVENT`][ce49] is invoked on it.
+    `RESULT-ABORT*`, being a [`FAIL`][d5ea], will cause the check to return `NIL` if
+    [`RECORD-EVENT`][ce49] is invoked on it.
 
 <a id="x-28TRY-3ASKIP-CHECK-20FUNCTION-29"></a>
 
@@ -964,7 +963,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
     Initiate a [non-local exit][b815] to go reevaluate the forms
     wrapped by the check without signalling an [`OUTCOME`][2656].
 
-<a id="x-28TRY-3A-40TRY-2FTRIALS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40TRIALS-20MGL-PAX-3ASECTION-29"></a>
 
 #### 4.6.3 Trials
 
@@ -973,8 +972,8 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 - [class] **TRIAL** *SB-MOP:FUNCALLABLE-STANDARD-OBJECT*
 
     Trials are records of calls to tests (see
-    [Counting Events][e726], [Collecting Events][0575]). Their behaviour as [funcallable instance][2eef]s
-    is explained in [Rerunning Trials][7005].
+    [Counting Events][886e], [Collecting Events][52e5]). Their behaviour as [funcallable instance][2eef]s
+    is explained in [Rerunning Trials][e4ac].
     
     There are three ways to acquire a `TRIAL` object: by calling
     [`CURRENT-TRIAL`][e186], through the lexical binding of the symbol that names
@@ -1008,7 +1007,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
     returns the innermost trial. If there is no currently running test,
     then an error is signalled. The returned trial is [`RUNNINGP`][5d4a].
 
-<a id="x-28TRY-3A-40TRY-2FTRIAL-EVENTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40TRIAL-EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
 ##### 4.6.3.1 Trial Events
 
@@ -1028,9 +1027,9 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 - [condition] **TRIAL-START** *[TRIAL-EVENT][b36a]*
 
     `TRIAL-START` is signalled when a test function
-    (see [Tests][1688]) is entered and a [`TRIAL`][99d0] is started, it is already
-    the [`CURRENT-TRIAL`][e186], and the [Trial Restarts][39b3] are available. It is
-    also signalled when a trial is retried:
+    (see [Tests][dc28]) is entered and a [`TRIAL`][99d0] is started, it is already the
+    [`CURRENT-TRIAL`][e186], and the [Trial Restarts][5355] are available. It is also
+    signalled when a trial is retried:
     
     ```common-lisp
     (let ((*print* nil)
@@ -1054,16 +1053,16 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
     of other [`EVENT`][955d]s.
     
     - When a `TRIAL-START` event matches the `COLLECT` type (see
-      [Collecting Events][0575]), its [`TRIAL`][0f05] is collected.
+      [Collecting Events][52e5]), its [`TRIAL`][0f05] is collected.
     
     - Similarly, when a `TRIAL-START` matches the `PRINT`
-      type (see [Printing Events][534b]), it is printed immediately, and its trial's
+      type (see [Printing Events][b3f9]), it is printed immediately, and its trial's
       [`VERDICT`][52e1] will be printed too regardless of whether it matches
       `PRINT`. If `TRIAL-START` does not match
       `PRINT`, it may still be printed if for example
       [`*PRINT-PARENT*`][cc23] requires it.
     
-    - When a `TRIAL-START` matches the `RERUN` type (see [Rerunning Trials][7005]), its
+    - When a `TRIAL-START` matches the `RERUN` type (see [Rerunning Trials][e4ac]), its
       [`TRIAL`][0f05] may be rerun.
     
     - Also, see [`WITH-SKIP`][b71e].
@@ -1076,11 +1075,10 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
     A `VERDICT` is the [`OUTCOME`][2656] of a [`TRIAL`][99d0]. It is one of
     `{EXPECTED,UNEXPECTED}-VERDICT-{SUCCESS,FAILURE}`, [`VERDICT-SKIP`][5786] and
     [`VERDICT-ABORT*`][4805]. Regarding how the verdict type is determined, see
-    [Trial Verdicts][b324].
+    [Trial Verdicts][5e1a].
     
     Verdicts are signalled while their [`TRIAL`][0f05] is
-    still the [`CURRENT-TRIAL`][e186], and [Trial Restarts][39b3] are still
-    available.
+    still the [`CURRENT-TRIAL`][e186], and [Trial Restarts][5355] are still available.
     
     ```common-lisp
     (try (lambda ()
@@ -1125,7 +1123,7 @@ it, and it can be changed with the [Outcome Restarts][0247] and the
 
 - [condition] **VERDICT-ABORT\*** *[VERDICT][52e1] [ABORT\*][8ec3] [DISMISSAL][0992]*
 
-<a id="x-28TRY-3A-40TRY-2FTRIAL-VERDICTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40TRIAL-VERDICTS-20MGL-PAX-3ASECTION-29"></a>
 
 ##### 4.6.3.2 Trial Verdicts
 
@@ -1154,8 +1152,8 @@ is determined as follows.
   the verdict which will be signalled.
 
 The verdict of this type is signalled, but its type can be changed
-by the [Outcome Restarts][0247] or the [Trial Restarts][39b3] before
-[`RECORD-EVENT`][ce49] is invoked on it.
+by the [Outcome Restarts][7ef5] or the [Trial Restarts][5355] before [`RECORD-EVENT`][ce49]
+is invoked on it.
 
 <a id="x-28TRY-3AVERDICT-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29"></a>
 
@@ -1186,13 +1184,13 @@ by the [Outcome Restarts][0247] or the [Trial Restarts][39b3] before
     See if `TRIAL` has finished and its [`VERDICT`][4bec] is a
     [`FAIL`][d5ea].
 
-<a id="x-28TRY-3A-40TRY-2FTRIAL-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40TRIAL-RESTARTS-20MGL-PAX-3ASECTION-29"></a>
 
 ##### 4.6.3.3 Trial Restarts
 
 There are three restarts available for manipulating running
 trials: [`ABORT-TRIAL`][4f9f], [`SKIP-TRIAL`][f45a], and [`RETRY-TRIAL`][fae3]. They may be
-invoked programatically or from the debugger. `ABORT-TRIAL` is also
+invoked programmatically or from the debugger. `ABORT-TRIAL` is also
 invoked by [`TRY`][b602] when encountering [`UNHANDLED-ERROR`][8f78].
 
 The functions below invoke one of these restarts associated with a
@@ -1257,7 +1255,7 @@ All three restarts may be invoked on any [`EVENT`][955d], including the
 trial's own [`TRIAL-START`][b664] and [`VERDICT`][52e1]. If their `CONDITION`
 argument is an `EVENT` (`RETRY-TRIAL` has a special case here), they
 also record it (as in [`RECORD-EVENT`][ce49]) to ensure that when they handle
-an `EVENT` in the debugger or programatically that event is not
+an `EVENT` in the debugger or programmatically that event is not
 dropped.
 
 <a id="x-28TRY-3AABORT-TRIAL-20FUNCTION-29"></a>
@@ -1267,14 +1265,14 @@ dropped.
     Invoke the `ABORT-TRIAL` restart of a [`RUNNINGP`][5d4a] `TRIAL`.
     
     When `CONDITION` is a [`VERDICT`][52e1] for `TRIAL`, `ABORT-TRIAL` signals a new
-    verdict of type [`VERDICT-ABORT*`][4805]. This behavior is similar to that
+    verdict of type [`VERDICT-ABORT*`][4805]. This behaviour is similar to that
     of [`ABORT-CHECK`][826a]. Else, the `ABORT-TRIAL` restart may record `CONDITION`,
     then it initiates a [non-local exit][b815] to return from the test
     function with `VERDICT-ABORT*`. If during the unwinding [`SKIP-TRIAL`][f45a]
     or [`RETRY-TRIAL`][fae3] is called, then the abort is cancelled.
     
     Since [`ABORT*`][8ec3] is an [`UNEXPECTED`][d6ad] [`EVENT`][955d], `ABORT-TRIAL` is rarely used
-    programatically. Signalling any error in a trial that's not caught
+    programmatically. Signalling any error in a trial that's not caught
     before the trial's handler catches it will get turned into an
     [`UNHANDLED-ERROR`][8f78], and [`TRY`][b602] will invoke `ABORT-TRIAL` with it. Thus,
     instead of invoking `ABORT-TRIAL` directly, signalling an error will
@@ -1287,11 +1285,11 @@ dropped.
     Invoke the `SKIP-TRIAL` restart of a [`RUNNINGP`][5d4a] `TRIAL`.
     
     When `CONDITION` is a [`VERDICT`][52e1] for `TRIAL`, `SKIP-TRIAL` signals a new
-    verdict of type [`VERDICT-SKIP`][5786]. This behavior is similar to that of
+    verdict of type [`VERDICT-SKIP`][5786]. This behaviour is similar to that of
     [`SKIP-CHECK`][fb0e]. Else, the `SKIP-TRIAL` restart may record `CONDITION`, then
-    it initiates a [non-local exit][b815] to return from the test function with
-    `VERDICT-SKIP`. If during the unwinding [`ABORT-TRIAL`][4f9f] or [`RETRY-TRIAL`][fae3] is
-    called, then the skip is cancelled.
+    it initiates a [non-local exit][b815] to return from the test
+    function with `VERDICT-SKIP`. If during the unwinding [`ABORT-TRIAL`][4f9f] or
+    [`RETRY-TRIAL`][fae3] is called, then the skip is cancelled.
     
     ```common-lisp
     (with-test (skipped)
@@ -1331,9 +1329,9 @@ dropped.
     
     - ([`N-RETRIES`][b33f] `TRIAL`) is incremented,
     
-    - collected results and trials are cleared (see [Collecting Events][0575]),
+    - collected results and trials are cleared (see [Collecting Events][52e5]),
     
-    - counts are zeroed (see [Counting Events][e726]), and
+    - counts are zeroed (see [Counting Events][886e]), and
     
     - [`TRIAL-START`][b664] is signalled again.
     
@@ -1350,7 +1348,7 @@ dropped.
     The number of times this `TRIAL` has
     been retried. See [`RETRY-TRIAL`][fae3].
 
-<a id="x-28TRY-3A-40TRY-2FERRORS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40ERRORS-20MGL-PAX-3ASECTION-29"></a>
 
 ### 4.7 Errors
 
@@ -1405,7 +1403,7 @@ dropped.
     [`SKIP-TRIAL`][f45a], [`ABORT-TRIAL`][4f9f]). In this case, there is no `CL:ERROR`([`0`][d162] [`1`][35ba])
     associated with the event.
 
-<a id="x-28TRY-3A-40TRY-2FCATEGORIES-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40CATEGORIES-20MGL-PAX-3ASECTION-29"></a>
 
 ### 4.8 Categories
 
@@ -1425,8 +1423,8 @@ The default value of [`*CATEGORIES*`][e949] is
 
 which says that all concrete [`EVENT`][955d]s that are of type [`ABORT*`][8ec3] (i.e.
 [`RESULT-ABORT*`][ffab], [`VERDICT-ABORT*`][4805], [`UNHANDLED-ERROR`][8f78], and [`NLX`][b115]) are to
-be marked with `"⊟"` when printed (see [Printing Events][534b]). Also, the six
-types define six counters for [Counting Events][e726]. Note that [`UNEXPECTED`][d6ad]
+be marked with `"⊟"` when printed (see [Printing Events][b3f9]). Also, the six
+types define six counters for [Counting Events][886e]. Note that [`UNEXPECTED`][d6ad]
 events have the same marker but squared as their [`EXPECTED`][b194]
 counterpart.
 
@@ -1435,15 +1433,15 @@ counterpart.
 - [variable] **\*CATEGORIES\*** *"- see above -"*
 
     A list of of elements like `(TYPE &KEY MARKER)`.
-    When [Printing Events][534b], [Concrete Events][4d5b] are printed with the marker of
-    the first matching type. When [Counting Events][e726], the counts associated with
-    all matching types are incremented.
+    When [Printing Events][b3f9], [Concrete Events][279a] are printed with the marker of the
+    first matching type. When [Counting Events][886e], the counts associated with all
+    matching types are incremented.
 
 <a id="x-28TRY-3AFANCY-STD-CATEGORIES-20FUNCTION-29"></a>
 
 - [function] **FANCY-STD-CATEGORIES**
 
-    Returns the default value of [`*CATEGORIES*`][e949] (see [Categories][b95c]),
+    Returns the default value of [`*CATEGORIES*`][e949] (see [Categories][03ec]),
     which contains some fancy Unicode characters.
 
 <a id="x-28TRY-3AASCII-STD-CATEGORIES-20FUNCTION-29"></a>
@@ -1463,11 +1461,11 @@ counterpart.
     ```
 
 
-<a id="x-28TRY-3A-40TRY-2FIS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40IS-20MGL-PAX-3ASECTION-29"></a>
 
 ## 5 The `IS` Macro
 
-[`IS`][80d6] is the fundamental one among [Checks][9a72], on which all
+[`IS`][80d6] is the fundamental one among [Checks][bb56], on which all
 the others are built, and it is a replacement for [`CL:ASSERT`][97ee] that can
 capture values of subforms to provide context to failures:
 
@@ -1511,8 +1509,8 @@ on top of it.
 - [macro] **IS** *FORM &KEY MSG CTX (CAPTURE T) (PRINT-CAPTURES T) (RETRY T)*
 
     Evaluate `FORM` and signal a [`RESULT`][231f] [`SUCCESS`][269a] if its first return
-    value is not `NIL`, else signal a `RESULT` [`FAILURE`][f92d] (see [Outcomes][ab72]).
-    `IS` returns normally if
+    value is not `NIL`, else signal a `RESULT` [`FAILURE`][f92d] (see [Outcomes][e514]). `IS`
+    returns normally if
     
     - the [`RECORD-EVENT`][ce49] restart is invoked (available when running in a
       trial), or
@@ -1526,11 +1524,10 @@ on top of it.
     The return value of `IS` is `T` if the last condition signalled is a
     `SUCCESS`, and `NIL` otherwise.
     
-    `MSG` and `CTX` are [Format Specifier Forms][879c]. `MSG` prints a
-    description of the check being made, which is by default the whole
-    `IS` form. Due to how conditions are printed, `MSG` says what the
-    desired outcome is, and `CTX` provides information about the
-    evaluation.
+    `MSG` and `CTX` are [Format Specifier Forms][3233]. `MSG` prints a description of
+    the check being made, which is by default the whole `IS` form. Due to
+    how conditions are printed, `MSG` says what the desired outcome is,
+    and `CTX` provides information about the evaluation.
     
     ```common-lisp
     (is (equal (prin1-to-string 'hello) "hello")
@@ -1548,11 +1545,11 @@ on top of it.
     
     If `CAPTURE` is true, the value(s) of some subforms of `FORM` may be
     automatically recorded in the condition and also made available for
-    `CTX` via [`*IS-CAPTURES*`][fb53]. See [Captures][b881] for more.
+    `CTX` via [`*IS-CAPTURES*`][fb53]. See [Captures][3d27] for more.
     
     If `PRINT-CAPTURES` is true, the captures made are printed when the
     [`RESULT`][231f] condition is displayed in the debugger or [`*DESCRIBE*`][aa6d]d (see
-    [Printing Events][534b]). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
+    [Printing Events][b3f9]). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
     part above. If `PRINT-CAPTURES` is `NIL`, the captures are still
     available in `*IS-CAPTURES*` for writing custom `CTX` messages.
     
@@ -1574,7 +1571,7 @@ on top of it.
     Captures made during an [`IS`][80d6] evaluation are made available for
     `CTX` via `*IS-CAPTURES*`.
 
-<a id="x-28TRY-3A-40TRY-2FFORMAT-SPECIFIER-FORMS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40FORMAT-SPECIFIER-FORMS-20MGL-PAX-3ASECTION-29"></a>
 
 ### 5.1 Format Specifier Forms
 
@@ -1621,7 +1618,7 @@ default is implied.
 
     Ensure that the format specifier form `FORM` is in its full form.
 
-<a id="x-28TRY-3A-40TRY-2FCAPTURES-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40CAPTURES-20MGL-PAX-3ASECTION-29"></a>
 
 ### 5.2 Captures
 
@@ -1629,7 +1626,7 @@ During the evaluation of the `FORM` argument of [`IS`][80d6], evaluation of any
 form (e.g. a subform of `FORM`) may be recorded, which are called
 captures.
 
-<a id="x-28TRY-3A-40TRY-2FAUTOMATIC-CAPTURES-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40AUTOMATIC-CAPTURES-20MGL-PAX-3ASECTION-29"></a>
 
 #### 5.2.1 Automatic Captures
 
@@ -1686,7 +1683,7 @@ assumed to be `NIL` or `T`. If that's not true, use [`NULL`][25f5].
 Other automatic captures are discussed with the relevant
 functionality such as [`MATCH-VALUES`][162a].
 
-<a id="x-28TRY-3A-40TRY-2FWRITING-AUTOMATIC-CAPTURE-RULES-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40WRITING-AUTOMATIC-CAPTURE-RULES-20MGL-PAX-3ASECTION-29"></a>
 
 ##### 5.2.1.1 Writing Automatic Capture Rules
 
@@ -1753,13 +1750,13 @@ functionality such as [`MATCH-VALUES`][162a].
           #2# = <value-of-variable-list>
 
 
-<a id="x-28TRY-3A-40TRY-2FEXPLICIT-CAPTURES-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40EXPLICIT-CAPTURES-20MGL-PAX-3ASECTION-29"></a>
 
 #### 5.2.2 Explicit Captures
 
 In addition to automatic captures, which are prescribed by
-rewriting rules (see [Writing Automatic Capture Rules][4fbb]),
-explicit, ad-hoc captures can also be made.
+rewriting rules (see [Writing Automatic Capture Rules][0743]), explicit,
+ad-hoc captures can also be made.
 
 ```common-lisp
 (is (let ((x 1))
@@ -1837,7 +1834,7 @@ is a multiple value capture.
     An alias for [`CAPTURE-VALUES`][351f] in the lexical scope of [`IS`][80d6]. Removed
     from the `IS` form when printed.
 
-<a id="x-28TRY-3A-40TRY-2FCHECK-LIBRARY-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40CHECK-LIBRARY-20MGL-PAX-3ASECTION-29"></a>
 
 ## 6 Check Library
 
@@ -1850,20 +1847,20 @@ Many of them share a number of arguments, which are described here.
 - `ON-NLX` is a boolean that determines whether the check in a macro
   that wraps `BODY` is made when `BODY` performs a [non-local exit][b815].
 
-- `MSG` and `CTX` are [Format Specifier Forms][879c] as in `IS`.
+- `MSG` and `CTX` are [Format Specifier Forms][3233] as in `IS`.
 
 - `NAME` may be provided so that it is printed (with [`PRIN1`][6384]) instead of
   `BODY` in `MSG`.
 
 
-<a id="x-28TRY-3A-40TRY-2FCHECKING-CONDITIONS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40CHECKING-CONDITIONS-20MGL-PAX-3ASECTION-29"></a>
 
 ### 6.1 Checking Conditions
 
 The macros [`SIGNALS`][6d4e], [`SIGNALS-NOT`][7af9], [`INVOKES-DEBUGGER`][12ce], and
 [`INVOKES-DEBUGGER-NOT`][aaaa] all check whether a condition of a given type,
 possibly also matching a predicate, was signalled. In addition to
-those already described in [Check Library][9420], these macros share a
+those already described in [Check Library][f7f7], these macros share a
 number of arguments.
 
 Matching conditions are those that are of type `CONDITION-TYPE` (not
@@ -1896,7 +1893,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
 
 - [variable] **\*CONDITION-MATCHED-P\***
 
-    When a check described in [Checking Conditions][883b] signals its
+    When a check described in [Checking Conditions][ff2c] signals its
     [`OUTCOME`][2656], this variable is bound to a boolean value to indicate
     whether a condition that matched `CONDITION-TYPE` and `PRED` was
     found.
@@ -1905,7 +1902,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
 
 - [variable] **\*BEST-MATCHING-CONDITION\***
 
-    Bound when a check described in [Checking Conditions][883b]
+    Bound when a check described in [Checking Conditions][ff2c]
     signals its [`OUTCOME`][2656]. If [`*CONDITION-MATCHED-P*`][cf88], then it is the
     most recent condition that matched both `CONDITION-TYPE` and `PRED`.
     Else, it is the most recent condition that matched
@@ -1918,7 +1915,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
     Check that `BODY` signals a [`CONDITION`][83e1] of `CONDITION-TYPE` (not
     evaluated) that matches `PRED`. To detect matching conditions, `SIGNALS`
     sets up a [`HANDLER-BIND`][fd3c]. Thus it can only see what `BODY` does not
-    handle. The arguments are described in [Checking Conditions][883b].
+    handle. The arguments are described in [Checking Conditions][ff2c].
     
     ```common-lisp
     (signals (error)
@@ -1948,7 +1945,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
     evaluated) that matches `PRED`. To detect matching conditions,
     `SIGNALS-NOT` sets up a [`HANDLER-BIND`][fd3c]. Thus, it can only see what `BODY`
     does not handle. The arguments are described in
-    [Checking Conditions][883b].
+    [Checking Conditions][ff2c].
 
 <a id="x-28TRY-3AINVOKES-DEBUGGER-20MGL-PAX-3AMACRO-29"></a>
 
@@ -1958,7 +1955,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
     `CONDITION-TYPE` (not evaluated) that matches `PRED`. To detect matching
     conditions, `INVOKES-DEBUGGER` sets up a [`*DEBUGGER-HOOK*`][1cdc]. Thus, if
     `*DEBUGGER-HOOK*` is changed by `BODY`, it may not detect the condition.
-    The arguments are described in [Checking Conditions][883b].
+    The arguments are described in [Checking Conditions][ff2c].
     
     Note that in a trial (see [`CURRENT-TRIAL`][e186]), all `ERROR`([`0`][d162] [`1`][35ba])s are handled,
     and a `*DEBUGGER-HOOK*` is set up (see [`UNHANDLED-ERROR`][8f78]). Thus,
@@ -1980,9 +1977,9 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
     `CONDITION-TYPE` (not evaluated) that matches `PRED`. To detect matching
     conditions, `INVOKES-DEBUGGER-NOT` sets up a [`*DEBUGGER-HOOK*`][1cdc]. Thus, if
     `*DEBUGGER-HOOK*` is changed by `BODY`, it may not detect the condition.
-    The arguments are described in [Checking Conditions][883b].
+    The arguments are described in [Checking Conditions][ff2c].
 
-<a id="x-28TRY-3A-40TRY-2FMISC-CHECKS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40MISC-CHECKS-20MGL-PAX-3ASECTION-29"></a>
 
 ### 6.2 Miscellaneous Checks
 
@@ -1991,7 +1988,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
 - [macro] **FAILS** *(&KEY NAME MSG CTX) &BODY BODY*
 
     Check that `BODY` performs a [non-local exit][b815] but do not
-    cancel it (see [cancelled non-local exit][7ab6]). See [Check Library][9420] for the
+    cancel it (see [cancelled non-local exit][7ab6]). See [Check Library][f7f7] for the
     descriptions of the other arguments.
     
     In the following example, `FAILS` signals a [`SUCCESS`][269a].
@@ -2022,7 +2019,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
 
 - [macro] **IN-TIME** *(SECONDS &KEY (ON-RETURN T) (ON-NLX T) NAME MSG CTX) &BODY BODY*
 
-    Check that `BODY` finishes in `SECONDS`. See [Check Library][9420] for
+    Check that `BODY` finishes in `SECONDS`. See [Check Library][f7f7] for
     the descriptions of the other arguments.
     
     ```
@@ -2043,7 +2040,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
     Bound to the number of seconds passed during the evaluation of
     `BODY` when [`IN-TIME`][f3af] signals its [`OUTCOME`][2656].
 
-<a id="x-28TRY-3A-40TRY-2FCHECK-UTILITIES-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40CHECK-UTILITIES-20MGL-PAX-3ASECTION-29"></a>
 
 ### 6.3 Check Utilities
 
@@ -2243,7 +2240,7 @@ functions and macros that may be useful for writing [`IS`][80d6] checks.
     ```
 
 
-<a id="x-28TRY-3A-40TRY-2FCOMPARING-FLOATS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40COMPARING-FLOATS-20MGL-PAX-3ASECTION-29"></a>
 
 #### 6.3.1 Comparing Floats
 
@@ -2296,7 +2293,7 @@ Float comparisons following
     Return whether `X` is approximately greater than `Y`. Equivalent to [`>`][5333],
     but it also allows for approximate equality according to [`FLOAT-~=`][7955].
 
-<a id="x-28TRY-3A-40TRY-2FTESTS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40TESTS-20MGL-PAX-3ASECTION-29"></a>
 
 ## 7 Tests
 
@@ -2323,7 +2320,7 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
 
     `DEFTEST` is a wrapper around [`DEFUN`][f472] to define global test functions.
     See `DEFUN` for a description of `NAME`, `LAMBDA-LIST`, and `BODY`. The
-    behaviour common with [`WITH-TEST`][8f5d] is described in [Tests][1688].
+    behaviour common with [`WITH-TEST`][8f5d] is described in [Tests][dc28].
     
     ```common-lisp
     (deftest my-test ()
@@ -2347,7 +2344,7 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
     
     - values are not returned implicitly
     
-    - values returned with an explicit [`RETURN-FROM`][3eef] are returned as
+    - values returned with an explicit [`RETURN-FROM`][3eef7] are returned as
       values after the trial
     
     ```common-lisp
@@ -2396,7 +2393,7 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
 
     Define a so-called lambda test to group together `CHECK`s and other
     tests it executes. `WITH-TEST` executes `BODY` in its lexical
-    environment even on a rerun (see [Rerunning Trials][7005]).
+    environment even on a rerun (see [Rerunning Trials][e4ac]).
     
     If `TRIAL-VAR` is a non-`NIL` symbol, bind it to the trial object.
     `NAME` may be any type, it is purely for presentation purposes. If
@@ -2489,7 +2486,7 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
     
     Lambda tests can be thought of as analogous to `(FUNCALL (LAMBDA ()
     BODY))`. The presence of the `LAMBDA`([`0`][e400] [`1`][5c01]) is important because it is
-    stored in the [`TRIAL`][99d0] object to support [Rerunning Trials][7005].
+    stored in the [`TRIAL`][99d0] object to support [Rerunning Trials][e4ac].
 
 <a id="x-28TRY-3ALIST-PACKAGE-TESTS-20FUNCTION-29"></a>
 
@@ -2529,7 +2526,7 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
     ```
 
 
-<a id="x-28TRY-3A-40TRY-2FIMPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
 
 ### 7.1 Calling Test Functions
 
@@ -2569,7 +2566,7 @@ Behind the scenes, the outermost test function calls `TRY` with
 ```
 
 `TRY` then calls the test function belonging to `TRIAL`.
-The rest of the behaviour is described in [Explicit `TRY`][2b2c].
+The rest of the behaviour is described in [Explicit `TRY`][1720].
 
 <a id="x-28TRY-3A-2ADEBUG-2A-20VARIABLE-29"></a>
 
@@ -2588,20 +2585,20 @@ The rest of the behaviour is described in [Explicit `TRY`][2b2c].
 
     Although the default value of [`*CATEGORIES*`][e949] lumps [`RESULT`][231f]s and
     [`VERDICT`][52e1]s together, with the default of [`LEAF`][f58d], `VERDICT`s are not
-    counted. See [Counting Events][e726].
+    counted. See [Counting Events][886e].
 
 <a id="x-28TRY-3A-2ACOLLECT-2A-20VARIABLE-29"></a>
 
 - [variable] **\*COLLECT\*** *UNEXPECTED*
 
     To save memory, only the [`UNEXPECTED`][d6ad] are collected by default.
-    See [Collecting Events][0575].
+    See [Collecting Events][52e5].
 
 <a id="x-28TRY-3A-2ARERUN-2A-20VARIABLE-29"></a>
 
 - [variable] **\*RERUN\*** *UNEXPECTED*
 
-    The default matches that of [`*COLLECT*`][307c]. See [Rerunning Trials][7005].
+    The default matches that of [`*COLLECT*`][307c]. See [Rerunning Trials][e4ac].
 
 <a id="x-28TRY-3A-2APRINT-2A-20VARIABLE-29"></a>
 
@@ -2609,15 +2606,15 @@ The rest of the behaviour is described in [Explicit `TRY`][2b2c].
 
     With the default of [`LEAF`][f58d] combined with the default [`*PRINT-PARENT*`][cc23]
     `T`, only [`TRIAL`][99d0]s with checks or [`ERROR*`][0321] in them are printed. If
-    [`UNEXPECTED`][d6ad], only the interesting things are printed. See [Printing Events][534b].
+    [`UNEXPECTED`][d6ad], only the interesting things are printed. See [Printing Events][b3f9].
 
 <a id="x-28TRY-3A-2ADESCRIBE-2A-20VARIABLE-29"></a>
 
 - [variable] **\*DESCRIBE\*** *(OR UNEXPECTED FAILURE)*
 
-    By default, the context (e.g. [Captures][b881], and the `CTX` argument
+    By default, the context (e.g. [Captures][3d27], and the `CTX` argument
     of is and other checks) of [`UNEXPECTED`][d6ad] events is described. See
-    [Printing Events][534b].
+    [Printing Events][b3f9].
 
 <a id="x-28TRY-3A-2ASTREAM-2A-20VARIABLE-29"></a>
 
@@ -2627,7 +2624,7 @@ The rest of the behaviour is described in [Explicit `TRY`][2b2c].
 
 - [variable] **\*PRINTER\*** *TREE-PRINTER*
 
-<a id="x-28TRY-3A-40TRY-2FEXPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40EXPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
 
 ### 7.2 Explicit `TRY`
 
@@ -2664,10 +2661,10 @@ extra [`TRIAL`][99d0] around the execution of the `LAMBDA`([`0`][e400] [`1`][5c0
 ```
 
 Invoking tests with an explicit `TRY` is very similar to just calling
-the test functions directly (see [Calling Test Functions][c8d9]). The differences
+the test functions directly (see [Calling Test Functions][012f]). The differences
 are that `TRY`
 
-- can run [Testables][8ed8],
+- can run [Testables][cdc3],
 
 - has a function argument for each of the [`*DEBUG*`][856d], [`*COLLECT*`][307c], etc
   variables.
@@ -2694,29 +2691,28 @@ interactive one, but this is not enforced in any way.
     [`UNEXPECTED`][d6ad], [`VERDICT`][52e1]).
     
     `TRY` sets up a [`HANDLER-BIND`][fd3c] handler for `EVENT`s and runs `TESTABLE` (see
-    [Testables][8ed8]). When an `EVENT` is signalled, the handler matches its
+    [Testables][cdc3]). When an `EVENT` is signalled, the handler matches its
     type to the value of the `DEBUG` argument (in the sense of `(TYPEP
     EVENT DEBUG)`). If it matches, then the debugger is invoked with the
     event. In the debugger, the user has a number of restarts available
-    to change (see [Event Restarts][66c5], [Outcome Restarts][0247],
-    [Check Restarts][4011], [Trial Restarts][39b3], and [`SET-TRY-DEBUG`][f001].
+    to change (see [Event Restarts][d4ce], [Outcome Restarts][7ef5],
+    [Check Restarts][2364], [Trial Restarts][5355], and [`SET-TRY-DEBUG`][f001].
     
     If the debugger is not invoked, `TRY` invokes the very first restart
     available, which is always [`RECORD-EVENT`][ce49].
     
     Recording the event is performed as follows.
     
-    - Outcome counts are updated (see [Counting Events][e726]).
+    - Outcome counts are updated (see [Counting Events][886e]).
     
-    - The event is passed to the collector (see [Collecting Events][0575]).
+    - The event is passed to the collector (see [Collecting Events][52e5]).
     
-    - The event is passed to the printer (see [Printing Events][534b]).
+    - The event is passed to the printer (see [Printing Events][b3f9]).
     
     - Finally, when rerunning a trial (i.e. when `TESTABLE` is a trial),
-      on a [`TRIAL-START`][b664] event, the trial may be skipped (see [Rerunning Trials][7005]).
+      on a [`TRIAL-START`][b664] event, the trial may be skipped (see [Rerunning Trials][e4ac]).
     
-    `TRY` returns the values returned by the outermost trial (see
-    [Tests][1688]).
+    `TRY` returns the values returned by the outermost trial (see [Tests][dc28]).
 
 <a id="x-28TRY-3ASET-TRY-DEBUG-20FUNCTION-29"></a>
 
@@ -2815,7 +2811,7 @@ interactive one, but this is not enforced in any way.
 
     Equivalent to `(RECENT-TRIAL 2)`.
 
-<a id="x-28TRY-3A-40TRY-2FTESTABLES-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40TESTABLES-20MGL-PAX-3ASECTION-29"></a>
 
 #### 7.2.1 Testables
 
@@ -2838,23 +2834,23 @@ be:
 
 In the function designator cases, `TRY` calls the designated function.
 [`TRIAL`][99d0]s, being [funcallable instance][2eef]s, designate themselves.
-If the trial is not [`RUNNINGP`][5d4a], then it will be rerun (see
-[Rerunning Trials][7005]). Don't invoke `TRY` with `RUNNINGP` trials (but see
-[Implementation of Implicit `TRY`][2971] for discussion).
+If the trial is not [`RUNNINGP`][5d4a], then it will be rerun (see [Rerunning Trials][e4ac]).
+Don't invoke `TRY` with `RUNNINGP` trials (but see
+[Implementation of Implicit `TRY`][8b9c] for discussion).
 
 When given a list of testables, `TRY` calls each testable one by one.
 
 Finally, a `PACKAGE` stands for the result of calling
 [`LIST-PACKAGE-TESTS`][b426] on that package.
 
-<a id="x-28TRY-3A-40TRY-2FIMPLICIT-TRY-IMPLEMENTATION-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40IMPLICIT-TRY-IMPLEMENTATION-20MGL-PAX-3ASECTION-29"></a>
 
 #### 7.2.2 Implementation of Implicit `TRY`
 
 What's happening in the implementation is that a test function,
 when it is called, checks whether it is running under the [`TRY`][b602]
 function. If it isn't, then it invokes `TRY` with its [`TRIAL`][99d0]. `TRY`
-realizes the trial cannot be rerun yet (see [Rerunning Trials][7005]) because it
+realizes the trial cannot be rerun yet (see [Rerunning Trials][e4ac]) because it
 is [`RUNNINGP`][5d4a], sets up its event handlers for debugging, collecting,
 printing, and invokes the trial as if it were rerun but without
 skipping anything based on the `RERUN` argument. Thus the following
@@ -2869,7 +2865,7 @@ are infinite recursions:
 ```
 
 
-<a id="x-28TRY-3A-40TRY-2FPRINT-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40PRINT-20MGL-PAX-3ASECTION-29"></a>
 
 ### 7.3 Printing Events
 
@@ -2895,7 +2891,7 @@ setups.
     [`TRIAL`][99d0]. This is the default printer (according to [`*PRINTER*`][7230] and
     [`*TRY-PRINTER*`][c864]) and currently the only one.
     
-    The following example prints all [Concrete Events][4d5b].
+    The following example prints all [Concrete Events][279a].
     
     ```common-lisp
     (let ((*debug* nil)
@@ -3031,10 +3027,10 @@ setups.
     ==> #<TRIAL (WITH-TEST (TIMED)) ABORT* 0.504s ⊟1 ⋅2>
     ```
     
-    Timing is available for all [`OUTCOME`][2656]s (i.e. for [Checks][9a72] and
-    [`TRIAL`][99d0]s). Checks generally measure the time spent during evaluation
-    the form they are wrapping. Trials measure the time between
-    [`TRIAL-START`][b664] and the [`VERDICT`][52e1].
+    Timing is available for all [`OUTCOME`][2656]s (i.e. for [Checks][bb56] and [`TRIAL`][99d0]s).
+    Checks generally measure the time spent during evaluation the form
+    they are wrapping. Trials measure the time between [`TRIAL-START`][b664] and
+    the [`VERDICT`][52e1].
     
     Timing information is not available for `TRIAL-START` and [`ERROR*`][0321]
     events.
@@ -3102,7 +3098,7 @@ setups.
     ```
 
 
-<a id="x-28TRY-3A-40TRY-2FCOUNT-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40COUNT-20MGL-PAX-3ASECTION-29"></a>
 
 ### 7.4 Counting Events
 
@@ -3111,7 +3107,7 @@ setups.
 of all categories matching the event type are incremented in the
 [`CURRENT-TRIAL`][e186]. When a trial finishes and a [`VERDICT`][52e1] is recorded, the
 trial's event counters are added to that of its parent's (if any).
-The counts are printed with `VERDICT`s (see [Printing Events][534b]).
+The counts are printed with `VERDICT`s (see [Printing Events][b3f9]).
 
 If both `*COUNT*` and `*CATEGORIES*` are unchanged from the their
 default values, then only [`LEAF`][f58d] events are counted, and we get
@@ -3140,14 +3136,13 @@ As the above example shows, [`EXPECTED-VERDICT-SUCCESS`][06c2] and
 [`EXPECTED-RESULT-SUCCESS`][609c7] are both marked with `"⋅"`, but only
 `EXPECTED-RESULT-SUCCESS` is counted due to `*COUNT*` being `LEAF`.
 
-<a id="x-28TRY-3A-40TRY-2FCOLLECT-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40COLLECT-20MGL-PAX-3ASECTION-29"></a>
 
 ### 7.5 Collecting Events
 
 When an [`EVENT`][955d] is recorded and the type of the `EVENT` matches the
 `COLLECT` type argument of [`TRY`][b602], then a corresponding object is pushed
-onto [`CHILDREN`][de7d] of the [`CURRENT-TRIAL`][e186] for subsequent [Rerunning Trials][7005] or
-[Reprocessing Trials][61b3].
+onto [`CHILDREN`][de7d] of the [`CURRENT-TRIAL`][e186] for subsequent [Rerunning Trials][e4ac] or [Reprocessing Trials][2337].
 
 In particular, if the matching event is a [`LEAF`][f58d], then the event
 itself is collected. If the matching event is a [`TRIAL-EVENT`][b36a], then
@@ -3163,11 +3158,11 @@ the enclosing trials.
 - [reader] **CHILDREN** *[TRIAL][99d0] (:CHILDREN = NIL)*
 
     A list of immediate child [`VERDICT`][52e1]s, [`RESULT`][231f]s, and
-    [`ERROR*`][0321]s collected in reverse chronological order (see
-    [Collecting Events][0575]). The `VERDICT` of this [`TRIAL`][99d0] is not among `CHILDREN`,
-    but the `VERDICT`s of child trials' are.
+    [`ERROR*`][0321]s collected in reverse chronological order (see [Collecting Events][52e5]).
+    The `VERDICT` of this [`TRIAL`][99d0] is not among `CHILDREN`, but the `VERDICT`s
+    of child trials' are.
 
-<a id="x-28TRY-3A-40TRY-2FRERUN-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40RERUN-20MGL-PAX-3ASECTION-29"></a>
 
 ### 7.6 Rerunning Trials
 
@@ -3175,8 +3170,8 @@ When a [`TRIAL`][99d0] is [`FUNCALL`][03c7]ed or passed to [`TRY`][b602], the *t
 created the trial* is invoked, and it may be run again in its
 entirety or in part. As the test runs, it may invoke other tests.
 Any test (including the top-level one) is skipped if it does not
-correspond to a [collected][0575] trial or its [`TRIAL-START`][b664]
-event and [`VERDICT`][52e1] do not match the `RERUN` argument of `TRY`. When that
+correspond to a [collected][52e5] trial or its [`TRIAL-START`][b664] event
+and [`VERDICT`][52e1] do not match the `RERUN` argument of `TRY`. When that
 happens, the corresponding function call immediately returns the
 `TRIAL` object.
 
@@ -3209,16 +3204,16 @@ happens, the corresponding function call immediately returns the
       `TRIAL-VAR` and same `NAME`.
 
     - If the trial was created by `TRY` itself to ensure that all
-      events are signalled in a trial (see [Explicit `TRY`][2b2c]), then
+      events are signalled in a trial (see [Explicit `TRY`][1720]), then
       on a rerun the same `TESTABLE` is run again.
 
-    All three possibilities involve entering `DEFTEST` or `WITH-TEST`, or
-    invoking `TRY`: the same cases that we have when calling tests
-    functions (see [Calling Test Functions][c8d9]). Thus, even if a trial is rerun
+    All three possibilities involve entering `DEFTEST` or `WITH-TEST`,
+    or invoking `TRY`: the same cases that we have when calling tests
+    functions (see [Calling Test Functions][012f]). Thus, even if a trial is rerun
     with `FUNCALL`, execution is guaranteed to happen under `TRY`.
 
 
-<a id="x-28TRY-3A-40TRY-2FREPLAY-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40REPLAY-20MGL-PAX-3ASECTION-29"></a>
 
 ### 7.7 Reprocessing Trials
 
@@ -3226,14 +3221,14 @@ happens, the corresponding function call immediately returns the
 
 - [function] **REPLAY-EVENTS** *TRIAL &KEY (COLLECT \*TRY-COLLECT\*) (PRINT \*TRY-PRINT\*) (DESCRIBE \*TRY-DESCRIBE\*) (STREAM \*TRY-STREAM\*) (PRINTER \*TRY-PRINTER\*)*
 
-    `REPLAY-EVENTS` reprocesses the events collected (see [Collecting Events][0575])
+    `REPLAY-EVENTS` reprocesses the events collected (see [Collecting Events][52e5])
     in `TRIAL`. It takes the same arguments as [`TRY`][b602] except
     `DEBUG`, `COUNT` and `RERUN`. This is because
     `REPLAY-EVENTS` does not run any tests. It simply signals the events
     collected in `TRIAL` again to allow further processing. The values of
     [`*CATEGORIES*`][e949] and [`*COUNT*`][3bb4] that were in effect for `TRIAL` are used, and
     their current values are ignored to be able to keep consistent
-    counts (see [Counting Events][e726]).
+    counts (see [Counting Events][886e]).
     
     Suppose we have run a large test using the default `:PRINT 'LEAF`
     `:COLLECT 'UNEXPECTED` arguments for `TRY`, and now we have too much
@@ -3265,7 +3260,7 @@ happens, the corresponding function call immediately returns the
     ```
 
 
-<a id="x-28TRY-3A-40TRY-2FIMPLEMENTATION-NOTES-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40IMPLEMENTATION-NOTES-20MGL-PAX-3ASECTION-29"></a>
 
 ## 8 Implementation Notes
 
@@ -3285,7 +3280,7 @@ SBCL.
   being made for the same thing.
 
 
-<a id="x-28TRY-3A-40TRY-2FGLOSSARY-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40GLOSSARY-20MGL-PAX-3ASECTION-29"></a>
 
 ## 9 Glossary
 
@@ -3318,13 +3313,14 @@ SBCL.
 
 
   [0126]: #x-28TRY-3A-2ASTREAM-2A-20VARIABLE-29 "TRY:*STREAM* VARIABLE"
-  [0247]: #x-28TRY-3A-40TRY-2FOUTCOME-RESTARTS-20MGL-PAX-3ASECTION-29 "Outcome Restarts"
+  [012f]: #x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Calling Test Functions"
   [02a3]: http://www.lispworks.com/documentation/HyperSpec/Body/f_abortc.htm "CONTINUE (MGL-PAX:CLHS FUNCTION)"
   [0321]: #x-28TRY-3AERROR-2A-20CONDITION-29 "TRY:ERROR* CONDITION"
   [03c7]: http://www.lispworks.com/documentation/HyperSpec/Body/f_funcal.htm "FUNCALL (MGL-PAX:CLHS FUNCTION)"
-  [0575]: #x-28TRY-3A-40TRY-2FCOLLECT-20MGL-PAX-3ASECTION-29 "Collecting Events"
+  [03ec]: #x-28TRY-3A-40CATEGORIES-20MGL-PAX-3ASECTION-29 "Categories"
   [062e]: #x-28TRY-3AUNEXPECTED-VERDICT-SUCCESS-20CONDITION-29 "TRY:UNEXPECTED-VERDICT-SUCCESS CONDITION"
   [06c2]: #x-28TRY-3AEXPECTED-VERDICT-SUCCESS-20CONDITION-29 "TRY:EXPECTED-VERDICT-SUCCESS CONDITION"
+  [0743]: #x-28TRY-3A-40WRITING-AUTOMATIC-CAPTURE-RULES-20MGL-PAX-3ASECTION-29 "Writing Automatic Capture Rules"
   [0992]: #x-28TRY-3ADISMISSAL-20CONDITION-29 "TRY:DISMISSAL CONDITION"
   [0c39]: #x-28TRY-3A-2ATRY-COLLECT-2A-20VARIABLE-29 "TRY:*TRY-COLLECT* VARIABLE"
   [0d57]: http://www.lispworks.com/documentation/HyperSpec/Body/t_short_.htm "DOUBLE-FLOAT (MGL-PAX:CLHS TYPE)"
@@ -3334,74 +3330,73 @@ SBCL.
   [12ce]: #x-28TRY-3AINVOKES-DEBUGGER-20MGL-PAX-3AMACRO-29 "TRY:INVOKES-DEBUGGER MGL-PAX:MACRO"
   [1383]: http://www.lispworks.com/documentation/HyperSpec/Body/s_flet_.htm "MACROLET (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [162a]: #x-28TRY-3AMATCH-VALUES-20MGL-PAX-3AMACRO-29 "TRY:MATCH-VALUES MGL-PAX:MACRO"
-  [1688]: #x-28TRY-3A-40TRY-2FTESTS-20MGL-PAX-3ASECTION-29 "Tests"
+  [1720]: #x-28TRY-3A-40EXPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Explicit `TRY`"
   [1867]: http://www.lispworks.com/documentation/HyperSpec/Body/r_contin.htm "CONTINUE (MGL-PAX:CLHS RESTART)"
   [18ff]: #x-28TRY-3A-2ATRY-DEBUG-2A-20VARIABLE-29 "TRY:*TRY-DEBUG* VARIABLE"
   [19f3]: #x-28TRY-3ACAPTURE-20MGL-PAX-3AMACRO-29 "TRY:CAPTURE MGL-PAX:MACRO"
-  [1a75]: #x-28TRY-3A-40TRY-2FEVENT-GLUE-20MGL-PAX-3ASECTION-29 "Event Glue"
   [1cdc]: http://www.lispworks.com/documentation/HyperSpec/Body/v_debugg.htm "*DEBUGGER-HOOK* (MGL-PAX:CLHS VARIABLE)"
   [1d5a]: http://www.lispworks.com/documentation/HyperSpec/Body/t_pkg.htm "PACKAGE (MGL-PAX:CLHS CLASS)"
   [1d97]: #x-28TRY-3AWITH-EXPECTED-OUTCOME-20MGL-PAX-3AMACRO-29 "TRY:WITH-EXPECTED-OUTCOME MGL-PAX:MACRO"
   [1eb3]: http://www.lispworks.com/documentation/HyperSpec/Body/f_1pl_1_.htm "1+ (MGL-PAX:CLHS FUNCTION)"
   [2038]: http://www.lispworks.com/documentation/HyperSpec/Body/t_stu_ob.htm "STRUCTURE-OBJECT (MGL-PAX:CLHS CLASS)"
+  [20d8]: #x-28TRY-3A-40EXPLICIT-CAPTURES-20MGL-PAX-3ASECTION-29 "Explicit Captures"
   [21d9]: #x-28TRY-3APASS-20TYPE-29 "TRY:PASS TYPE"
   [231f]: #x-28TRY-3ARESULT-20CONDITION-29 "TRY:RESULT CONDITION"
+  [2337]: #x-28TRY-3A-40REPLAY-20MGL-PAX-3ASECTION-29 "Reprocessing Trials"
+  [2364]: #x-28TRY-3A-40CHECK-RESTARTS-20MGL-PAX-3ASECTION-29 "Check Restarts"
   [25f5]: http://www.lispworks.com/documentation/HyperSpec/Body/f_null.htm "NULL (MGL-PAX:CLHS FUNCTION)"
   [2656]: #x-28TRY-3AOUTCOME-20CONDITION-29 "TRY:OUTCOME CONDITION"
   [269a]: #x-28TRY-3ASUCCESS-20CONDITION-29 "TRY:SUCCESS CONDITION"
-  [2971]: #x-28TRY-3A-40TRY-2FIMPLICIT-TRY-IMPLEMENTATION-20MGL-PAX-3ASECTION-29 "Implementation of Implicit `TRY`"
-  [2b2c]: #x-28TRY-3A-40TRY-2FEXPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Explicit `TRY`"
+  [279a]: #x-28TRY-3A-40CONCRETE-EVENTS-20MGL-PAX-3ASECTION-29 "Concrete Events"
   [2eef]: #x-28TRY-3A-40FUNCALLABLE-INSTANCE-20MGL-PAX-3AGLOSSARY-TERM-29 "funcallable instance"
-  [2f9f]: #x-28TRY-3A-40TRY-2FMIDDLE-LAYER-OF-EVENTS-20MGL-PAX-3ASECTION-29 "Middle Layer of Events"
   [307c]: #x-28TRY-3A-2ACOLLECT-2A-20VARIABLE-29 "TRY:*COLLECT* VARIABLE"
   [30c9]: #x-28TRY-3AEXPECTED-VERDICT-FAILURE-20CONDITION-29 "TRY:EXPECTED-VERDICT-FAILURE CONDITION"
   [31a6]: http://www.lispworks.com/documentation/HyperSpec/Body/t_short_.htm "SINGLE-FLOAT (MGL-PAX:CLHS TYPE)"
-  [3351]: #x-28TRY-3A-40TRY-2FTRIAL-EVENTS-20MGL-PAX-3ASECTION-29 "Trial Events"
+  [3233]: #x-28TRY-3A-40FORMAT-SPECIFIER-FORMS-20MGL-PAX-3ASECTION-29 "Format Specifier Forms"
   [351f]: #x-28TRY-3ACAPTURE-VALUES-20MGL-PAX-3AMACRO-29 "TRY:CAPTURE-VALUES MGL-PAX:MACRO"
   [35ba]: http://www.lispworks.com/documentation/HyperSpec/Body/f_error.htm "ERROR (MGL-PAX:CLHS FUNCTION)"
-  [39b3]: #x-28TRY-3A-40TRY-2FTRIAL-RESTARTS-20MGL-PAX-3ASECTION-29 "Trial Restarts"
+  [37c1]: #x-28TRY-3A-40MISC-CHECKS-20MGL-PAX-3ASECTION-29 "Miscellaneous Checks"
   [39df]: http://www.lispworks.com/documentation/HyperSpec/Body/m_w_std_.htm "WITH-STANDARD-IO-SYNTAX (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [3ace]: #x-28TRY-3ABACKTRACE-OF-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29 "TRY:BACKTRACE-OF (MGL-PAX:READER TRY:UNHANDLED-ERROR)"
   [3bb4]: #x-28TRY-3A-2ACOUNT-2A-20VARIABLE-29 "TRY:*COUNT* VARIABLE"
   [3cf4]: #x-28TRY-3A-2APRINT-COMPACTLY-2A-20VARIABLE-29 "TRY:*PRINT-COMPACTLY* VARIABLE"
-  [3eef]: http://www.lispworks.com/documentation/HyperSpec/Body/s_ret_fr.htm "RETURN-FROM (MGL-PAX:CLHS MGL-PAX:MACRO)"
-  [4011]: #x-28TRY-3A-40TRY-2FCHECK-RESTARTS-20MGL-PAX-3ASECTION-29 "Check Restarts"
+  [3d27]: #x-28TRY-3A-40CAPTURES-20MGL-PAX-3ASECTION-29 "Captures"
+  [3e0c]: #x-28TRY-3A-40MIDDLE-LAYER-OF-EVENTS-20MGL-PAX-3ASECTION-29 "Middle Layer of Events"
+  [3eef]: #x-28TRY-3A-40IMPLEMENTATION-NOTES-20MGL-PAX-3ASECTION-29 "Implementation Notes"
+  [3eef7]: http://www.lispworks.com/documentation/HyperSpec/Body/s_ret_fr.htm "RETURN-FROM (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [4444]: http://www.lispworks.com/documentation/HyperSpec/Body/m_mult_1.htm "MULTIPLE-VALUE-LIST (MGL-PAX:CLHS MGL-PAX:MACRO)"
-  [4573]: #x-28TRY-3A-40TRY-2FPRINTING-EVENTS-20MGL-PAX-3ASECTION-29 "Printing Events"
-  [4754]: #x-28TRY-3A-40TRY-2FCOMPARING-FLOATS-20MGL-PAX-3ASECTION-29 "Comparing Floats"
   [4805]: #x-28TRY-3AVERDICT-ABORT-2A-20CONDITION-29 "TRY:VERDICT-ABORT* CONDITION"
   [4bec]: #x-28TRY-3AVERDICT-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29 "TRY:VERDICT (MGL-PAX:READER TRY:TRIAL)"
-  [4d5b]: #x-28TRY-3A-40TRY-2FCONCRETE-EVENTS-20MGL-PAX-3ASECTION-29 "Concrete Events"
+  [4c86]: #x-28TRY-3A-40EMACS-20MGL-PAX-3ASECTION-29 "Emacs Integration"
   [4e46]: http://www.lispworks.com/documentation/HyperSpec/Body/f_find_.htm "FIND (MGL-PAX:CLHS FUNCTION)"
   [4f9f]: #x-28TRY-3AABORT-TRIAL-20FUNCTION-29 "TRY:ABORT-TRIAL FUNCTION"
-  [4fbb]: #x-28TRY-3A-40TRY-2FWRITING-AUTOMATIC-CAPTURE-RULES-20MGL-PAX-3ASECTION-29 "Writing Automatic Capture Rules"
+  [4fc4]: #x-28TRY-3A-40EMACS-SETUP-20MGL-PAX-3ASECTION-29 "Emacs Setup"
   [5065]: #x-28TRY-3ATEST-BOUND-P-20FUNCTION-29 "TRY:TEST-BOUND-P FUNCTION"
+  [514a]: #x-28TRY-3A-40TRIAL-EVENTS-20MGL-PAX-3ASECTION-29 "Trial Events"
+  [5237]: #x-28TRY-3A-40EVENT-GLUE-20MGL-PAX-3ASECTION-29 "Event Glue"
   [5289]: #x-28TRY-3AWARN-ON-TESTS-NOT-RUN-20MGL-PAX-3AMACRO-29 "TRY:WARN-ON-TESTS-NOT-RUN MGL-PAX:MACRO"
   [52e1]: #x-28TRY-3AVERDICT-20CONDITION-29 "TRY:VERDICT CONDITION"
+  [52e5]: #x-28TRY-3A-40COLLECT-20MGL-PAX-3ASECTION-29 "Collecting Events"
   [5333]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq_sle.htm "> (MGL-PAX:CLHS FUNCTION)"
-  [534b]: #x-28TRY-3A-40TRY-2FPRINT-20MGL-PAX-3ASECTION-29 "Printing Events"
+  [5355]: #x-28TRY-3A-40TRIAL-RESTARTS-20MGL-PAX-3ASECTION-29 "Trial Restarts"
   [55cd]: #x-28TRY-3AUNEXPECTED-SUCCESS-20TYPE-29 "TRY:UNEXPECTED-SUCCESS TYPE"
+  [56ae]: #x-28TRY-3A-40AUTOMATIC-CAPTURES-20MGL-PAX-3ASECTION-29 "Automatic Captures"
   [5786]: #x-28TRY-3AVERDICT-SKIP-20CONDITION-29 "TRY:VERDICT-SKIP CONDITION"
   [5a82]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq.htm "EQ (MGL-PAX:CLHS FUNCTION)"
-  [5b47]: #x-28TRY-3A-40TRY-2FEMACS-20MGL-PAX-3ASECTION-29 "Emacs Integration"
   [5c01]: http://www.lispworks.com/documentation/HyperSpec/Body/m_lambda.htm "LAMBDA (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [5d4a]: #x-28TRY-3ARUNNINGP-20FUNCTION-29 "TRY:RUNNINGP FUNCTION"
+  [5e1a]: #x-28TRY-3A-40TRIAL-VERDICTS-20MGL-PAX-3ASECTION-29 "Trial Verdicts"
   [609c]: http://www.lispworks.com/documentation/HyperSpec/Body/f_fmakun.htm "FMAKUNBOUND (MGL-PAX:CLHS FUNCTION)"
   [609c7]: #x-28TRY-3AEXPECTED-RESULT-SUCCESS-20CONDITION-29 "TRY:EXPECTED-RESULT-SUCCESS CONDITION"
-  [60b4]: #x-28TRY-3A-40TRY-2FGLOSSARY-20MGL-PAX-3ASECTION-29 "Glossary"
-  [61b3]: #x-28TRY-3A-40TRY-2FREPLAY-20MGL-PAX-3ASECTION-29 "Reprocessing Trials"
+  [628a]: #x-28TRY-3A-40LINKS-20MGL-PAX-3ASECTION-29 "Links and Systems"
   [6384]: http://www.lispworks.com/documentation/HyperSpec/Body/f_wr_pr.htm "PRIN1 (MGL-PAX:CLHS FUNCTION)"
   [63db]: #x-28TRY-3A-2ARERUN-2A-20VARIABLE-29 "TRY:*RERUN* VARIABLE"
   [6651]: http://www.lispworks.com/documentation/HyperSpec/Body/f_descri.htm "DESCRIBE (MGL-PAX:CLHS FUNCTION)"
-  [66c5]: #x-28TRY-3A-40TRY-2FEVENT-RESTARTS-20MGL-PAX-3ASECTION-29 "Event Restarts"
   [676d]: http://www.lispworks.com/documentation/HyperSpec/Body/f_wr_pr.htm "PRINC (MGL-PAX:CLHS FUNCTION)"
   [6910]: #x-28TRY-3AWITH-TESTS-RUN-20MGL-PAX-3AMACRO-29 "TRY:WITH-TESTS-RUN MGL-PAX:MACRO"
   [69a2]: #x-28TRY-3ASKIP-20CONDITION-29 "TRY:SKIP CONDITION"
-  [6a5d]: #x-28TRY-3A-40TRY-2FIMPLEMENTATION-NOTES-20MGL-PAX-3ASECTION-29 "Implementation Notes"
   [6b0e]: #x-28TRY-3ASUB-20CLASS-29 "TRY:SUB CLASS"
-  [6cc6]: #x-28TRY-3A-40TRY-2FIS-20MGL-PAX-3ASECTION-29 "The `IS` Macro"
   [6d4e]: #x-28TRY-3ASIGNALS-20MGL-PAX-3AMACRO-29 "TRY:SIGNALS MGL-PAX:MACRO"
-  [7005]: #x-28TRY-3A-40TRY-2FRERUN-20MGL-PAX-3ASECTION-29 "Rerunning Trials"
   [7230]: #x-28TRY-3A-2APRINTER-2A-20VARIABLE-29 "TRY:*PRINTER* VARIABLE"
   [790c]: #x-28TRY-3A-25-20MACROLET-29 "TRY:% MACROLET"
   [7955]: #x-28TRY-3AFLOAT--7E-3D-20FUNCTION-29 "TRY:FLOAT-~= FUNCTION"
@@ -3409,44 +3404,42 @@ SBCL.
   [7af9]: #x-28TRY-3ASIGNALS-NOT-20MGL-PAX-3AMACRO-29 "TRY:SIGNALS-NOT MGL-PAX:MACRO"
   [7c3f]: #x-28TRY-3ARESULT-SKIP-20CONDITION-29 "TRY:RESULT-SKIP CONDITION"
   [7ee9]: #x-28TRY-3A-2APRINT-2A-20VARIABLE-29 "TRY:*PRINT* VARIABLE"
-  [805a]: #x-28TRY-3A-40TRY-2FEMACS-SETUP-20MGL-PAX-3ASECTION-29 "Emacs Setup"
+  [7ef5]: #x-28TRY-3A-40OUTCOME-RESTARTS-20MGL-PAX-3ASECTION-29 "Outcome Restarts"
+  [7f8e]: #x-28TRY-3A-40ERRORS-20MGL-PAX-3ASECTION-29 "Errors"
   [80d6]: #x-28TRY-3AIS-20MGL-PAX-3AMACRO-29 "TRY:IS MGL-PAX:MACRO"
   [826a]: #x-28TRY-3AABORT-CHECK-20FUNCTION-29 "TRY:ABORT-CHECK FUNCTION"
   [83e1]: http://www.lispworks.com/documentation/HyperSpec/Body/e_cnd.htm "CONDITION (MGL-PAX:CLHS CONDITION)"
   [856d]: #x-28TRY-3A-2ADEBUG-2A-20VARIABLE-29 "TRY:*DEBUG* VARIABLE"
   [8620]: #x-28TRY-3AEXPECTED-FAILURE-20TYPE-29 "TRY:EXPECTED-FAILURE TYPE"
-  [879c]: #x-28TRY-3A-40TRY-2FFORMAT-SPECIFIER-FORMS-20MGL-PAX-3ASECTION-29 "Format Specifier Forms"
-  [883b]: #x-28TRY-3A-40TRY-2FCHECKING-CONDITIONS-20MGL-PAX-3ASECTION-29 "Checking Conditions"
+  [886e]: #x-28TRY-3A-40COUNT-20MGL-PAX-3ASECTION-29 "Counting Events"
   [8aea]: http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#function_designator '"function designator" (MGL-PAX:CLHS MGL-PAX:GLOSSARY-TERM)'
   [8b69]: #x-28TRY-3AREPLAY-EVENTS-20FUNCTION-29 "TRY:REPLAY-EVENTS FUNCTION"
+  [8b9c]: #x-28TRY-3A-40IMPLICIT-TRY-IMPLEMENTATION-20MGL-PAX-3ASECTION-29 "Implementation of Implicit `TRY`"
   [8cf6]: #x-28TRY-3ARETRY-CHECK-20FUNCTION-29 "TRY:RETRY-CHECK FUNCTION"
   [8ec3]: #x-28TRY-3AABORT-2A-20CONDITION-29 "TRY:ABORT* CONDITION"
-  [8ed8]: #x-28TRY-3A-40TRY-2FTESTABLES-20MGL-PAX-3ASECTION-29 "Testables"
   [8f5d]: #x-28TRY-3AWITH-TEST-20MGL-PAX-3AMACRO-29 "TRY:WITH-TEST MGL-PAX:MACRO"
   [8f78]: #x-28TRY-3AUNHANDLED-ERROR-20CONDITION-29 "TRY:UNHANDLED-ERROR CONDITION"
   [8f7a]: http://www.lispworks.com/documentation/HyperSpec/Body/v_pr_lev.htm "*PRINT-LENGTH* (MGL-PAX:CLHS VARIABLE)"
   [8f9f]: #x-28TRY-3A-2AN-RECENT-TRIALS-2A-20VARIABLE-29 "TRY:*N-RECENT-TRIALS* VARIABLE"
+  [906a]: #x-28TRY-3A-40CHECK-UTILITIES-20MGL-PAX-3ASECTION-29 "Check Utilities"
   [92af]: #x-28TRY-3A-21-20VARIABLE-29 "TRY:! VARIABLE"
-  [9420]: #x-28TRY-3A-40TRY-2FCHECK-LIBRARY-20MGL-PAX-3ASECTION-29 "Check Library"
   [955d]: #x-28TRY-3AEVENT-20CONDITION-29 "TRY:EVENT CONDITION"
   [95bb]: http://www.lispworks.com/documentation/HyperSpec/Body/f_fbound.htm "FBOUNDP (MGL-PAX:CLHS FUNCTION)"
   [97ee]: http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm "ASSERT (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [99d0]: #x-28TRY-3ATRIAL-20CLASS-29 "TRY:TRIAL CLASS"
-  [9a72]: #x-28TRY-3A-40TRY-2FCHECKS-20MGL-PAX-3ASECTION-29 "Checks"
-  [9c16]: #x-28TRY-3A-40TRY-2FAUTOMATIC-CAPTURES-20MGL-PAX-3ASECTION-29 "Automatic Captures"
   [9c9c]: http://www.lispworks.com/documentation/HyperSpec/Body/s_eval_w.htm "EVAL-WHEN (MGL-PAX:CLHS MGL-PAX:MACRO)"
+  [9fa9]: #x-28TRY-3A-40COMPARING-FLOATS-20MGL-PAX-3ASECTION-29 "Comparing Floats"
   [a07f]: #x-28TRY-3A-2ABEST-MATCHING-CONDITION-2A-20VARIABLE-29 "TRY:*BEST-MATCHING-CONDITION* VARIABLE"
-  [a4c2]: #x-28TRY-3A-40TRY-2FMISC-CHECKS-20MGL-PAX-3ASECTION-29 "Miscellaneous Checks"
-  [a565]: #x-28TRY-3A-40TRY-2FLINKS-20MGL-PAX-3ASECTION-29 "Links"
   [aa6d]: #x-28TRY-3A-2ADESCRIBE-2A-20VARIABLE-29 "TRY:*DESCRIBE* VARIABLE"
   [aaaa]: #x-28TRY-3AINVOKES-DEBUGGER-NOT-20MGL-PAX-3AMACRO-29 "TRY:INVOKES-DEBUGGER-NOT MGL-PAX:MACRO"
-  [ab72]: #x-28TRY-3A-40TRY-2FOUTCOMES-20MGL-PAX-3ASECTION-29 "Outcomes"
+  [aaf2]: #x-28TRY-3A-40EVENTS-20MGL-PAX-3ASECTION-29 "Events"
   [ad78]: http://www.lispworks.com/documentation/HyperSpec/Body/f_format.htm "FORMAT (MGL-PAX:CLHS FUNCTION)"
+  [afb9]: #x-28TRY-3A-40PRINTING-EVENTS-20MGL-PAX-3ASECTION-29 "Printing Events"
   [b115]: #x-28TRY-3ANLX-20CONDITION-29 "TRY:NLX CONDITION"
   [b194]: #x-28TRY-3AEXPECTED-20CONDITION-29 "TRY:EXPECTED CONDITION"
-  [b324]: #x-28TRY-3A-40TRY-2FTRIAL-VERDICTS-20MGL-PAX-3ASECTION-29 "Trial Verdicts"
   [b33f]: #x-28TRY-3AN-RETRIES-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29 "TRY:N-RETRIES (MGL-PAX:READER TRY:TRIAL)"
   [b36a]: #x-28TRY-3ATRIAL-EVENT-20CONDITION-29 "TRY:TRIAL-EVENT CONDITION"
+  [b3f9]: #x-28TRY-3A-40PRINT-20MGL-PAX-3ASECTION-29 "Printing Events"
   [b426]: #x-28TRY-3ALIST-PACKAGE-TESTS-20FUNCTION-29 "TRY:LIST-PACKAGE-TESTS FUNCTION"
   [b5cb]: #x-28TRY-3AUNEXPECTED-FAILURE-20TYPE-29 "TRY:UNEXPECTED-FAILURE TYPE"
   [b602]: #x-28TRY-3ATRY-20FUNCTION-29 "TRY:TRY FUNCTION"
@@ -3454,39 +3447,41 @@ SBCL.
   [b71e]: #x-28TRY-3AWITH-SKIP-20MGL-PAX-3AMACRO-29 "TRY:WITH-SKIP MGL-PAX:MACRO"
   [b72c]: #x-28TRY-3AUNEXPECTED-RESULT-SUCCESS-20CONDITION-29 "TRY:UNEXPECTED-RESULT-SUCCESS CONDITION"
   [b815]: http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_n.htm#non-local_exit '"non-local exit" (MGL-PAX:CLHS MGL-PAX:GLOSSARY-TERM)'
-  [b881]: #x-28TRY-3A-40TRY-2FCAPTURES-20MGL-PAX-3ASECTION-29 "Captures"
+  [b949]: #x-28TRY-3A-40TUTORIAL-20MGL-PAX-3ASECTION-29 "Tutorial"
   [b94a]: http://www.lispworks.com/documentation/HyperSpec/Body/f_mismat.htm "MISMATCH (MGL-PAX:CLHS FUNCTION)"
-  [b95c]: #x-28TRY-3A-40TRY-2FCATEGORIES-20MGL-PAX-3ASECTION-29 "Categories"
-  [bfad]: #x-28TRY-3A-40TRY-2FTRIALS-20MGL-PAX-3ASECTION-29 "Trials"
+  [bb56]: #x-28TRY-3A-40CHECKS-20MGL-PAX-3ASECTION-29 "Checks"
   [c1f6]: #x-28TRY-3A-25-25-20MACROLET-29 "TRY:%% MACROLET"
   [c3a0]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq_sle.htm "< (MGL-PAX:CLHS FUNCTION)"
-  [c7f7]: #x-28TRY-3A-40TRY-2FTUTORIAL-20MGL-PAX-3ASECTION-29 "Tutorial"
+  [c759]: #x-28TRY-3A-40GLOSSARY-20MGL-PAX-3ASECTION-29 "Glossary"
   [c864]: #x-28TRY-3A-2ATRY-PRINTER-2A-20VARIABLE-29 "TRY:*TRY-PRINTER* VARIABLE"
   [c8cb]: http://www.lispworks.com/documentation/HyperSpec/Body/v_pr_cir.htm "*PRINT-CIRCLE* (MGL-PAX:CLHS VARIABLE)"
-  [c8d9]: #x-28TRY-3A-40TRY-2FIMPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Calling Test Functions"
   [c93f]: http://www.lispworks.com/documentation/HyperSpec/Body/s_unwind.htm "UNWIND-PROTECT (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [c96a]: #x-28TRY-3AEXPECTED-SUCCESS-20TYPE-29 "TRY:EXPECTED-SUCCESS TYPE"
-  [cb2b]: #x-28TRY-3A-40TRY-2FERRORS-20MGL-PAX-3ASECTION-29 "Errors"
   [cc23]: #x-28TRY-3A-2APRINT-PARENT-2A-20VARIABLE-29 "TRY:*PRINT-PARENT* VARIABLE"
   [cdba]: http://www.lispworks.com/documentation/HyperSpec/Body/f_uninte.htm "UNINTERN (MGL-PAX:CLHS FUNCTION)"
+  [cdc3]: #x-28TRY-3A-40TESTABLES-20MGL-PAX-3ASECTION-29 "Testables"
   [ce49]: #x-28TRY-3ARECORD-EVENT-20FUNCTION-29 "TRY:RECORD-EVENT FUNCTION"
   [cf88]: #x-28TRY-3A-2ACONDITION-MATCHED-P-2A-20VARIABLE-29 "TRY:*CONDITION-MATCHED-P* VARIABLE"
   [cfd3]: #x-28TRY-3A-2ARUN-DEFTEST-WHEN-2A-20VARIABLE-29 "TRY:*RUN-DEFTEST-WHEN* VARIABLE"
   [d162]: http://www.lispworks.com/documentation/HyperSpec/Body/e_error.htm "ERROR (MGL-PAX:CLHS CONDITION)"
   [d2d8]: http://www.lispworks.com/documentation/HyperSpec/Body/s_block.htm "BLOCK (MGL-PAX:CLHS MGL-PAX:MACRO)"
+  [d4ce]: #x-28TRY-3A-40EVENT-RESTARTS-20MGL-PAX-3ASECTION-29 "Event Restarts"
   [d5a2]: http://www.lispworks.com/documentation/HyperSpec/Body/f_car_c.htm "CAR (MGL-PAX:CLHS FUNCTION)"
   [d5ea]: #x-28TRY-3AFAIL-20TYPE-29 "TRY:FAIL TYPE"
   [d619]: #x-28TRY-3AEXPECTED-RESULT-FAILURE-20CONDITION-29 "TRY:EXPECTED-RESULT-FAILURE CONDITION"
   [d6ad]: #x-28TRY-3AUNEXPECTED-20CONDITION-29 "TRY:UNEXPECTED CONDITION"
-  [d97f]: #x-28TRY-3A-40TRY-2FCHECK-UTILITIES-20MGL-PAX-3ASECTION-29 "Check Utilities"
   [daeb]: #x-28TRY-3AUNEXPECTED-RESULT-FAILURE-20CONDITION-29 "TRY:UNEXPECTED-RESULT-FAILURE CONDITION"
   [db03]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eql.htm "EQL (MGL-PAX:CLHS FUNCTION)"
   [dbd4]: http://www.lispworks.com/documentation/HyperSpec/Body/f_vals_l.htm "VALUES-LIST (MGL-PAX:CLHS FUNCTION)"
+  [dc28]: #x-28TRY-3A-40TESTS-20MGL-PAX-3ASECTION-29 "Tests"
   [de7d]: #x-28TRY-3ACHILDREN-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29 "TRY:CHILDREN (MGL-PAX:READER TRY:TRIAL)"
   [e186]: #x-28TRY-3ACURRENT-TRIAL-20FUNCTION-29 "TRY:CURRENT-TRIAL FUNCTION"
+  [e2e0]: #x-28TRY-3A-40IS-20MGL-PAX-3ASECTION-29 "The `IS` Macro"
   [e400]: http://www.lispworks.com/documentation/HyperSpec/Body/s_lambda.htm '"s_lambda" (MGL-PAX:CLHS MGL-PAX:SECTION)'
+  [e4ac]: #x-28TRY-3A-40RERUN-20MGL-PAX-3ASECTION-29 "Rerunning Trials"
+  [e514]: #x-28TRY-3A-40OUTCOMES-20MGL-PAX-3ASECTION-29 "Outcomes"
   [e52f]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq_sle.htm "= (MGL-PAX:CLHS FUNCTION)"
-  [e726]: #x-28TRY-3A-40TRY-2FCOUNT-20MGL-PAX-3ASECTION-29 "Counting Events"
+  [e6be]: #x-28TRY-3A-40TRIALS-20MGL-PAX-3ASECTION-29 "Trials"
   [e760]: http://www.lispworks.com/documentation/HyperSpec/Body/s_throw.htm "THROW (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [e7ca]: #x-28TRY-3ADEFTEST-20MGL-PAX-3AMACRO-29 "TRY:DEFTEST MGL-PAX:MACRO"
   [e80e]: #x-28TRY-3AFAILS-20MGL-PAX-3AMACRO-29 "TRY:FAILS MGL-PAX:MACRO"
@@ -3499,6 +3494,7 @@ SBCL.
   [f472]: http://www.lispworks.com/documentation/HyperSpec/Body/m_defun.htm "DEFUN (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [f4bf]: http://www.lispworks.com/documentation/HyperSpec/Body/v_debug_.htm "*QUERY-IO* (MGL-PAX:CLHS VARIABLE)"
   [f58d]: #x-28TRY-3ALEAF-20CONDITION-29 "TRY:LEAF CONDITION"
+  [f7f7]: #x-28TRY-3A-40CHECK-LIBRARY-20MGL-PAX-3ASECTION-29 "Check Library"
   [f8bf]: http://www.lispworks.com/documentation/HyperSpec/Body/f_set_di.htm "SET-DIFFERENCE (MGL-PAX:CLHS FUNCTION)"
   [f92d]: #x-28TRY-3AFAILURE-20CONDITION-29 "TRY:FAILURE CONDITION"
   [fae3]: #x-28TRY-3ARETRY-TRIAL-20FUNCTION-29 "TRY:RETRY-TRIAL FUNCTION"
@@ -3506,8 +3502,7 @@ SBCL.
   [fb53]: #x-28TRY-3A-2AIS-CAPTURES-2A-20VARIABLE-29 "TRY:*IS-CAPTURES* VARIABLE"
   [fd3c]: http://www.lispworks.com/documentation/HyperSpec/Body/m_handle.htm "HANDLER-BIND (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [fdf4]: #x-28TRY-3AUNEXPECTED-VERDICT-FAILURE-20CONDITION-29 "TRY:UNEXPECTED-VERDICT-FAILURE CONDITION"
-  [fe18]: #x-28TRY-3A-40TRY-2FEVENTS-20MGL-PAX-3ASECTION-29 "Events"
-  [ff6f]: #x-28TRY-3A-40TRY-2FEXPLICIT-CAPTURES-20MGL-PAX-3ASECTION-29 "Explicit Captures"
+  [ff2c]: #x-28TRY-3A-40CHECKING-CONDITIONS-20MGL-PAX-3ASECTION-29 "Checking Conditions"
   [ffab]: #x-28TRY-3ARESULT-ABORT-2A-20CONDITION-29 "TRY:RESULT-ABORT* CONDITION"
 
 * * *

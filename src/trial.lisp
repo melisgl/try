@@ -2,12 +2,12 @@
 
 (in-readtable pythonic-string-syntax)
 
-(defsection @try/trials (:title "Trials")
+(defsection @trials (:title "Trials")
   (trial type)
   (current-trial function)
-  (@try/trial-events section)
-  (@try/trial-verdicts section)
-  (@try/trial-restarts section))
+  (@trial-events section)
+  (@trial-verdicts section)
+  (@trial-restarts section))
 
 (declaim (special *count*))
 
@@ -80,22 +80,22 @@
    (children
     :initform () :initarg :children :reader children
     :documentation "A list of immediate child VERDICTs, RESULTs, and
-    ERROR*s collected in reverse chronological order (see
-    @TRY/COLLECT). The VERDICT of this TRIAL is not among CHILDREN,
-    but the VERDICTs of child trials' are.")
+    ERROR*s collected in reverse chronological order (see @COLLECT).
+    The VERDICT of this TRIAL is not among CHILDREN, but the VERDICTs
+    of child trials' are.")
    (has-non-collected-failed-child-p
     :initform nil
     :initarg :has-non-collected-failed-child-p
     :reader has-non-collected-failed-child-p)
-   ;; See @TRY/COUNT.
+   ;; See @COUNT.
    (counter :initarg :counter :reader counter)
-   ;; Counts of stuff not on CHILDREN for @TRY/RERUN and @TRY/REPLAY.
+   ;; Counts of stuff not on CHILDREN for @RERUN and @REPLAY.
    (non-collected-counter :initarg :non-collected-counter
                           :reader non-collected-counter))
   (:metaclass closer-mop:funcallable-standard-class)
   (:documentation """Trials are records of calls to tests (see
-  @TRY/COUNT, @TRY/COLLECT). Their behaviour as @FUNCALLABLE-INSTANCEs
-  is explained in @TRY/RERUN.
+  @COUNT, @COLLECT). Their behaviour as @FUNCALLABLE-INSTANCEs
+  is explained in @RERUN.
 
   There are three ways to acquire a TRIAL object: by calling
   CURRENT-TRIAL, through the lexical binding of the symbol that names
@@ -192,7 +192,7 @@
     (first args)))
 
 
-(defsection @try/trial-verdicts (:title "Trial Verdicts")
+(defsection @trial-verdicts (:title "Trial Verdicts")
   "When a trial finished, a VERDICT is signalled. The verdict's type
   is determined as follows.
 
@@ -216,8 +216,8 @@
     the verdict which will be signalled.
 
   The verdict of this type is signalled, but its type can be changed
-  by the @TRY/OUTCOME-RESTARTS or the @TRY/TRIAL-RESTARTS before
-  RECORD-EVENT is invoked on it."
+  by the @OUTCOME-RESTARTS or the @TRIAL-RESTARTS before RECORD-EVENT
+  is invoked on it."
   (verdict (reader trial))
   (runningp function)
   (passedp function)
@@ -301,10 +301,10 @@
   (assert (eq trial *trial*)))
 
 
-(defsection @try/trial-restarts (:title "Trial Restarts")
+(defsection @trial-restarts (:title "Trial Restarts")
   """There are three restarts available for manipulating running
   trials: ABORT-TRIAL, SKIP-TRIAL, and RETRY-TRIAL. They may be
-  invoked programatically or from the debugger. ABORT-TRIAL is also
+  invoked programmatically or from the debugger. ABORT-TRIAL is also
   invoked by TRY when encountering UNHANDLED-ERROR.
 
   The functions below invoke one of these restarts associated with a
@@ -369,7 +369,7 @@
   trial's own TRIAL-START and VERDICT. If their [CONDITION][argument]
   argument is an EVENT (RETRY-TRIAL has a special case here), they
   also record it (as in RECORD-EVENT) to ensure that when they handle
-  an EVENT in the debugger or programatically that event is not
+  an EVENT in the debugger or programmatically that event is not
   dropped.
   """
   (abort-trial function)
@@ -381,14 +381,14 @@
   "Invoke the ABORT-TRIAL restart of a RUNNINGP TRIAL.
 
   When CONDITION is a VERDICT for TRIAL, ABORT-TRIAL signals a new
-  verdict of type VERDICT-ABORT\\*. This behavior is similar to that
+  verdict of type VERDICT-ABORT\\*. This behaviour is similar to that
   of ABORT-CHECK. Else, the ABORT-TRIAL restart may record CONDITION,
   then it initiates a [non-local exit][clhs] to return from the test
   function with VERDICT-ABORT\\*. If during the unwinding SKIP-TRIAL
   or RETRY-TRIAL is called, then the abort is cancelled.
 
   Since ABORT* is an UNEXPECTED EVENT, ABORT-TRIAL is rarely used
-  programatically. Signalling any error in a trial that's not caught
+  programmatically. Signalling any error in a trial that's not caught
   before the trial's handler catches it will get turned into an
   UNHANDLED-ERROR, and TRY will invoke ABORT-TRIAL with it. Thus,
   instead of invoking ABORT-TRIAL directly, signalling an error will
@@ -401,11 +401,11 @@
   "Invoke the SKIP-TRIAL restart of a RUNNINGP TRIAL.
 
   When CONDITION is a VERDICT for TRIAL, SKIP-TRIAL signals a new
-  verdict of type VERDICT-SKIP. This behavior is similar to that of
+  verdict of type VERDICT-SKIP. This behaviour is similar to that of
   SKIP-CHECK. Else, the SKIP-TRIAL restart may record CONDITION, then
-  it initiates a [non-local exit][clhs] to return from the test function with
-  VERDICT-SKIP. If during the unwinding ABORT-TRIAL or RETRY-TRIAL is
-  called, then the skip is cancelled.
+  it initiates a [non-local exit][clhs] to return from the test
+  function with VERDICT-SKIP. If during the unwinding ABORT-TRIAL or
+  RETRY-TRIAL is called, then the skip is cancelled.
 
   ```cl-transcript (:dynenv try-transcript)
   (with-test (skipped)
@@ -444,8 +444,8 @@
   non-local exit completes, then
 
   - (N-RETRIES TRIAL) is incremented,
-  - collected results and trials are cleared (see @TRY/COLLECT),
-  - counts are zeroed (see @TRY/COUNT), and
+  - collected results and trials are cleared (see @COLLECT),
+  - counts are zeroed (see @COUNT), and
   - TRIAL-START is signalled again.
 
   If during the unwinding ABORT-TRIAL or SKIP-TRIAL is called, then
@@ -665,7 +665,7 @@
                    ;; another WITH-RETRY so that RETRY-TRIAL in
                    ;; response to the conditions signalled works.
                    ;; Without intervening user code, there is no way
-                   ;; for an nlx to the outher target to be cancelled.
+                   ;; for an nlx to the outer target to be cancelled.
                    (clean-up-cancelled-nlx-of-retry-for-end-trial ,trial)
                    (with-retry/catch (:catch ,resignal-verdict-catch)
                      (end-trial ,trial)))))))))))

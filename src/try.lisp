@@ -1,6 +1,6 @@
 (in-package :try)
 
-(defsection @try/implicit-try (:title "Calling Test Functions")
+(defsection @implicit-try (:title "Calling Test Functions")
   "Tests can be run explicitly by invoking the TRY function or
   implicitly by calling a test function:
 
@@ -37,7 +37,7 @@
   ```
 
   TRY then calls the test function belonging to [TRIAL][dislocated].
-  The rest of the behaviour is described in @TRY/EXPLICIT-TRY."
+  The rest of the behaviour is described in @EXPLICIT-TRY."
   (*debug* variable)
   (*count* variable)
   (*collect* variable)
@@ -58,24 +58,24 @@
 (defvar *count* 'leaf
   "Although the default value of *CATEGORIES* lumps RESULTs and
   VERDICTs together, with the default of LEAF, VERDICTs are not
-  counted. See @TRY/COUNT.")
+  counted. See @COUNT.")
 
 (defvar *collect* 'unexpected
   "To save memory, only the UNEXPECTED are collected by default.
-  See @TRY/COLLECT.")
+  See @COLLECT.")
 
 (defvar *rerun* 'unexpected
-  "The default matches that of *COLLECT*. See @TRY/RERUN.")
+  "The default matches that of *COLLECT*. See @RERUN.")
 
 (defvar *print* 'leaf
   "With the default of LEAF combined with the default *PRINT-PARENT*
   T, only TRIALs with checks or ERROR* in them are printed. If
-  UNEXPECTED, only the interesting things are printed. See @TRY/PRINT.")
+  UNEXPECTED, only the interesting things are printed. See @PRINT.")
 
 (defvar *describe* '(or unexpected failure)
-  "By default, the context (e.g. @TRY/CAPTURES, and the CTX argument
+  "By default, the context (e.g. @CAPTURES, and the CTX argument
   of is and other checks) of UNEXPECTED events is described. See
-  @TRY/PRINT.")
+  @PRINT.")
 
 (defvar *stream* (make-synonym-stream '*debug-io*))
 
@@ -88,7 +88,7 @@
        :stream *stream* :printer *printer*))
 
 
-(defsection @try/explicit-try (:title "Explicit TRY")
+(defsection @explicit-try (:title "Explicit TRY")
   "Instead of invoking the test function directly, tests can also be
   run by invoking the TRY function.
 
@@ -122,10 +122,10 @@
   ```
 
   Invoking tests with an explicit TRY is very similar to just calling
-  the test functions directly (see @TRY/IMPLICIT-TRY). The differences
+  the test functions directly (see @IMPLICIT-TRY). The differences
   are that TRY
 
-  - can run @TRY/TESTABLES,
+  - can run @TESTABLES,
   - has a function argument for each of the *DEBUG*, *COLLECT*, etc
     variables.
 
@@ -151,8 +151,8 @@
   (! (variable nil))
   (!! (variable nil))
   (!!! (variable nil))
-  (@try/testables section)
-  (@try/implicit-try-implementation section))
+  (@testables section)
+  (@implicit-try-implementation section))
 
 (defvar *try-debug* nil
   "The default value for TRY's :DEBUG argument. If
@@ -194,12 +194,12 @@
      (setq stream (default-var stream *stream*))
      (setq printer (default-var printer *printer*))))
 
-(defsection @try/implicit-try-implementation
+(defsection @implicit-try-implementation
     (:title "Implementation of Implicit TRY")
   "What's happening in the implementation is that a test function,
   when it is called, checks whether it is running under the TRY
   function. If it isn't, then it invokes TRY with its TRIAL. TRY
-  realizes the trial cannot be rerun yet (see @TRY/RERUN) because it
+  realizes the trial cannot be rerun yet (see @RERUN) because it
   is RUNNINGP, sets up its event handlers for debugging, collecting,
   printing, and invokes the trial as if it were rerun but without
   skipping anything based on the RERUN argument. Thus the following
@@ -335,26 +335,25 @@
   UNEXPECTED, VERDICT).
 
   TRY sets up a HANDLER-BIND handler for EVENTs and runs TESTABLE (see
-  @TRY/TESTABLES). When an EVENT is signalled, the handler matches its
+  @TESTABLES). When an EVENT is signalled, the handler matches its
   type to the value of the DEBUG argument (in the sense of `(TYPEP
   EVENT DEBUG)`). If it matches, then the debugger is invoked with the
   event. In the debugger, the user has a number of restarts available
-  to change (see @TRY/EVENT-RESTARTS, @TRY/OUTCOME-RESTARTS,
-  @TRY/CHECK-RESTARTS, @TRY/TRIAL-RESTARTS, and SET-TRY-DEBUG.
+  to change (see @EVENT-RESTARTS, @OUTCOME-RESTARTS,
+  @CHECK-RESTARTS, @TRIAL-RESTARTS, and SET-TRY-DEBUG.
 
   If the debugger is not invoked, TRY invokes the very first restart
   available, which is always RECORD-EVENT.
 
   Recording the event is performed as follows.
 
-  - Outcome counts are updated (see @TRY/COUNT).
-  - The event is passed to the collector (see @TRY/COLLECT).
-  - The event is passed to the printer (see @TRY/PRINT).
+  - Outcome counts are updated (see @COUNT).
+  - The event is passed to the collector (see @COLLECT).
+  - The event is passed to the printer (see @PRINT).
   - Finally, when rerunning a trial (i.e. when TESTABLE is a trial),
-    on a TRIAL-START event, the trial may be skipped (see @TRY/RERUN).
+    on a TRIAL-START event, the trial may be skipped (see @RERUN).
 
-  TRY returns the values returned by the outermost trial (see
-  @TRY/TESTS)."
+  TRY returns the values returned by the outermost trial (see @TESTS)."
   (try-default-unspecified-args)
   (loop for (type arg-name) in
         `((,debug :debug) (,count :count) (,collect :collect) (,rerun :rerun)

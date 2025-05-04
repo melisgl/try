@@ -2,29 +2,30 @@
 
 (in-readtable pythonic-string-syntax)
 
-(defsection @try/events (:title "Events")
+(defsection @events (:title "Events")
   "Try is built around events implemented as CONDITIONs.
   Matching the types of events to *DEBUG*, *COUNT*, *COLLECT*, *RERUN*,
   *PRINT*, and *DESCRIBE* is what gives Try its flexibility."
-  (@try/middle-layer-of-events section)
-  (@try/concrete-events section)
-  (@try/event-glue section)
-  (@try/printing-events section)
-  (@try/event-restarts section)
-  (@try/outcomes section)
-  (@try/errors section)
-  (@try/categories section))
+  (@middle-layer-of-events section)
+  (@concrete-events section)
+  (@event-glue section)
+  (@printing-events section)
+  (@event-restarts section)
+  (@outcomes section)
+  (@errors section)
+  (@categories section))
 
-(defsection @try/middle-layer-of-events (:title "Middle Layer of Events")
-  """The event hierarchy is fairly involved, so let's start in the middle.
-  The condition EVENT has 4 disjoint subclasses:
+(defsection @middle-layer-of-events (:title "Middle Layer of Events")
+  """The event hierarchy is fairly involved, so let's start with the middle
+  layer because it is smallest. The condition EVENT has 4 disjoint
+  subclasses:
 
   - TRIAL-START, which corresponds to the entry to a test (see
-    @TRY/TESTS),
+    @TESTS),
 
   - VERDICT, the OUTCOME of a TRIAL,
 
-  - RESULT, the OUTCOME of a check (see @TRY/CHECKS), and
+  - RESULT, the OUTCOME of a check (see @CHECKS), and
 
   - ERROR*, an unexpected CL:ERROR or unadorned [non-local exit][clhs].
 
@@ -47,7 +48,7 @@
   ```
   """)
 
-(defsection @try/concrete-events (:title "Concrete Events")
+(defsection @concrete-events (:title "Concrete Events")
  """The non-abstract condition classes of events that are actually
  signalled are called concrete.
 
@@ -73,10 +74,9 @@
  These are the 15 concrete event classes.
  """)
 
-(defsection @try/event-glue (:title "Event Glue")
-  "These condition classes group various bits of the
-  @TRY/CONCRETE-EVENTS and the @TRY/MIDDLE-LAYER-OF-EVENTS for ease of
-  reference.
+(defsection @event-glue (:title "Event Glue")
+  "These condition classes group various bits of the @CONCRETE-EVENTS
+   and the @MIDDLE-LAYER-OF-EVENTS for ease of reference.
 
   Concrete event classes except TRIAL-START are subclasses of the
   hyphen-separated words constituting their name. For example,
@@ -132,7 +132,7 @@
   UNEXPECTED."))
 
 (define-condition success (event) ()
-  (:documentation "See @TRY/CHECKS and @TRY/TRIAL-VERDICTS for how
+  (:documentation "See @CHECKS and @TRIAL-VERDICTS for how
   SUCCESS or FAILURE is decided."))
 
 (define-condition failure (event) ()
@@ -160,14 +160,15 @@
   '(and unexpected failure))
 
 (deftype pass ()
-  "An OUTCOME that's not an ABORT* or an UNEXPECTED FAILURE."
+  "An OUTCOME that's not an ABORT* or an UNEXPECTED FAILURE.
+  PASS is equivalent to `(NOT FAIL)`."
   '(and outcome (not (or abort* unexpected-failure))))
 (deftype fail ()
-  "An ABORT* or an UNEXPECTED FAILURE."
+  "An ABORT* or an UNEXPECTED FAILURE. See PASS."
   '(or abort* unexpected-failure))
 
 
-(defsection @try/printing-events (:title "Printing Events")
+(defsection @printing-events (:title "Printing Events")
   (*event-print-bindings* variable))
 
 (defvar *event-print-bindings* '((*print-circle* t))
@@ -184,8 +185,8 @@
   ```
 
   The default value ensures that shared structure is recognized (see
-  @TRY/CAPTURES). If the `#N#` syntax feels cumbersome, then change
-  this variable.")
+  @CAPTURES). If the `#N#` syntax feels cumbersome, then change this
+  variable.")
 
 (defmethod print-object ((event event) stream)
   (if *print-escape*
@@ -206,9 +207,9 @@
         (call-next-method event stream :terse terse :ctx ctx)))))
 
 
-(defsection @try/event-restarts (:title "Event Restarts")
+(defsection @event-restarts (:title "Event Restarts")
   "Only RECORD-EVENT is applicable to all EVENTs. See
-  @TRY/CHECK-RESTARTS, @TRY/TRIAL-RESTARTS for more."
+  @CHECK-RESTARTS, @TRIAL-RESTARTS for more."
   (record-event function))
 
 (defun record-event (&optional condition)
@@ -230,7 +231,7 @@
         (funcall *record-event* condition)))))
 
 
-(defsection @try/categories (:title "Categories")
+(defsection @categories (:title "Categories")
   """Categories determine how event types are printed and events of
   what types are counted together.
 
@@ -247,8 +248,8 @@
 
   which says that all concrete EVENTs that are of type ABORT* (i.e.
   `RESULT-ABORT*`, `VERDICT-ABORT*`, UNHANDLED-ERROR, and NLX) are to
-  be marked with `"⊟"` when printed (see @TRY/PRINT). Also, the six
-  types define six counters for @TRY/COUNT. Note that UNEXPECTED
+  be marked with `"⊟"` when printed (see @PRINT). Also, the six
+  types define six counters for @COUNT. Note that UNEXPECTED
   events have the same marker but squared as their EXPECTED
   counterpart.
   """
@@ -257,7 +258,7 @@
   (ascii-std-categories function))
 
 (defun fancy-std-categories ()
-  "Returns the default value of *CATEGORIES* (see @TRY/CATEGORIES),
+  "Returns the default value of *CATEGORIES* (see @CATEGORIES),
   which contains some fancy Unicode characters."
   '((abort*             :marker "⊟")
     (unexpected-failure :marker "⊠")
@@ -289,9 +290,9 @@
 ;;; Ordered by some notion of importance.
 (defvar *categories* (fancy-std-categories)
   "A list of of elements like `(TYPE &KEY MARKER)`.
-  When @TRY/PRINT, @TRY/CONCRETE-EVENTS are printed with the marker of
-  the first matching type. When @TRY/COUNT, the counts associated with
-  all matching types are incremented.")
+  When @PRINT, @CONCRETE-EVENTS are printed with the marker of the
+  first matching type. When @COUNT, the counts associated with all
+  matching types are incremented.")
 
 (defun event-category (event categories)
   (if (typep event 'event)

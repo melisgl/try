@@ -2,13 +2,13 @@
 
 (in-readtable pythonic-string-syntax)
 
-(defsection @try/count (:title "Counting Events")
+(defsection @count (:title "Counting Events")
   """TRIALs have a counter for each category in *CATEGORIES*. When an
   EVENT is recorded by TRY and its type matches *COUNT*, the counters
   of all categories matching the event type are incremented in the
   CURRENT-TRIAL. When a trial finishes and a VERDICT is recorded, the
   trial's event counters are added to that of its parent's (if any).
-  The counts are printed with VERDICTs (see @TRY/PRINT).
+  The counts are printed with VERDICTs (see @PRINT).
 
   If both *COUNT* and *CATEGORIES* are unchanged from the their
   default values, then only LEAF events are counted, and we get

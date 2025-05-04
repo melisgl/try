@@ -1,6 +1,13 @@
 # Try Manual
 
 ###### \[in package TRY\]
+## Links and Systems
+
+Here is the [official repository](https://github.com/melisgl/try)
+and the [HTML
+documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
+for the latest version.
+
 - [system] "try"
     - Version: 0.0.1
     - Description: Try is an extensible test framework with equal support
@@ -19,13 +26,6 @@
     - Depends on: alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
     - Defsystem depends on: try.asdf
 
-## Links
-
-Here is the [official repository](https://github.com/melisgl/try)
-and the [HTML
-documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
-for the latest version.
-
 ## Tutorial
 
 Try is a library for unit testing with equal support for
@@ -36,14 +36,14 @@ prominently in parameterization.
 Try is is what we get if we make tests functions and build a test
 framework on top of the condition system as
 [Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
-but also address the issue of rerunning and replaying, make the
-IS check more capable, use the types of the condition hierarchy
-to parameterize what to debug, print, rerun, and finally document
-the whole thing.
+but also address the issue of rerunning and replaying, make the IS
+check more capable, use the types of the condition hierarchy to
+parametrize what to debug, print, rerun, and finally document the
+whole thing.
 
 ##### Looking for Truth
 
-@TRY/IS is a replacement for CL:ASSERT, that can capture values of
+@IS is a replacement for CL:ASSERT, that can capture values of
 subforms to provide context to failures:
 
 ```common-lisp
@@ -63,11 +63,10 @@ Note the `#N#` syntax due to *PRINT-CIRCLE*.
 
 ##### Checking Multiple Values
 
-IS automatically captures values of
-arguments to functions like `1+` in the above example. Values of
-other interesting subforms can be explicitly
-captured. IS supports capturing multiple
-values and can be taught how to deal with macros. The combination of these
+IS automatically captures values of arguments
+to functions like `1+` in the above example. Values of other
+interesting subforms can be explicitly captured. IS supports capturing multiple values and can
+be taught how to deal with macros. The combination of these
 features allows MATCH-VALUES to be implementable as tiny extension:
 
 ```common-lisp
@@ -278,7 +277,7 @@ hence they don't match UNEXPECTED and are not rerun.
 ##### Conditional Execution
 
 Conditional execution can be achieved simply testing the TRIAL
-object returned by @TRY/TESTS.
+object returned by @TESTS.
 
 ```
 (deftest my-suite ()
@@ -362,8 +361,8 @@ macros like the following.
            (with-xxx-body)))))
 ```
 
-Plus, with support for selectively @TRY/RERUN, the need for fixtures
-is lessened.
+Plus, with support for selectively @RERUN, the need for fixtures is
+lessened.
 
 ##### Packages
 
@@ -423,7 +422,7 @@ environment necessary for lower level tests.
 
 The Elisp `mgl-try` interactive command runs a Try test and
 displays its output in a `lisp-mode` buffer with minor modes
-`outline-mode` and `mgl-try-mode`. It is assumed that the lisp is
+`outline-mode` and `mgl-try-mode`. It is assumed that the Lisp is
 running under [Slime](https://slime.common-lisp.dev/). In the
 buffer,
 
@@ -435,7 +434,7 @@ buffer,
   and `N`;
 
 - rerun the most recent trial (TRY:!) with `r` (subject to the
-  filtering described @TRY/RERUN);
+  filtering described @RERUN);
 
 - rerun the most recently finished test with `R` (and all tests it
   calls);
@@ -481,15 +480,16 @@ Matching the types of events to *DEBUG*, *COUNT*, *COLLECT*, *RERUN*,
 
 ### Middle Layer of Events
 
-The event hierarchy is fairly involved, so let's start in the middle.
-The condition EVENT has 4 disjoint subclasses:
+The event hierarchy is fairly involved, so let's start with the middle
+layer because it is smallest. The condition EVENT has 4 disjoint
+subclasses:
 
 - TRIAL-START, which corresponds to the entry to a test (see
-  @TRY/TESTS),
+  @TESTS),
 
 - VERDICT, the OUTCOME of a TRIAL,
 
-- RESULT, the OUTCOME of a check (see @TRY/CHECKS), and
+- RESULT, the OUTCOME of a check (see @CHECKS), and
 
 - ERROR\*, an unexpected CL:ERROR or unadorned non-local exit.
 
@@ -540,9 +540,8 @@ These are the 15 concrete event classes.
 
 ### Event Glue
 
-These condition classes group various bits of the
-@TRY/CONCRETE-EVENTS and the @TRY/MIDDLE-LAYER-OF-EVENTS for ease of
-reference.
+These condition classes group various bits of the @CONCRETE-EVENTS
+ and the @MIDDLE-LAYER-OF-EVENTS for ease of reference.
 
 Concrete event classes except TRIAL-START are subclasses of the
 hyphen-separated words constituting their name. For example,
@@ -568,7 +567,7 @@ RESULT)`.
 
 - [condition] SUCCESS EVENT
 
-    See @TRY/CHECKS and @TRY/TRIAL-VERDICTS for how
+    See @CHECKS and @TRIAL-VERDICTS for how
     SUCCESS or FAILURE is decided.
 
 - [condition] FAILURE EVENT
@@ -611,10 +610,11 @@ RESULT)`.
 - [type] PASS
 
     An OUTCOME that's not an ABORT\* or an UNEXPECTED FAILURE.
+    PASS is equivalent to `(NOT FAIL)`.
 
 - [type] FAIL
 
-    An ABORT\* or an UNEXPECTED FAILURE.
+    An ABORT\* or an UNEXPECTED FAILURE. See PASS.
 
 ### Printing Events
 
@@ -633,13 +633,13 @@ RESULT)`.
     ```
     
     The default value ensures that shared structure is recognized (see
-    @TRY/CAPTURES). If the `#N#` syntax feels cumbersome, then change
-    this variable.
+    @CAPTURES). If the `#N#` syntax feels cumbersome, then change this
+    variable.
 
 ### Event Restarts
 
 Only RECORD-EVENT is applicable to all EVENTs. See
-@TRY/CHECK-RESTARTS, @TRY/TRIAL-RESTARTS for more.
+@CHECK-RESTARTS, @TRIAL-RESTARTS for more.
 
 - [function] RECORD-EVENT &OPTIONAL CONDITION
 
@@ -652,15 +652,14 @@ Only RECORD-EVENT is applicable to all EVENTs. See
 - [condition] OUTCOME EVENT
 
     An OUTCOME is the resolution of either a TRIAL or a
-    check (see @TRY/CHECKS), corresponding to subclasses VERDICT and
-    RESULT.
+    check (see @CHECKS), corresponding to subclasses VERDICT and RESULT.
 
 - [macro] WITH-EXPECTED-OUTCOME (EXPECTED-TYPE) &BODY BODY
 
     When an OUTCOME is to be signalled, EXPECTED-TYPE determines
     whether it's going to be EXPECTED. The concrete OUTCOME classes are
     `{EXPECTED,UNEXPECTED}-{RESULT,VERDICT}-{SUCCESS,FAILURE}` (see
-    @TRY/EVENTS), of which RESULT or VERDICT and SUCCESS or FAILURE are
+    @EVENTS), of which RESULT or VERDICT and SUCCESS or FAILURE are
     already known. If a RESULT FAILURE is to be signalled, then the
     moral equivalent of `(SUBTYPEP '(AND RESULT FAILURE) EXPECTED-TYPE)`
     is evaluated and depending on whether it's true,
@@ -774,12 +773,12 @@ effect, then RESULT-SKIP is signalled.
 The result is signalled with `#'SIGNAL` if it is a PASS, else it's
 signalled with `#'ERROR`. This distinction matters only if the event
 is not handled, which is never the case in a TRIAL. Standalone
-checks though - those that are not enclosed by a trial - invoke the
-debugger on RESULTs which are not of type PASS.
+checks though – those not enclosed by a trial – invoke the debugger on
+RESULTs which are not of type PASS.
 
 The signalled RESULT is not final until RECORD-EVENT is invoked on
-it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
-@TRY/CHECK-RESTARTS.
+it, and it can be changed with the @OUTCOME-RESTARTS and the
+@CHECK-RESTARTS.
 
 - [condition] RESULT LEAF OUTCOME
 
@@ -800,8 +799,8 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
 - [function] ABORT-CHECK &OPTIONAL CONDITION
 
     Change the OUTCOME of the check being signalled to `RESULT-ABORT*`.
-    `RESULT-ABORT*`, being `(NOT PASS)`, will cause the check to return
-    NIL if RECORD-EVENT is invoked on it.
+    `RESULT-ABORT*`, being a FAIL, will cause the check to return NIL if
+    RECORD-EVENT is invoked on it.
 
 - [function] SKIP-CHECK &OPTIONAL CONDITION
 
@@ -819,8 +818,8 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
 - [class] TRIAL FUNCALLABLE-STANDARD-OBJECT
 
     Trials are records of calls to tests (see
-    @TRY/COUNT, @TRY/COLLECT). Their behaviour as @FUNCALLABLE-INSTANCEs
-    is explained in @TRY/RERUN.
+    @COUNT, @COLLECT). Their behaviour as @FUNCALLABLE-INSTANCEs
+    is explained in @RERUN.
     
     There are three ways to acquire a TRIAL object: by calling
     CURRENT-TRIAL, through the lexical binding of the symbol that names
@@ -864,9 +863,9 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
 - [condition] TRIAL-START TRIAL-EVENT
 
     TRIAL-START is signalled when a test function
-    (see @TRY/TESTS) is entered and a TRIAL is started, it is already
-    the CURRENT-TRIAL, and the @TRY/TRIAL-RESTARTS are available. It is
-    also signalled when a trial is retried:
+    (see @TESTS) is entered and a TRIAL is started, it is already the
+    CURRENT-TRIAL, and the @TRIAL-RESTARTS are available. It is also
+    signalled when a trial is retried:
     
     ```common-lisp
     (let ((*print* nil)
@@ -890,16 +889,16 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     of other EVENTs.
     
     - When a TRIAL-START event matches the `COLLECT` type (see
-      @TRY/COLLECT), its TRIAL is collected.
+      @COLLECT), its TRIAL is collected.
     
     - Similarly, when a TRIAL-START matches the PRINT
-      type (see @TRY/PRINT), it is printed immediately, and its trial's
+      type (see @PRINT), it is printed immediately, and its trial's
       VERDICT will be printed too regardless of whether it matches
       PRINT. If TRIAL-START does not match
       PRINT, it may still be printed if for example
       *PRINT-PARENT* requires it.
     
-    - When a TRIAL-START matches the `RERUN` type (see @TRY/RERUN), its
+    - When a TRIAL-START matches the `RERUN` type (see @RERUN), its
       TRIAL may be rerun.
     
     - Also, see WITH-SKIP.
@@ -910,11 +909,10 @@ it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
     A VERDICT is the OUTCOME of a TRIAL. It is one of
     `{EXPECTED,UNEXPECTED}-VERDICT-{SUCCESS,FAILURE}`, VERDICT-SKIP and
     VERDICT-ABORT\*. Regarding how the verdict type is determined, see
-    @TRY/TRIAL-VERDICTS.
+    @TRIAL-VERDICTS.
     
     Verdicts are signalled while their TRIAL is
-    still the CURRENT-TRIAL, and @TRY/TRIAL-RESTARTS are still
-    available.
+    still the CURRENT-TRIAL, and @TRIAL-RESTARTS are still available.
     
     ```common-lisp
     (try (lambda ()
@@ -974,8 +972,8 @@ is determined as follows.
   the verdict which will be signalled.
 
 The verdict of this type is signalled, but its type can be changed
-by the @TRY/OUTCOME-RESTARTS or the @TRY/TRIAL-RESTARTS before
-RECORD-EVENT is invoked on it.
+by the @OUTCOME-RESTARTS or the @TRIAL-RESTARTS before RECORD-EVENT
+is invoked on it.
 
 - [reader] VERDICT [TRIAL][99d0] (= NIL)
 
@@ -1002,7 +1000,7 @@ RECORD-EVENT is invoked on it.
 
 There are three restarts available for manipulating running
 trials: ABORT-TRIAL, SKIP-TRIAL, and RETRY-TRIAL. They may be
-invoked programatically or from the debugger. ABORT-TRIAL is also
+invoked programmatically or from the debugger. ABORT-TRIAL is also
 invoked by TRY when encountering UNHANDLED-ERROR.
 
 The functions below invoke one of these restarts associated with a
@@ -1067,7 +1065,7 @@ All three restarts may be invoked on any EVENT, including the
 trial's own TRIAL-START and VERDICT. If their CONDITION
 argument is an EVENT (RETRY-TRIAL has a special case here), they
 also record it (as in RECORD-EVENT) to ensure that when they handle
-an EVENT in the debugger or programatically that event is not
+an EVENT in the debugger or programmatically that event is not
 dropped.
 
 - [function] ABORT-TRIAL &OPTIONAL CONDITION (TRIAL (CURRENT-TRIAL))
@@ -1075,14 +1073,14 @@ dropped.
     Invoke the ABORT-TRIAL restart of a RUNNINGP TRIAL.
     
     When CONDITION is a VERDICT for TRIAL, ABORT-TRIAL signals a new
-    verdict of type VERDICT-ABORT\*. This behavior is similar to that
+    verdict of type VERDICT-ABORT\*. This behaviour is similar to that
     of ABORT-CHECK. Else, the ABORT-TRIAL restart may record CONDITION,
     then it initiates a non-local exit to return from the test
     function with VERDICT-ABORT\*. If during the unwinding SKIP-TRIAL
     or RETRY-TRIAL is called, then the abort is cancelled.
     
     Since ABORT\* is an UNEXPECTED EVENT, ABORT-TRIAL is rarely used
-    programatically. Signalling any error in a trial that's not caught
+    programmatically. Signalling any error in a trial that's not caught
     before the trial's handler catches it will get turned into an
     UNHANDLED-ERROR, and TRY will invoke ABORT-TRIAL with it. Thus,
     instead of invoking ABORT-TRIAL directly, signalling an error will
@@ -1093,11 +1091,11 @@ dropped.
     Invoke the SKIP-TRIAL restart of a RUNNINGP TRIAL.
     
     When CONDITION is a VERDICT for TRIAL, SKIP-TRIAL signals a new
-    verdict of type VERDICT-SKIP. This behavior is similar to that of
+    verdict of type VERDICT-SKIP. This behaviour is similar to that of
     SKIP-CHECK. Else, the SKIP-TRIAL restart may record CONDITION, then
-    it initiates a non-local exit to return from the test function with
-    VERDICT-SKIP. If during the unwinding ABORT-TRIAL or RETRY-TRIAL is
-    called, then the skip is cancelled.
+    it initiates a non-local exit to return from the test
+    function with VERDICT-SKIP. If during the unwinding ABORT-TRIAL or
+    RETRY-TRIAL is called, then the skip is cancelled.
     
     ```common-lisp
     (with-test (skipped)
@@ -1135,9 +1133,9 @@ dropped.
     
     - (N-RETRIES TRIAL) is incremented,
     
-    - collected results and trials are cleared (see @TRY/COLLECT),
+    - collected results and trials are cleared (see @COLLECT),
     
-    - counts are zeroed (see @TRY/COUNT), and
+    - counts are zeroed (see @COUNT), and
     
     - TRIAL-START is signalled again.
     
@@ -1207,21 +1205,21 @@ The default value of *CATEGORIES* is
 
 which says that all concrete EVENTs that are of type ABORT\* (i.e.
 `RESULT-ABORT*`, `VERDICT-ABORT*`, UNHANDLED-ERROR, and NLX) are to
-be marked with `"⊟"` when printed (see @TRY/PRINT). Also, the six
-types define six counters for @TRY/COUNT. Note that UNEXPECTED
+be marked with `"⊟"` when printed (see @PRINT). Also, the six
+types define six counters for @COUNT. Note that UNEXPECTED
 events have the same marker but squared as their EXPECTED
 counterpart.
 
 - [variable] *CATEGORIES* "- see above -"
 
     A list of of elements like `(TYPE &KEY MARKER)`.
-    When @TRY/PRINT, @TRY/CONCRETE-EVENTS are printed with the marker of
-    the first matching type. When @TRY/COUNT, the counts associated with
-    all matching types are incremented.
+    When @PRINT, @CONCRETE-EVENTS are printed with the marker of the
+    first matching type. When @COUNT, the counts associated with all
+    matching types are incremented.
 
 - [function] FANCY-STD-CATEGORIES
 
-    Returns the default value of *CATEGORIES* (see @TRY/CATEGORIES),
+    Returns the default value of *CATEGORIES* (see @CATEGORIES),
     which contains some fancy Unicode characters.
 
 - [function] ASCII-STD-CATEGORIES
@@ -1241,7 +1239,7 @@ counterpart.
 
 ## The IS Macro
 
-IS is the fundamental one among @TRY/CHECKS, on which all
+IS is the fundamental one among @CHECKS, on which all
 the others are built, and it is a replacement for CL:ASSERT that can
 capture values of subforms to provide context to failures:
 
@@ -1283,8 +1281,8 @@ on top of it.
 - [macro] IS FORM &KEY MSG CTX (CAPTURE T) (PRINT-CAPTURES T) (RETRY T)
 
     Evaluate FORM and signal a RESULT SUCCESS if its first return
-    value is not NIL, else signal a RESULT FAILURE (see @TRY/OUTCOMES).
-    IS returns normally if
+    value is not NIL, else signal a RESULT FAILURE (see @OUTCOMES). IS
+    returns normally if
     
     - the RECORD-EVENT restart is invoked (available when running in a
       trial), or
@@ -1298,11 +1296,10 @@ on top of it.
     The return value of IS is T if the last condition signalled is a
     SUCCESS, and NIL otherwise.
     
-    MSG and CTX are @TRY/FORMAT-SPECIFIER-FORMS. MSG prints a
-    description of the check being made, which is by default the whole
-    IS form. Due to how conditions are printed, MSG says what the
-    desired outcome is, and CTX provides information about the
-    evaluation.
+    MSG and CTX are @FORMAT-SPECIFIER-FORMS. MSG prints a description of
+    the check being made, which is by default the whole IS form. Due to
+    how conditions are printed, MSG says what the desired outcome is,
+    and CTX provides information about the evaluation.
     
     ```common-lisp
     (is (equal (prin1-to-string 'hello) "hello")
@@ -1320,11 +1317,11 @@ on top of it.
     
     If CAPTURE is true, the value(s) of some subforms of FORM may be
     automatically recorded in the condition and also made available for
-    CTX via *IS-CAPTURES*. See @TRY/CAPTURES for more.
+    CTX via *IS-CAPTURES*. See @CAPTURES for more.
     
     If PRINT-CAPTURES is true, the captures made are printed when the
     RESULT condition is displayed in the debugger or `*DESCRIBE*`d (see
-    @TRY/PRINT). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
+    @PRINT). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
     part above. If PRINT-CAPTURES is NIL, the captures are still
     available in *IS-CAPTURES* for writing custom CTX messages.
     
@@ -1500,8 +1497,8 @@ functionality such as MATCH-VALUES.
 #### Explicit Captures
 
 In addition to automatic captures, which are prescribed by
-rewriting rules (see @TRY/WRITING-AUTOMATIC-CAPTURE-RULES),
-explicit, ad-hoc captures can also be made.
+rewriting rules (see @WRITING-AUTOMATIC-CAPTURE-RULES), explicit,
+ad-hoc captures can also be made.
 
 ```common-lisp
 (is (let ((x 1))
@@ -1582,7 +1579,7 @@ Many of them share a number of arguments, which are described here.
 - ON-NLX is a boolean that determines whether the check in a macro
   that wraps BODY is made when BODY performs a non-local exit.
 
-- MSG and CTX are @TRY/FORMAT-SPECIFIER-FORMS as in IS.
+- MSG and CTX are @FORMAT-SPECIFIER-FORMS as in IS.
 
 - NAME may be provided so that it is printed (with PRIN1) instead of
   BODY in MSG.
@@ -1593,7 +1590,7 @@ Many of them share a number of arguments, which are described here.
 The macros SIGNALS, SIGNALS-NOT, INVOKES-DEBUGGER, and
 INVOKES-DEBUGGER-NOT all check whether a condition of a given type,
 possibly also matching a predicate, was signalled. In addition to
-those already described in @TRY/CHECK-LIBRARY, these macros share a
+those already described in @CHECK-LIBRARY, these macros share a
 number of arguments.
 
 Matching conditions are those that are of type CONDITION-TYPE (not
@@ -1624,14 +1621,14 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
 
 - [variable] *CONDITION-MATCHED-P*
 
-    When a check described in @TRY/CHECKING-CONDITIONS signals its
+    When a check described in @CHECKING-CONDITIONS signals its
     OUTCOME, this variable is bound to a boolean value to indicate
     whether a condition that matched CONDITION-TYPE and PRED was
     found.
 
 - [variable] *BEST-MATCHING-CONDITION*
 
-    Bound when a check described in @TRY/CHECKING-CONDITIONS
+    Bound when a check described in @CHECKING-CONDITIONS
     signals its OUTCOME. If *CONDITION-MATCHED-P*, then it is the
     most recent condition that matched both CONDITION-TYPE and PRED.
     Else, it is the most recent condition that matched
@@ -1642,7 +1639,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     Check that BODY signals a CONDITION of CONDITION-TYPE (not
     evaluated) that matches PRED. To detect matching conditions, SIGNALS
     sets up a HANDLER-BIND. Thus it can only see what BODY does not
-    handle. The arguments are described in @TRY/CHECKING-CONDITIONS.
+    handle. The arguments are described in @CHECKING-CONDITIONS.
     
     ```common-lisp
     (signals (error)
@@ -1670,7 +1667,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     evaluated) that matches PRED. To detect matching conditions,
     SIGNALS-NOT sets up a HANDLER-BIND. Thus, it can only see what BODY
     does not handle. The arguments are described in
-    @TRY/CHECKING-CONDITIONS.
+    @CHECKING-CONDITIONS.
 
 - [macro] INVOKES-DEBUGGER (CONDITION-TYPE &KEY PRED (HANDLER T) (ON-RETURN T) (ON-NLX T) NAME MSG CTX) &BODY BODY
 
@@ -1678,7 +1675,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     CONDITION-TYPE (not evaluated) that matches PRED. To detect matching
     conditions, INVOKES-DEBUGGER sets up a *DEBUGGER-HOOK*. Thus, if
     *DEBUGGER-HOOK* is changed by BODY, it may not detect the condition.
-    The arguments are described in @TRY/CHECKING-CONDITIONS.
+    The arguments are described in @CHECKING-CONDITIONS.
     
     Note that in a trial (see CURRENT-TRIAL), all ERRORs are handled,
     and a *DEBUGGER-HOOK* is set up (see UNHANDLED-ERROR). Thus,
@@ -1698,14 +1695,14 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     CONDITION-TYPE (not evaluated) that matches PRED. To detect matching
     conditions, INVOKES-DEBUGGER-NOT sets up a *DEBUGGER-HOOK*. Thus, if
     *DEBUGGER-HOOK* is changed by BODY, it may not detect the condition.
-    The arguments are described in @TRY/CHECKING-CONDITIONS.
+    The arguments are described in @CHECKING-CONDITIONS.
 
 ### Miscellaneous Checks
 
 - [macro] FAILS (&KEY NAME MSG CTX) &BODY BODY
 
     Check that BODY performs a non-local exit but do not
-    cancel it (see @CANCELLED-NLX). See @TRY/CHECK-LIBRARY for the
+    cancel it (see @CANCELLED-NLX). See @CHECK-LIBRARY for the
     descriptions of the other arguments.
     
     In the following example, FAILS signals a SUCCESS.
@@ -1734,7 +1731,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
 
 - [macro] IN-TIME (SECONDS &KEY (ON-RETURN T) (ON-NLX T) NAME MSG CTX) &BODY BODY
 
-    Check that BODY finishes in SECONDS. See @TRY/CHECK-LIBRARY for
+    Check that BODY finishes in SECONDS. See @CHECK-LIBRARY for
     the descriptions of the other arguments.
     
     ```
@@ -2003,7 +2000,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
 
     DEFTEST is a wrapper around DEFUN to define global test functions.
     See DEFUN for a description of NAME, LAMBDA-LIST, and BODY. The
-    behaviour common with WITH-TEST is described in @TRY/TESTS.
+    behaviour common with WITH-TEST is described in @TESTS.
     
     ```common-lisp
     (deftest my-test ()
@@ -2070,7 +2067,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
 
     Define a so-called lambda test to group together CHECKs and other
     tests it executes. WITH-TEST executes BODY in its lexical
-    environment even on a rerun (see @TRY/RERUN).
+    environment even on a rerun (see @RERUN).
     
     If TRIAL-VAR is a non-`NIL` symbol, bind it to the trial object.
     NAME may be any type, it is purely for presentation purposes. If
@@ -2163,7 +2160,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     
     Lambda tests can be thought of as analogous to `(FUNCALL (LAMBDA ()
     BODY))`. The presence of the LAMBDA is important because it is
-    stored in the TRIAL object to support @TRY/RERUN.
+    stored in the TRIAL object to support @RERUN.
 
 - [function] LIST-PACKAGE-TESTS &OPTIONAL (PACKAGE \*PACKAGE\*)
 
@@ -2235,7 +2232,7 @@ Behind the scenes, the outermost test function calls TRY with
 ```
 
 TRY then calls the test function belonging to TRIAL.
-The rest of the behaviour is described in @TRY/EXPLICIT-TRY.
+The rest of the behaviour is described in @EXPLICIT-TRY.
 
 - [variable] *DEBUG* (AND UNEXPECTED (NOT NLX) (NOT VERDICT))
 
@@ -2250,28 +2247,28 @@ The rest of the behaviour is described in @TRY/EXPLICIT-TRY.
 
     Although the default value of *CATEGORIES* lumps RESULTs and
     VERDICTs together, with the default of LEAF, VERDICTs are not
-    counted. See @TRY/COUNT.
+    counted. See @COUNT.
 
 - [variable] *COLLECT* UNEXPECTED
 
     To save memory, only the UNEXPECTED are collected by default.
-    See @TRY/COLLECT.
+    See @COLLECT.
 
 - [variable] *RERUN* UNEXPECTED
 
-    The default matches that of *COLLECT*. See @TRY/RERUN.
+    The default matches that of *COLLECT*. See @RERUN.
 
 - [variable] *PRINT* LEAF
 
     With the default of LEAF combined with the default *PRINT-PARENT*
     T, only TRIALs with checks or ERROR\* in them are printed. If
-    UNEXPECTED, only the interesting things are printed. See @TRY/PRINT.
+    UNEXPECTED, only the interesting things are printed. See @PRINT.
 
 - [variable] *DESCRIBE* (OR UNEXPECTED FAILURE)
 
-    By default, the context (e.g. @TRY/CAPTURES, and the CTX argument
+    By default, the context (e.g. @CAPTURES, and the CTX argument
     of is and other checks) of UNEXPECTED events is described. See
-    @TRY/PRINT.
+    @PRINT.
 
 - [variable] *STREAM* (MAKE-SYNONYM-STREAM '\*DEBUG-IO\*)
 
@@ -2312,10 +2309,10 @@ EVENTs are signalled within a trial.
 ```
 
 Invoking tests with an explicit TRY is very similar to just calling
-the test functions directly (see @TRY/IMPLICIT-TRY). The differences
+the test functions directly (see @IMPLICIT-TRY). The differences
 are that TRY
 
-- can run @TRY/TESTABLES,
+- can run @TESTABLES,
 
 - has a function argument for each of the *DEBUG*, *COLLECT*, etc
   variables.
@@ -2340,29 +2337,28 @@ interactive one, but this is not enforced in any way.
     UNEXPECTED, VERDICT).
     
     TRY sets up a HANDLER-BIND handler for EVENTs and runs TESTABLE (see
-    @TRY/TESTABLES). When an EVENT is signalled, the handler matches its
+    @TESTABLES). When an EVENT is signalled, the handler matches its
     type to the value of the DEBUG argument (in the sense of `(TYPEP
     EVENT DEBUG)`). If it matches, then the debugger is invoked with the
     event. In the debugger, the user has a number of restarts available
-    to change (see @TRY/EVENT-RESTARTS, @TRY/OUTCOME-RESTARTS,
-    @TRY/CHECK-RESTARTS, @TRY/TRIAL-RESTARTS, and SET-TRY-DEBUG.
+    to change (see @EVENT-RESTARTS, @OUTCOME-RESTARTS,
+    @CHECK-RESTARTS, @TRIAL-RESTARTS, and SET-TRY-DEBUG.
     
     If the debugger is not invoked, TRY invokes the very first restart
     available, which is always RECORD-EVENT.
     
     Recording the event is performed as follows.
     
-    - Outcome counts are updated (see @TRY/COUNT).
+    - Outcome counts are updated (see @COUNT).
     
-    - The event is passed to the collector (see @TRY/COLLECT).
+    - The event is passed to the collector (see @COLLECT).
     
-    - The event is passed to the printer (see @TRY/PRINT).
+    - The event is passed to the printer (see @PRINT).
     
     - Finally, when rerunning a trial (i.e. when TESTABLE is a trial),
-      on a TRIAL-START event, the trial may be skipped (see @TRY/RERUN).
+      on a TRIAL-START event, the trial may be skipped (see @RERUN).
     
-    TRY returns the values returned by the outermost trial (see
-    @TRY/TESTS).
+    TRY returns the values returned by the outermost trial (see @TESTS).
 
 - [function] SET-TRY-DEBUG DEBUG
 
@@ -2454,9 +2450,9 @@ be:
 
 In the function designator cases, TRY calls the designated function.
 TRIALs, being @FUNCALLABLE-INSTANCEs, designate themselves.
-If the trial is not RUNNINGP, then it will be rerun (see
-@TRY/RERUN). Don't invoke TRY with RUNNINGP trials (but see
-@TRY/IMPLICIT-TRY-IMPLEMENTATION for discussion).
+If the trial is not RUNNINGP, then it will be rerun (see @RERUN).
+Don't invoke TRY with RUNNINGP trials (but see
+@IMPLICIT-TRY-IMPLEMENTATION for discussion).
 
 When given a list of testables, TRY calls each testable one by one.
 
@@ -2468,7 +2464,7 @@ LIST-PACKAGE-TESTS on that package.
 What's happening in the implementation is that a test function,
 when it is called, checks whether it is running under the TRY
 function. If it isn't, then it invokes TRY with its TRIAL. TRY
-realizes the trial cannot be rerun yet (see @TRY/RERUN) because it
+realizes the trial cannot be rerun yet (see @RERUN) because it
 is RUNNINGP, sets up its event handlers for debugging, collecting,
 printing, and invokes the trial as if it were rerun but without
 skipping anything based on the RERUN argument. Thus the following
@@ -2505,7 +2501,7 @@ setups.
     TRIAL. This is the default printer (according to *PRINTER* and
     *TRY-PRINTER*) and currently the only one.
     
-    The following example prints all @TRY/CONCRETE-EVENTS.
+    The following example prints all @CONCRETE-EVENTS.
     
     ```common-lisp
     (let ((*debug* nil)
@@ -2635,10 +2631,10 @@ setups.
     ==> #<TRIAL (WITH-TEST (TIMED)) ABORT* 0.504s ⊟1 ⋅2>
     ```
     
-    Timing is available for all OUTCOMEs (i.e. for @TRY/CHECKS and
-    TRIALs). Checks generally measure the time spent during evaluation
-    the form they are wrapping. Trials measure the time between
-    TRIAL-START and the VERDICT.
+    Timing is available for all OUTCOMEs (i.e. for @CHECKS and TRIALs).
+    Checks generally measure the time spent during evaluation the form
+    they are wrapping. Trials measure the time between TRIAL-START and
+    the VERDICT.
     
     Timing information is not available for TRIAL-START and ERROR\*
     events.
@@ -2709,7 +2705,7 @@ EVENT is recorded by TRY and its type matches *COUNT*, the counters
 of all categories matching the event type are incremented in the
 CURRENT-TRIAL. When a trial finishes and a VERDICT is recorded, the
 trial's event counters are added to that of its parent's (if any).
-The counts are printed with VERDICTs (see @TRY/PRINT).
+The counts are printed with VERDICTs (see @PRINT).
 
 If both *COUNT* and *CATEGORIES* are unchanged from the their
 default values, then only LEAF events are counted, and we get
@@ -2742,8 +2738,7 @@ EXPECTED-RESULT-SUCCESS is counted due to *COUNT* being LEAF.
 
 When an EVENT is recorded and the type of the EVENT matches the
 COLLECT type argument of TRY, then a corresponding object is pushed
-onto CHILDREN of the CURRENT-TRIAL for subsequent @TRY/RERUN or
-@TRY/REPLAY.
+onto CHILDREN of the CURRENT-TRIAL for subsequent @RERUN or @REPLAY.
 
 In particular, if the matching event is a LEAF, then the event
 itself is collected. If the matching event is a TRIAL-EVENT, then
@@ -2757,9 +2752,9 @@ the enclosing trials.
 - [reader] CHILDREN [TRIAL][99d0] (:CHILDREN = NIL)
 
     A list of immediate child VERDICTs, RESULTs, and
-    ERROR\*s collected in reverse chronological order (see
-    @TRY/COLLECT). The VERDICT of this TRIAL is not among CHILDREN,
-    but the VERDICTs of child trials' are.
+    ERROR\*s collected in reverse chronological order (see @COLLECT).
+    The VERDICT of this TRIAL is not among CHILDREN, but the VERDICTs
+    of child trials' are.
 
 ### Rerunning Trials
 
@@ -2767,8 +2762,8 @@ When a TRIAL is `FUNCALL`ed or passed to TRY, the *test that
 created the trial* is invoked, and it may be run again in its
 entirety or in part. As the test runs, it may invoke other tests.
 Any test (including the top-level one) is skipped if it does not
-correspond to a collected trial or its TRIAL-START
-event and VERDICT do not match the RERUN argument of TRY. When that
+correspond to a collected trial or its TRIAL-START event
+and VERDICT do not match the RERUN argument of TRY. When that
 happens, the corresponding function call immediately returns the
 TRIAL object.
 
@@ -2801,12 +2796,12 @@ TRIAL object.
       TRIAL-VAR and same NAME.
 
     - If the trial was created by TRY itself to ensure that all
-      events are signalled in a trial (see @TRY/EXPLICIT-TRY), then
+      events are signalled in a trial (see @EXPLICIT-TRY), then
       on a rerun the same TESTABLE is run again.
 
-    All three possibilities involve entering DEFTEST or WITH-TEST, or
-    invoking TRY: the same cases that we have when calling tests
-    functions (see @TRY/IMPLICIT-TRY). Thus, even if a trial is rerun
+    All three possibilities involve entering DEFTEST or WITH-TEST,
+    or invoking TRY: the same cases that we have when calling tests
+    functions (see @IMPLICIT-TRY). Thus, even if a trial is rerun
     with FUNCALL, execution is guaranteed to happen under TRY.
 
 
@@ -2814,14 +2809,14 @@ TRIAL object.
 
 - [function] REPLAY-EVENTS TRIAL &KEY (COLLECT \*TRY-COLLECT\*) (PRINT \*TRY-PRINT\*) (DESCRIBE \*TRY-DESCRIBE\*) (STREAM \*TRY-STREAM\*) (PRINTER \*TRY-PRINTER\*)
 
-    REPLAY-EVENTS reprocesses the events collected (see @TRY/COLLECT)
+    REPLAY-EVENTS reprocesses the events collected (see @COLLECT)
     in TRIAL. It takes the same arguments as TRY except
     DEBUG, COUNT and RERUN. This is because
     REPLAY-EVENTS does not run any tests. It simply signals the events
     collected in TRIAL again to allow further processing. The values of
     *CATEGORIES* and *COUNT* that were in effect for TRIAL are used, and
     their current values are ignored to be able to keep consistent
-    counts (see @TRY/COUNT).
+    counts (see @COUNT).
     
     Suppose we have run a large test using the default `:PRINT 'LEAF`
     `:COLLECT 'UNEXPECTED` arguments for TRY, and now we have too much

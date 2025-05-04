@@ -1,12 +1,12 @@
 (in-package :try)
 
-(defsection @try/rerun (:title "Rerunning Trials")
+(defsection @rerun (:title "Rerunning Trials")
   "When a TRIAL is `FUNCALL`ed or passed to TRY, the _test that
   created the trial_ is invoked, and it may be run again in its
   entirety or in part. As the test runs, it may invoke other tests.
   Any test (including the top-level one) is skipped if it does not
-  correspond to a [collected][@try/collect] trial or its TRIAL-START
-  event and VERDICT do not match the RERUN argument of TRY. When that
+  correspond to a [collected][@collect] trial or its TRIAL-START event
+  and VERDICT do not match the RERUN argument of TRY. When that
   happens, the corresponding function call immediately returns the
   TRIAL object.
 
@@ -39,12 +39,12 @@
         TRIAL-VAR and same NAME.
 
       - If the trial was created by TRY itself to ensure that all
-        events are signalled in a trial (see @TRY/EXPLICIT-TRY), then
+        events are signalled in a trial (see @EXPLICIT-TRY), then
         on a rerun the same TESTABLE is run again.
 
-      All three possibilities involve entering DEFTEST or WITH-TEST, or
-      invoking TRY: the same cases that we have when calling tests
-      functions (see @TRY/IMPLICIT-TRY). Thus, even if a trial is rerun
+      All three possibilities involve entering DEFTEST or WITH-TEST,
+      or invoking TRY: the same cases that we have when calling tests
+      functions (see @IMPLICIT-TRY). Thus, even if a trial is rerun
       with FUNCALL, execution is guaranteed to happen under TRY.")
 
 (declaim (ftype (function (t) t) try/implicit))

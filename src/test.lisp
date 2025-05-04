@@ -2,7 +2,7 @@
 
 (in-readtable pythonic-string-syntax)
 
-(defsection @try/tests (:title "Tests")
+(defsection @tests (:title "Tests")
   """In Try, tests are Lisp functions that record their execution in
   TRIAL objects. TRIALs are to tests what function call traces are to
   functions. In more detail, tests
@@ -27,21 +27,21 @@
   (list-package-tests function)
   (with-tests-run macro)
   (warn-on-tests-not-run macro)
-  (@try/implicit-try section)
-  (@try/explicit-try section)
+  (@implicit-try section)
+  (@explicit-try section)
   #+nil
-  (@try/debug section)
-  (@try/print section)
-  (@try/count section)
-  (@try/collect section)
-  (@try/rerun section)
-  (@try/replay section))
+  (@debug section)
+  (@print section)
+  (@count section)
+  (@collect section)
+  (@rerun section)
+  (@replay section))
 
 
 (defmacro deftest (name lambda-list &body body &environment env)
   """DEFTEST is a wrapper around DEFUN to define global test functions.
   See DEFUN for a description of NAME, LAMBDA-LIST, and BODY. The
-  behaviour common with WITH-TEST is described in @TRY/TESTS.
+  behaviour common with WITH-TEST is described in @TESTS.
 
   ```cl-transcript (:dynenv try-transcript)
   (deftest my-test ()
@@ -200,7 +200,7 @@
 (defmacro with-test ((&optional trial-var &key name) &body body)
   """Define a so-called lambda test to group together CHECKs and other
   tests it executes. WITH-TEST executes BODY in its lexical
-  environment even on a rerun (see @TRY/RERUN).
+  environment even on a rerun (see @RERUN).
 
   If TRIAL-VAR is a non-`NIL` symbol, bind it to the trial object.
   NAME may be any type, it is purely for presentation purposes. If
@@ -289,7 +289,7 @@
 
   Lambda tests can be thought of as analogous to `(FUNCALL (LAMBDA ()
   BODY))`. The presence of the LAMBDA is important because it is
-  stored in the TRIAL object to support @TRY/RERUN.
+  stored in the TRIAL object to support @RERUN.
   """
   ;; Muffle style warning about having both &OPTIONAL and &KEY.
   #+sbcl
@@ -322,7 +322,7 @@
                  (call-test))
                ;; If not FINISHEDP, TRY does not rerun TRIAL (which
                ;; would result in it being skipped) but run it
-               ;; normally. The following is equivalen to (FUNCALL
+               ;; normally. The following is equivalent to (FUNCALL
                ;; ,TRIAL) but avoids some checks.
                (try/implicit ,var)))))))
 

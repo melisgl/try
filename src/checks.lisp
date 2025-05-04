@@ -2,7 +2,7 @@
 
 (in-readtable pythonic-string-syntax)
 
-(defsection @try/check-library (:title "Check Library")
+(defsection @check-library (:title "Check Library")
   "In the following, various checks built on top of IS are described.
   Many of them share a number of arguments, which are described here.
 
@@ -12,20 +12,20 @@
   - ON-NLX is a boolean that determines whether the check in a macro
     that wraps BODY is made when BODY performs a [non-local exit][clhs].
 
-  - MSG and CTX are @TRY/FORMAT-SPECIFIER-FORMS as in IS.
+  - MSG and CTX are @FORMAT-SPECIFIER-FORMS as in IS.
 
   - NAME may be provided so that it is printed (with PRIN1) instead of
     BODY in MSG."
-  (@try/checking-conditions section)
-  (@try/misc-checks section)
-  (@try/check-utilities section))
+  (@checking-conditions section)
+  (@misc-checks section)
+  (@check-utilities section))
 
 
-(defsection @try/checking-conditions (:title "Checking Conditions")
+(defsection @checking-conditions (:title "Checking Conditions")
   """The macros SIGNALS, SIGNALS-NOT, INVOKES-DEBUGGER, and
   INVOKES-DEBUGGER-NOT all check whether a condition of a given type,
   possibly also matching a predicate, was signalled. In addition to
-  those already described in @TRY/CHECK-LIBRARY, these macros share a
+  those already described in @CHECK-LIBRARY, these macros share a
   number of arguments.
 
   Matching conditions are those that are of type CONDITION-TYPE (not
@@ -86,14 +86,14 @@
 
 (defvar *condition-matched-p*)
 (setf (documentation '*condition-matched-p* 'variable)
-      "When a check described in @TRY/CHECKING-CONDITIONS signals its
+      "When a check described in @CHECKING-CONDITIONS signals its
       OUTCOME, this variable is bound to a boolean value to indicate
       whether a condition that matched CONDITION-TYPE and PRED was
       found.")
 
 (defvar *best-matching-condition*)
 (setf (documentation '*best-matching-condition* 'variable)
-      "Bound when a check described in @TRY/CHECKING-CONDITIONS
+      "Bound when a check described in @CHECKING-CONDITIONS
       signals its OUTCOME. If *CONDITION-MATCHED-P*, then it is the
       most recent condition that matched both CONDITION-TYPE and PRED.
       Else, it is the most recent condition that matched
@@ -154,7 +154,7 @@
   """Check that BODY signals a CONDITION of CONDITION-TYPE (not
   evaluated) that matches PRED. To detect matching conditions, SIGNALS
   sets up a HANDLER-BIND. Thus it can only see what BODY does not
-  handle. The arguments are described in @TRY/CHECKING-CONDITIONS.
+  handle. The arguments are described in @CHECKING-CONDITIONS.
 
   ```cl-transcript (:dynenv try-transcript)
   (signals (error)
@@ -210,7 +210,7 @@
   evaluated) that matches PRED. To detect matching conditions,
   SIGNALS-NOT sets up a HANDLER-BIND. Thus, it can only see what BODY
   does not handle. The arguments are described in
-  @TRY/CHECKING-CONDITIONS."
+  @CHECKING-CONDITIONS."
   `(condition-match-checker (,condition-type
                              :pred ,pred :handler ,handler
                              :on-return ,on-return :on-nlx ,on-nlx
@@ -241,7 +241,7 @@
   CONDITION-TYPE (not evaluated) that matches PRED. To detect matching
   conditions, INVOKES-DEBUGGER sets up a *DEBUGGER-HOOK*. Thus, if
   *DEBUGGER-HOOK* is changed by BODY, it may not detect the condition.
-  The arguments are described in @TRY/CHECKING-CONDITIONS.
+  The arguments are described in @CHECKING-CONDITIONS.
 
   Note that in a trial (see CURRENT-TRIAL), all ERRORs are handled,
   and a *DEBUGGER-HOOK* is set up (see UNHANDLED-ERROR). Thus,
@@ -294,7 +294,7 @@
   CONDITION-TYPE (not evaluated) that matches PRED. To detect matching
   conditions, INVOKES-DEBUGGER-NOT sets up a *DEBUGGER-HOOK*. Thus, if
   *DEBUGGER-HOOK* is changed by BODY, it may not detect the condition.
-  The arguments are described in @TRY/CHECKING-CONDITIONS."
+  The arguments are described in @CHECKING-CONDITIONS."
   `(condition-match-checker (,condition-type
                              :pred ,pred :handler ,handler
                              :on-return ,on-return :on-nlx ,on-nlx
@@ -318,7 +318,7 @@
         (or name (present-body body)) condition-type pred))
 
 
-(defsection @try/misc-checks (:title "Miscellaneous Checks")
+(defsection @misc-checks (:title "Miscellaneous Checks")
   (fails macro)
   (in-time macro)
   (*in-time-elapsed-seconds* variable))
@@ -326,7 +326,7 @@
 
 (defmacro fails ((&key name msg ctx) &body body)
   """Check that BODY performs a [non-local exit][clhs] but do not
-  cancel it (see @CANCELLED-NLX). See @TRY/CHECK-LIBRARY for the
+  cancel it (see @CANCELLED-NLX). See @CHECK-LIBRARY for the
   descriptions of the other arguments.
 
   In the following example, FAILS signals a SUCCESS.
@@ -376,7 +376,7 @@
 
 (defmacro in-time ((seconds &key (on-return t) (on-nlx t) name msg ctx)
                    &body body)
-  """Check that BODY finishes in SECONDS. See @TRY/CHECK-LIBRARY for
+  """Check that BODY finishes in SECONDS. See @CHECK-LIBRARY for
   the descriptions of the other arguments.
 
   ```
@@ -416,7 +416,7 @@
       BODY when IN-TIME signals its OUTCOME.")
 
 
-(defsection @try/check-utilities (:title "Check Utilities")
+(defsection @check-utilities (:title "Check Utilities")
   "These utilities are not checks (which signal OUTCOMEs) but simple
   functions and macros that may be useful for writing IS checks."
   (on-values macro)
@@ -425,7 +425,7 @@
   (different-elements function)
   (same-set-p function)
   (with-shuffling macro)
-  (@try/comparing-floats section))
+  (@comparing-floats section))
 
 
 (defmacro match-values (form &body body)

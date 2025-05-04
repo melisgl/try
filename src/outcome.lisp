@@ -1,18 +1,17 @@
 (in-package :try)
 
-(defsection @try/outcomes (:title "Outcomes")
+(defsection @outcomes (:title "Outcomes")
   (outcome condition)
   (with-expected-outcome macro)
   (with-failure-expected macro)
   (with-skip macro)
-  (@try/outcome-restarts section)
-  (@try/checks section)
-  (@try/trials section))
+  (@outcome-restarts section)
+  (@checks section)
+  (@trials section))
 
 (define-condition outcome (event) ()
   (:documentation "An OUTCOME is the resolution of either a TRIAL or a
-  check (see @TRY/CHECKS), corresponding to subclasses VERDICT and
-  RESULT."))
+  check (see @CHECKS), corresponding to subclasses VERDICT and RESULT."))
 
 
 (defvar *expected-outcome* 'success)
@@ -21,7 +20,7 @@
   "When an OUTCOME is to be signalled, EXPECTED-TYPE determines
   whether it's going to be EXPECTED. The concrete OUTCOME classes are
   `{EXPECTED,UNEXPECTED}-{RESULT,VERDICT}-{SUCCESS,FAILURE}` (see
-  @TRY/EVENTS), of which RESULT or VERDICT and SUCCESS or FAILURE are
+  @EVENTS), of which RESULT or VERDICT and SUCCESS or FAILURE are
   already known. If a RESULT FAILURE is to be signalled, then the
   moral equivalent of `(SUBTYPEP '(AND RESULT FAILURE) EXPECTED-TYPE)`
   is evaluated and depending on whether it's true,
@@ -242,7 +241,7 @@
   (format stream "Change outcome to ~S." outcome-type))
 
 
-(defsection @try/outcome-restarts (:title "Outcome Restarts")
+(defsection @outcome-restarts (:title "Outcome Restarts")
   (force-expected-success function)
   (force-unexpected-success function)
   (force-expected-failure function)
@@ -275,7 +274,7 @@
   (invoke-restart 'force-unexpected-failure))
 
 
-(defsection @try/checks (:title "Checks")
+(defsection @checks (:title "Checks")
   "Checks are like CL:ASSERTs, they check whether some condition holds
   and signal an OUTCOME. The outcome signalled for checks is a
   subclass of RESULT.
@@ -291,12 +290,12 @@
   The result is signalled with `#'SIGNAL` if it is a PASS, else it's
   signalled with `#'ERROR`. This distinction matters only if the event
   is not handled, which is never the case in a TRIAL. Standalone
-  checks though - those that are not enclosed by a trial - invoke the
-  debugger on RESULTs which are not of type PASS.
+  checks though – those not enclosed by a trial – invoke the debugger on
+  RESULTs which are not of type PASS.
 
   The signalled RESULT is not final until RECORD-EVENT is invoked on
-  it, and it can be changed with the @TRY/OUTCOME-RESTARTS and the
-  @TRY/CHECK-RESTARTS."
+  it, and it can be changed with the @OUTCOME-RESTARTS and the
+  @CHECK-RESTARTS."
   (result condition)
   (expected-result-success condition)
   (unexpected-result-success condition)
@@ -304,17 +303,17 @@
   (unexpected-result-failure condition)
   (result-skip condition)
   (result-abort* condition)
-  (@try/check-restarts section))
+  (@check-restarts section))
 
-(defsection @try/check-restarts (:title "Check Restarts")
+(defsection @check-restarts (:title "Check Restarts")
   (abort-check function)
   (skip-check function)
   (retry-check function))
 
 (defun abort-check (&optional condition)
   "Change the OUTCOME of the check being signalled to `RESULT-ABORT*`.
-  `RESULT-ABORT*`, being `(NOT PASS)`, will cause the check to return
-  NIL if RECORD-EVENT is invoked on it."
+  `RESULT-ABORT*`, being a FAIL, will cause the check to return NIL if
+  RECORD-EVENT is invoked on it."
   (declare (ignore condition))
   (invoke-restart 'abort-check))
 

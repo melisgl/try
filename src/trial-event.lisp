@@ -2,7 +2,7 @@
 
 (in-readtable pythonic-string-syntax)
 
-(defsection @try/trial-events (:title "Trial Events")
+(defsection @trial-events (:title "Trial Events")
   (trial-event condition)
   (trial (reader trial-event))
   (trial-start condition)
@@ -23,9 +23,9 @@
 
 (define-condition trial-start (trial-event) ()
   (:documentation """TRIAL-START is signalled when a test function
-  (see @TRY/TESTS) is entered and a TRIAL is started, it is already
-  the CURRENT-TRIAL, and the @TRY/TRIAL-RESTARTS are available. It is
-  also signalled when a trial is retried:
+  (see @TESTS) is entered and a TRIAL is started, it is already the
+  CURRENT-TRIAL, and the @TRIAL-RESTARTS are available. It is also
+  signalled when a trial is retried:
 
   ```cl-transcript
   (let ((*print* nil)
@@ -49,16 +49,16 @@
   of other EVENTs.
 
   - When a TRIAL-START event matches the `COLLECT` type (see
-    @TRY/COLLECT), its [TRIAL][(reader trial-event)] is collected.
+    @COLLECT), its [TRIAL][(reader trial-event)] is collected.
 
   - Similarly, when a TRIAL-START matches the [PRINT][argument]
-    type (see @TRY/PRINT), it is printed immediately, and its trial's
+    type (see @PRINT), it is printed immediately, and its trial's
     VERDICT will be printed too regardless of whether it matches
     [PRINT][argument]. If TRIAL-START does not match
     [PRINT][argument], it may still be printed if for example
     *PRINT-PARENT* requires it.
 
-  - When a TRIAL-START matches the `RERUN` type (see @TRY/RERUN), its
+  - When a TRIAL-START matches the `RERUN` type (see @RERUN), its
     [TRIAL][(reader trial-event)] may be rerun.
 
   - Also, see WITH-SKIP.
@@ -74,11 +74,10 @@
   (:documentation "A VERDICT is the OUTCOME of a TRIAL. It is one of
   `{EXPECTED,UNEXPECTED}-VERDICT-{SUCCESS,FAILURE}`, VERDICT-SKIP and
   VERDICT-ABORT*. Regarding how the verdict type is determined, see
-  @TRY/TRIAL-VERDICTS.
+  @TRIAL-VERDICTS.
 
   Verdicts are signalled while their [TRIAL][(reader trial-event)] is
-  still the CURRENT-TRIAL, and @TRY/TRIAL-RESTARTS are still
-  available.
+  still the CURRENT-TRIAL, and @TRIAL-RESTARTS are still available.
 
   ```cl-transcript (:check-consistency nil)
   (try (lambda ()

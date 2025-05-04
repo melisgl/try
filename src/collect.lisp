@@ -1,10 +1,9 @@
 (in-package :try)
 
-(defsection @try/collect (:title "Collecting Events")
+(defsection @collect (:title "Collecting Events")
   "When an EVENT is recorded and the type of the EVENT matches the
   COLLECT type argument of TRY, then a corresponding object is pushed
-  onto CHILDREN of the CURRENT-TRIAL for subsequent @TRY/RERUN or
-  @TRY/REPLAY.
+  onto CHILDREN of the CURRENT-TRIAL for subsequent @RERUN or @REPLAY.
 
   In particular, if the matching event is a LEAF, then the event
   itself is collected. If the matching event is a TRIAL-EVENT, then

@@ -1,6 +1,6 @@
 (in-package :try)
 
-(defsection @try/comparing-floats (:title "Comparing Floats")
+(defsection @comparing-floats (:title "Comparing Floats")
   "Float comparisons following
    [https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/](https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/)."
   (float-~= function)

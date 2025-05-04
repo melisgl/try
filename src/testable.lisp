@@ -1,6 +1,6 @@
 (in-package :try)
 
-(defsection @try/testables (:title "Testables")
+(defsection @testables (:title "Testables")
   "Valid first arguments to TRY are called testables. A testable may
   be:
 
@@ -15,9 +15,9 @@
 
   In the function designator cases, TRY calls the designated function.
   [TRIAL][class]s, being @FUNCALLABLE-INSTANCEs, designate themselves.
-  If the trial is not RUNNINGP, then it will be rerun (see
-  @TRY/RERUN). Don't invoke TRY with RUNNINGP trials (but see
-  @TRY/IMPLICIT-TRY-IMPLEMENTATION for discussion).
+  If the trial is not RUNNINGP, then it will be rerun (see @RERUN).
+  Don't invoke TRY with RUNNINGP trials (but see
+  @IMPLICIT-TRY-IMPLEMENTATION for discussion).
 
   When given a list of testables, TRY calls each testable one by one.
 

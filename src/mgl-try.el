@@ -149,7 +149,7 @@ with minor mode `mgl-try-mode'."
 
 (defun mgl-try-rerun-! ()
   "Rerun the most recent trial (TRY:!).
-This is subject to TRY:*TRY-RERUN*. See TRY::@TRY/RERUN."
+This is subject to TRY:*TRY-RERUN*. See TRY::@RERUN."
   (interactive)
   (mgl-try 'try:! nil))
 
@@ -188,14 +188,14 @@ TRY:*TRY-RERUN*."
 and show its subtree."
   (interactive)
   (mgl-try-previous-regexp mgl-try-not-expected-success-regexp
-                           "event that's not an expected succcess"))
+                           "event that's not an expected success"))
 
 (defun mgl-try-next-not-expected-success ()
   "Move point to the next event that's not an expected success,
 and show its subtree."
   (interactive)
   (mgl-try-next-regexp mgl-try-not-expected-success-regexp
-                       "event that's not an expected succcess"))
+                       "event that's not an expected success"))
 
 (defun mgl-try-previous-regexp (regexp what)
   (if (ignore-errors (search-backward-regexp regexp nil nil))
