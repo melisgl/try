@@ -1,9 +1,10 @@
 #!/bin/bash
 
-stop_on_failure="${1:-t}"
-debug="${2:-nil}"
-print="${3:-(quote try:unexpected)}"
-describe="${4:-(quote try:unexpected)}"
+lisp="$1"
+stop_on_failure="${2:-t}"
+debug="${3:-nil}"
+print="${4:-(quote try:unexpected)}"
+describe="${5:-(quote try:unexpected)}"
 num_passes=
 num_failures=
 
@@ -55,10 +56,14 @@ function run_tests {
 
 export LC_ALL=en_US.UTF-8
 
-run_tests lisp_tests sbcl --noinform
-run_tests lisp_tests allegro --batch --backtrace-on-error
-run_tests lisp_tests ccl-bin
-run_tests lisp_tests cmu-bin -batch
-run_tests lisp_tests ecl
-run_tests lisp_tests clisp -on-error exit
-run_tests lisp_tests abcl-bin
+if [ -n "${lisp}" ]; then
+  run_tests lisp_tests ${lisp}
+else
+  run_tests lisp_tests sbcl --noinform
+  #run_tests lisp_tests allegro --batch --backtrace-on-error
+  run_tests lisp_tests ccl-bin
+  run_tests lisp_tests cmu-bin -batch
+  run_tests lisp_tests ecl
+  run_tests lisp_tests clisp -on-error exit
+  run_tests lisp_tests abcl-bin
+fi
