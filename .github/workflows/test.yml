@@ -11,10 +11,11 @@ jobs:
       matrix:
         lisp: [sbcl-bin, ccl-bin, cmu-bin, ecl, clisp, abcl-bin]
         os: [ubuntu-latest]
+      fail-fast: false
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Let ASDF find the project
         run: mkdir ~/common-lisp; ln -s `pwd` ~/common-lisp/try
