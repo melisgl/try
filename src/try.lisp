@@ -413,4 +413,5 @@
           (throw 'nlx-barrier nil))))))
 
 (defun try-for-emacs/implicit (testable)
-  (funcall testable))
+  (funcall testable)
+  (values))

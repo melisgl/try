@@ -1436,9 +1436,8 @@ The default value of [`*CATEGORIES*`][e949] is
 which says that all concrete [`EVENT`][955d]s that are of type [`ABORT*`][8ec3] (i.e.
 [`RESULT-ABORT*`][ffab], [`VERDICT-ABORT*`][4805], [`UNHANDLED-ERROR`][8f78], and [`NLX`][b115]) are to
 be marked with `"⊟"` when printed (see [Printing Events][b3f9]). Also, the six
-types define six counters for [Counting Events][886e]. Note that [`UNEXPECTED`][d6ad]
-events have the same marker but squared as their [`EXPECTED`][b194]
-counterpart.
+types define six counters for [Counting Events][886e]. Note that [`UNEXPECTED`][d6ad] events
+have the same marker as their [`EXPECTED`][b194] counterpart but squared.
 
 <a id="x-28TRY-3A-2ACATEGORIES-2A-20VARIABLE-29"></a>
 

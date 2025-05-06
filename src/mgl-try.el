@@ -95,17 +95,23 @@ interactive debugging."
     (let ((name (if (stringp test-name)
                     `(cl:read-from-string
                       ,test-name)
-                  test-name)))
+                  test-name))
+          (rerun-msg (if rerun-all
+                         " (rerun all)"
+                       "")))
       (if current-prefix-arg
           (slime-eval-async `(swank::with-buffer-syntax
                               ()
-                              (try::try-for-emacs/implicit ,name)))
+                              (try::try-for-emacs/implicit ,name))
+            (lambda (output)
+              (message "Called %S%s" test-name rerun-msg)))
         (slime-eval-async `(swank::with-buffer-syntax
                             ()
                             (try::try-for-emacs ,name :rerun-all ,rerun-all))
           (lambda (output)
             (when (< 0 (length output))
-              (mgl-try-display output))))))))
+              (mgl-try-display output))
+            (message "Tried %S%s" test-name rerun-msg)))))))
 
 (defun mgl-try-display (output)
   (switch-to-buffer "*try*")

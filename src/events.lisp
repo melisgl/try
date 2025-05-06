@@ -249,10 +249,8 @@
   which says that all concrete EVENTs that are of type ABORT* (i.e.
   `RESULT-ABORT*`, `VERDICT-ABORT*`, UNHANDLED-ERROR, and NLX) are to
   be marked with `"⊟"` when printed (see @PRINT). Also, the six
-  types define six counters for @COUNT. Note that UNEXPECTED
-  events have the same marker but squared as their EXPECTED
-  counterpart.
-  """
+  types define six counters for @COUNT. Note that UNEXPECTED events
+  have the same marker as their EXPECTED counterpart but squared."""
   (*categories* (variable "- see above -"))
   (fancy-std-categories function)
   (ascii-std-categories function))
