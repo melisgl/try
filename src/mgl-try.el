@@ -54,7 +54,7 @@
     (define-key map (kbd "n") 'mgl-try-next-unexpected)
     (define-key map (kbd "P") 'mgl-try-previous-not-expected-success)
     (define-key map (kbd "N") 'mgl-try-next-not-expected-success)
-    (define-key map (kbd "t") 'mgl-try-try)
+    (define-key map (kbd "t") 'mgl-try)
     (define-key map (kbd "r") 'mgl-try-rerun-!)
     (define-key map (kbd "R") 'mgl-try-rerun-!-all)
     map))
@@ -80,23 +80,32 @@
 
 (defun mgl-try (test-name rerun-all)
   "Call the Try test TEST-NAME and display its output in a buffer
-with minor mode `mgl-try-mode'."
-  (interactive (list (mgl-try-read-from-minibuffer "Run test" nil
+with minor mode `mgl-try-mode'.
+
+With a prefix arg, FUNCALL TEST-NAME (see TRY::@IMPLICIT-TRY).
+With the default value of TRY:*DEBUG*, this is suitable for
+interactive debugging."
+  (interactive (list (mgl-try-read-from-minibuffer "Try test"
+                                                   (slime-symbol-at-point)
                                                    (car mgl-try-history)
                                                    'mgl-try-history)
                      nil))
   (if (slime-eval '(cl:not (cl:find-package :try)))
       (message "Try is not loaded on the Common Lisp side.")
-    (slime-eval-async `(swank::with-buffer-syntax
-                        ()
-                        (try::try-for-emacs ,(if (stringp test-name)
-                                                 `(cl:read-from-string
-                                                   ,test-name)
-                                               test-name)
-                                            :rerun-all ,rerun-all))
-      (lambda (output)
-        (when (< 0 (length output))
-          (mgl-try-display output))))))
+    (let ((name (if (stringp test-name)
+                    `(cl:read-from-string
+                      ,test-name)
+                  test-name)))
+      (if current-prefix-arg
+          (slime-eval-async `(swank::with-buffer-syntax
+                              ()
+                              (try::try-for-emacs/implicit ,name)))
+        (slime-eval-async `(swank::with-buffer-syntax
+                            ()
+                            (try::try-for-emacs ,name :rerun-all ,rerun-all))
+          (lambda (output)
+            (when (< 0 (length output))
+              (mgl-try-display output))))))))
 
 (defun mgl-try-display (output)
   (switch-to-buffer "*try*")
@@ -138,14 +147,6 @@ with minor mode `mgl-try-mode'."
 (defun mgl-try-insert-with-face (string face)
   (put-text-property 0 (length string) 'font-lock-face face string)
   (insert string))
-
-(defun mgl-try-try (test-name)
-  "Like `mgl-try', but defaults to the symbol under point."
-  (interactive (list (mgl-try-read-from-minibuffer "Run test"
-                                                   (slime-symbol-at-point)
-                                                   (car mgl-try-history)
-                                                   'mgl-try-history)))
-  (mgl-try test-name nil))
 
 (defun mgl-try-rerun-! ()
   "Rerun the most recent trial (TRY:!).

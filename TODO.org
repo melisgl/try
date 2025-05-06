@@ -77,4 +77,10 @@ prevented, but that would break other code (maybe Try's own tests).
 Maybe the right default is use the outer context but allows opt out?
 * MAYBE find the exact source location somehow with M-. on the repl output?
 PAX has MARK-THIS-SOURCE-LOCATION.
+
+Some of this is taken care of by rerunning (e.g. (FUNCALL !)), which
+will likely land in the debugger, and that has source location info.
+
+Or/and maybe in an mgl-try buffer, make mgl-try find the innermost
+named function to call.
 * MAYBE define try:% and try:%% globally for C-x C-e?

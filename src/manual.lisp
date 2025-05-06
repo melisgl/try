@@ -420,22 +420,25 @@
   displays its output in a `lisp-mode` buffer with minor modes
   `outline-mode` and `mgl-try-mode`. It is assumed that the Lisp is
   running under [Slime](https://slime.common-lisp.dev/). In the
-  buffer,
+  buffer, the following key bindings are available.
 
-  - use `\\M-.` to visit a test function;
+  - `\\M-.` to visit a test function.
 
-  - move between UNEXPECTED events with keys `p` and `n`;
+  - `p` and `n` to move between UNEXPECTED events.
 
-  - move between events which are not EXPECTED-SUCCESSes with `\\P`
-    and `\\N`;
+  - `\\P` and `\\N` to move between events which are not
+    EXPECTED-SUCCESSes.
 
-  - rerun the most recent trial (TRY:!) with `r` (subject to the
-    filtering described @RERUN);
+  - `t` to run an arbitrary test (defaults to symbol under point).
+    With a prefix arg, the test is called directly (see
+    TRY::@IMPLICIT-TRY) with no arguments.
 
-  - rerun the most recently finished test with `\\R` (and all tests it
-    calls);
+  - `r` to rerun the most recent trial (TRY:!), subject to the
+    filtering described @RERUN. With a prefix arg, the test is called
+    directly.
 
-  - run an arbitrary test with `t` (defaults to symbol under point);
+  - `\\R` to rerun the most recently finished test (and all tests it
+    calls). With a prefix arg, the test is called directly.
 
   - some low-level outline mode commands are also given convenient
     bindings:
@@ -460,6 +463,15 @@
   
   ```elisp
   (load "~/quicklisp/mgl-try.el")
+  ```
+
+  For easy access to the functionality of the keys `t`, `r` and `R`
+  described in @EMACS, you may want to bind them in all Slime buffers:
+
+  ```elisp
+  (global-set-key (kbd "s-t t") 'mgl-try)
+  (global-set-key (kbd "s-t r") 'mgl-try-rerun-!)
+  (global-set-key (kbd "s-t R") 'mgl-try-rerun-!-all)
   ```"""
   (install-try-elisp function))
 

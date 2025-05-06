@@ -480,22 +480,25 @@ The Elisp `mgl-try` interactive command runs a Try test and
 displays its output in a `lisp-mode` buffer with minor modes
 `outline-mode` and `mgl-try-mode`. It is assumed that the Lisp is
 running under [Slime](https://slime.common-lisp.dev/). In the
-buffer,
+buffer, the following key bindings are available.
 
-- use `M-.` to visit a test function;
+- `M-.` to visit a test function.
 
-- move between [`UNEXPECTED`][d6ad] events with keys `p` and `n`;
+- `p` and `n` to move between [`UNEXPECTED`][d6ad] events.
 
-- move between events which are not [`EXPECTED-SUCCESS`][c96a]es with `P`
-  and `N`;
+- `P` and `N` to move between events which are not
+  [`EXPECTED-SUCCESS`][c96a]es.
 
-- rerun the most recent trial ([`TRY:!`][92af]) with `r` (subject to the
-  filtering described [Rerunning Trials][e4ac]);
+- `t` to run an arbitrary test (defaults to symbol under point).
+  With a prefix arg, the test is called directly (see
+  [Calling Test Functions][012f]) with no arguments.
 
-- rerun the most recently finished test with `R` (and all tests it
-  calls);
+- `r` to rerun the most recent trial ([`TRY:!`][92af]), subject to the
+  filtering described [Rerunning Trials][e4ac]. With a prefix arg, the test is called
+  directly.
 
-- run an arbitrary test with `t` (defaults to symbol under point);
+- `R` to rerun the most recently finished test (and all tests it
+  calls). With a prefix arg, the test is called directly.
 
 - some low-level outline mode commands are also given convenient
   bindings:
@@ -523,6 +526,15 @@ something like this to your `.emacs`:
 
 ```elisp
 (load "~/quicklisp/mgl-try.el")
+```
+
+For easy access to the functionality of the keys `t`, `r` and `R`
+described in [Emacs Integration][4c86], you may want to bind them in all Slime buffers:
+
+```elisp
+(global-set-key (kbd "s-t t") 'mgl-try)
+(global-set-key (kbd "s-t r") 'mgl-try-rerun-!)
+(global-set-key (kbd "s-t R") 'mgl-try-rerun-!-all)
 ```
 
 

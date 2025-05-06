@@ -411,3 +411,6 @@
                   :stream (make-broadcast-stream *standard-output* out)
                   :rerun (if rerun-all t *try-rerun*))
           (throw 'nlx-barrier nil))))))
+
+(defun try-for-emacs/implicit (testable)
+  (funcall testable))
