@@ -47,7 +47,7 @@
 (defmethod write-event ((unhandled-error unhandled-error) stream
                         &key terse ctx)
   (let ((c (nested-condition unhandled-error)))
-    (pprint-logical-block (stream nil :per-line-prefix "")
+    (pprint-logical-block (stream nil)
       (cond (terse
              (when (debugger-invoked-p unhandled-error)
                (format stream "debugger invoked on "))
@@ -70,7 +70,7 @@
 
 (defmethod write-event ((nlx nlx) stream &key terse ctx)
   (declare (ignore ctx))
-  (pprint-logical-block (stream nil :per-line-prefix "")
+  (pprint-logical-block (stream nil)
     (if terse
         (format stream "~@<non-local exit~@[~A~]~:@>"
                 (ignore-errors (extra-message nlx)))

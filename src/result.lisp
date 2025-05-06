@@ -32,7 +32,7 @@
 (defun %write-result (result stream &key terse ctx)
   (setf (print-form-memoization-data result)
         (or (print-form-memoization-data result) (make-hash-table)))
-  (pprint-logical-block (stream nil :per-line-prefix "")
+  (pprint-logical-block (stream nil)
     (%write-result-msg result stream :terse terse)
     (when ctx
       (%write-result-captures result stream)
@@ -88,7 +88,7 @@
     (let ((captures (captures result)))
       (when captures
         (format stream "~:@_where~:@_")
-        (pprint-logical-block (stream nil :per-line-prefix "  ")
+        (pprint-logical-block (stream nil)
           (loop
             for capture in captures
             for i upfrom 0
@@ -99,11 +99,10 @@
                  (let ((subform (%frob-form-for-printing result subform)))
                    (if valuesp
                        (pprint-logical-block (stream nil)
-                         (format stream "~S == " subform)
-                         (pprint-logical-block (stream nil
-                                                       :per-line-prefix "")
+                         (format stream "  ~S == " subform)
+                         (pprint-logical-block (stream nil)
                            (format stream "~{~S~^~:@_~}" value)))
-                       (format stream "~@<~S = ~S~:@>"
+                       (format stream "~@<  ~S = ~S~:@>"
                                subform value))
                    (when (and (stringp value) (find #\Newline value))
                      (format stream "~:@_"))))))))))
