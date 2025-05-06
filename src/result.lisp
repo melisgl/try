@@ -66,7 +66,7 @@
   (cond (terse
          (%%write-result-msg result stream))
         (t
-         (format stream "~@<~A in check:~:@_~:@>"
+         (format stream "~@<~S in check:~:@_~:@>"
                  (event-category result *categories*))
          (pprint-logical-block (stream nil :per-line-prefix "  ")
            (%%write-result-msg result stream)))))

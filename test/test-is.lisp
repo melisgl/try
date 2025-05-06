@@ -26,26 +26,27 @@
       (is t :msg msg))))
 
 (deftest test-is/print-newline ()
-  (with-failure-expected ((alexandria:featurep :clisp))
-    (is (null (mismatch% (handler-case
-                             (is t :msg "FORMAT-CONTROL~%with new line.")
-                           (outcome (c)
-                             (with-output-to-string (s)
-                               (try::write-event c s :ctx t :terse nil))))
-                         "EXPECTED-SUCCESS in check:
+  (let ((*package* (find-package :cl-user)))
+    (with-failure-expected ((alexandria:featurep :clisp))
+      (is (null (mismatch% (handler-case
+                               (is t :msg "FORMAT-CONTROL~%with new line.")
+                             (outcome (c)
+                               (with-output-to-string (s)
+                                 (try::write-event c s :ctx t :terse nil))))
+                           "TRY:EXPECTED-SUCCESS in check:
   FORMAT-CONTROL
   with new line."))))
-  (with-failure-expected ((alexandria:featurep '(:or :abcl :allegro :clisp)))
-    (is (null (mismatch% (handler-case
-                             (is t :msg (list "FORMAT-ARGS~A with new line."
-                                              (format nil "~%")))
-                           (outcome (c)
-                             (with-output-to-string (s)
-                               (try::write-event c s :ctx t :terse nil))))
-                         "EXPECTED-SUCCESS in check:
+    (with-failure-expected ((alexandria:featurep '(:or :abcl :allegro :clisp)))
+      (is (null (mismatch% (handler-case
+                               (is t :msg (list "FORMAT-ARGS~A with new line."
+                                                (format nil "~%")))
+                             (outcome (c)
+                               (with-output-to-string (s)
+                                 (try::write-event c s :ctx t :terse nil))))
+                           "TRY:EXPECTED-SUCCESS in check:
   FORMAT-ARGS
 
-  with new line.")))))
+  with new line."))))))
 
 (deftest test-is/failure-debug-info ()
   (signals ((and unexpected failure) :pred "debug info")
