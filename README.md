@@ -529,7 +529,7 @@ something like this to your `.emacs`:
 ```
 
 For easy access to the functionality of the keys `t`, `r` and `R`
-described in [Emacs Integration][4c86], you may want to bind them in all Slime buffers:
+described in [Emacs Integration][4c86], you may want give them a global binding:
 
 ```elisp
 (global-set-key (kbd "s-t t") 'mgl-try)

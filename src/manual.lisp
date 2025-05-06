@@ -466,7 +466,7 @@
   ```
 
   For easy access to the functionality of the keys `t`, `r` and `R`
-  described in @EMACS, you may want to bind them in all Slime buffers:
+  described in @EMACS, you may want give them a global binding:
 
   ```elisp
   (global-set-key (kbd "s-t t") 'mgl-try)
