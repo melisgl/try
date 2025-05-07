@@ -293,9 +293,9 @@
          (push (list ',form ,%values t t) *is-captures*))
        (values-list ,%values))))
 
-(define-symbol-locative-type macrolet ())
+(dref-ext:define-symbol-locative-type macrolet ())
 
-(define-definer-for-symbol-locative-type define-macrolet macrolet)
+(dref-ext:define-definer-for-symbol-locative-type define-macrolet macrolet)
 
 (define-macrolet % (form)
   "An alias for CAPTURE in the lexical scope of IS. Removed from the
