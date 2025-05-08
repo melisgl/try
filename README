@@ -1614,7 +1614,8 @@ When it is a function, it matches if it returns true when called
 with the condition as its argument.
 
 The check is performed in the cleanup form of an UNWIND-PROTECT
-around BODY.
+around BODY. If the CURRENT-TRIAL is performing an ABORT-TRIAL,
+SKIP-TRIAL or RETRY-TRIAL, then RESULT-SKIP is signalled.
 
 HANDLER is called when a matching condition is found. It can be a
 function, T, or NIL. When it is a function, it is called from the

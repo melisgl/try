@@ -20,7 +20,10 @@
   (test-signals/success/msg)
   (test-signals/failure/debug)
   (test-signals/rewrite)
-  (test-signals/restarts))
+  (test-signals/restarts)
+  (test-signals/skip-trial)
+  (test-signals/abort-trial)
+  (test-signals/retry-trial))
 
 (define-condition cond-a ()
   ())
@@ -164,6 +167,51 @@
                                          (signal 'cond-a)
                                          47)))))))))
                   '((expected-success 4))))
+
+
+(deftest %skip-signals ()
+  (signals (error)
+    (skip-trial)))
+
+(deftest test-signals/skip-trial ()
+  (check-try-output ('%skip-signals :print t :describe nil)
+                    "%SKIP-SIGNALS
+  - (SKIP-TRIAL) signals a condition of type ERROR.
+- %SKIP-SIGNALS -1
+"))
+
+
+(deftest %abort-signals ()
+  (signals (error)
+    (abort-trial)))
+
+(deftest test-signals/abort-trial ()
+  (check-try-output ('%abort-signals :print t :describe nil)
+                    "%ABORT-SIGNALS
+  - (ABORT-TRIAL) signals a condition of type ERROR.
+! %ABORT-SIGNALS -1
+"))
+
+
+(defvar *n-retries*)
+
+(deftest %retry-signals ()
+  (signals (error)
+    (when (<= 0 (decf *n-retries*))
+      (retry-trial))))
+
+(deftest test-signals/retry-trial ()
+  #-cmucl
+  (let ((*n-retries* 1))
+    (check-try-output ('%retry-signals :print t :describe nil)
+                      "%RETRY-SIGNALS
+  - (WHEN (<= 0 (DECF *N-RETRIES*)) (RETRY-TRIAL)) signals a condition of type
+    ERROR.
+%RETRY-SIGNALS retry #1
+  × (WHEN (<= 0 (DECF *N-RETRIES*)) (RETRY-TRIAL)) signals a condition of type
+    ERROR.
+× %RETRY-SIGNALS ×1
+")))
 
 
 (deftest test-signals-not ()

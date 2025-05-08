@@ -785,6 +785,9 @@
                                     (abort-trial c)))
       (error 'my-err)))
   (invokes-debugger-not (t)
+    ;; Due to (SET-TRY-DEBUG NIL), this does not invoke the debugger
+    ;; but is resignalled as UNHANDLED-ERROR, which triggers and
+    ;; ABORT-TRIAL.
     (error 'my-err)))
 
 (deftest test-set-try-debug ()
@@ -793,11 +796,11 @@
                     "%SET-TRY-DEBUG
   NIL
     ! \"my-msg\" (MY-ERR)
-    ✓ (ERROR 'MY-ERR) invokes the debugger with a condition of type T.
-  ! NIL !1 ✓1
+    - (ERROR 'MY-ERR) invokes the debugger with a condition of type T.
+  ! NIL !1 -1
   ! \"my-msg\" (MY-ERR)
-  ✓ (ERROR 'MY-ERR) does not invoke the debugger with a condition of type T.
-! %SET-TRY-DEBUG !2 ✓2
+  - (ERROR 'MY-ERR) does not invoke the debugger with a condition of type T.
+! %SET-TRY-DEBUG !2 -2
 "))
 
 

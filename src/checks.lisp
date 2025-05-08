@@ -38,7 +38,8 @@
   with the condition as its argument.
 
   The check is performed in the cleanup form of an UNWIND-PROTECT
-  around BODY.
+  around BODY. If the CURRENT-TRIAL is performing an ABORT-TRIAL,
+  SKIP-TRIAL or RETRY-TRIAL, then RESULT-SKIP is signalled.
 
   HANDLER is called when a matching condition is found. It can be a
   function, T, or NIL. When it is a function, it is called from the
@@ -116,15 +117,19 @@
              (lambda (,finishedp)
                (when (or (and ,finishedp ,on-return)
                          (and (not ,finishedp) ,on-nlx))
-                 (when (eq :retry
-                           (let ((*condition-matched-p* ,matchedp)
-                                 (*best-matching-condition* ,best-match))
-                             (,check-function
-                              ',condition-type ',pred ,name
-                              ,(canonicalize-format-specifier-form msg)
-                              ,(canonicalize-format-specifier-form ctx)
-                              ',body)))
-                   (go ,%retry))))))))))
+                 ;; If the current trial is being aborted, skipped or
+                 ;; retried, then skip this check too.
+                 (let ((*skip* (and *trial*
+                                    (not (eq (how-to-end *trial*) :return)))))
+                   (when (eq :retry
+                             (let ((*condition-matched-p* ,matchedp)
+                                   (*best-matching-condition* ,best-match))
+                               (,check-function
+                                ',condition-type ',pred ,name
+                                ,(canonicalize-format-specifier-form msg)
+                                ,(canonicalize-format-specifier-form ctx)
+                                ',body)))
+                     (go ,%retry)))))))))))
 
 (defun %match-condition (condition condition-type pred)
   (cond ((not (typep condition condition-type))

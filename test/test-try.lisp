@@ -294,8 +294,7 @@
                 :print nil
                 :describe nil
                 :debug 'unhandled-error))))
-    (is (equal event-counts (to-counts '((abort* 1)
-                                         (expected-success 1)))))))
+    (is (equal event-counts (to-counts '((abort* 1) (skip 1)))))))
 
 (deftest test-try/debug-first-restart-continues ()
   (try::with-debugger-hook #'invoke-first-restart
