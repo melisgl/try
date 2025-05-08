@@ -50,6 +50,7 @@
     (define-key map (kbd "C-P") 'outline-previous-visible-heading)
     (define-key map (kbd "C-n") 'outline-next-visible-heading)
     (define-key map (kbd "U") 'outline-up-heading)
+    (define-key map (kbd "q") 'quit-window)
     (define-key map (kbd "p") 'mgl-try-previous-unexpected)
     (define-key map (kbd "n") 'mgl-try-next-unexpected)
     (define-key map (kbd "P") 'mgl-try-previous-not-expected-success)

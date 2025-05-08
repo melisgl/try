@@ -56,10 +56,12 @@
 
 ;;; Regenerate documentation
 #+nil
-(let ((pax:*document-max-numbering-level* 4)
-      (pax:*document-max-table-of-contents-level* 4)
-      (pax:*document-html-max-navigation-table-of-contents-level* 3))
-  (update-asdf-system-readmes @try-manual :try
-                              :formats '(:plain :markdown))
-  (update-asdf-system-html-docs @try-manual :try
-                                :pages (pax-pages)))
+(progn
+  (asdf:load-system "mgl-pax/full")
+  (let ((pax:*document-max-numbering-level* 4)
+        (pax:*document-max-table-of-contents-level* 4)
+        (pax:*document-html-max-navigation-table-of-contents-level* 3))
+    (update-asdf-system-readmes @try-manual :try
+                                :formats '(:plain :markdown))
+    (update-asdf-system-html-docs @try-manual :try
+                                  :pages (pax-pages))))

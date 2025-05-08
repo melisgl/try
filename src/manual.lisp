@@ -446,7 +446,8 @@
           <tab>           outline-cycle
           C-p             outline-previous-visible-heading
           C-n             outline-next-visible-heading
-          U               outline-up-heading"""
+          U               outline-up-heading
+          q               quit-window"""
   (@emacs-setup section))
 
 (defsection @emacs-setup (:title "Emacs Setup")

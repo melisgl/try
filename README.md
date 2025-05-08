@@ -507,6 +507,7 @@ buffer, the following key bindings are available.
         C-p             outline-previous-visible-heading
         C-n             outline-next-visible-heading
         U               outline-up-heading
+        q               quit-window
 
 
 <a id="x-28TRY-3A-40EMACS-SETUP-20MGL-PAX-3ASECTION-29"></a>
