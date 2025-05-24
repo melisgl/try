@@ -142,7 +142,7 @@
   (:documentation "The third possibility after SUCCESS and FAILURE.
   Either SKIP or ABORT*."))
 
-(define-condition abort* (unexpected) ()
+(define-condition abort* (unexpected dismissal) ()
   (:documentation "`RESULT-ABORT*`, `VERDICT-ABORT*` or ERROR*."))
 
 
@@ -160,11 +160,11 @@
   '(and unexpected failure))
 
 (deftype pass ()
-  "An OUTCOME that's not an ABORT* or an UNEXPECTED FAILURE.
+  "An OUTCOME that's not an ABORT* or an UNEXPECTED-FAILURE.
   PASS is equivalent to `(NOT FAIL)`."
   '(and outcome (not (or abort* unexpected-failure))))
 (deftype fail ()
-  "An ABORT* or an UNEXPECTED FAILURE. See PASS."
+  "An ABORT* or an UNEXPECTED-FAILURE. See PASS."
   '(or abort* unexpected-failure))
 
 

@@ -674,7 +674,7 @@ RESULT)`.
 
 <a id="x-28TRY-3AABORT-2A-20CONDITION-29"></a>
 
-- [condition] **ABORT\*** *[UNEXPECTED][d6ad]*
+- [condition] **ABORT\*** *[UNEXPECTED][d6ad] [DISMISSAL][0992]*
 
     [`RESULT-ABORT*`][ffab], [`VERDICT-ABORT*`][4805] or [`ERROR*`][0321].
 
@@ -718,14 +718,14 @@ RESULT)`.
 
 - [type] **PASS**
 
-    An [`OUTCOME`][2656] that's not an [`ABORT*`][8ec3] or an [`UNEXPECTED`][d6ad] [`FAILURE`][f92d].
+    An [`OUTCOME`][2656] that's not an [`ABORT*`][8ec3] or an [`UNEXPECTED-FAILURE`][b5cb].
     `PASS` is equivalent to `(NOT FAIL)`.
 
 <a id="x-28TRY-3AFAIL-20TYPE-29"></a>
 
 - [type] **FAIL**
 
-    An [`ABORT*`][8ec3] or an [`UNEXPECTED`][d6ad] [`FAILURE`][f92d]. See [`PASS`][21d9].
+    An [`ABORT*`][8ec3] or an [`UNEXPECTED-FAILURE`][b5cb]. See [`PASS`][21d9].
 
 <a id="x-28TRY-3A-40PRINTING-EVENTS-20MGL-PAX-3ASECTION-29"></a>
 

@@ -592,7 +592,7 @@ RESULT)`.
     The third possibility after SUCCESS and FAILURE.
     Either SKIP or ABORT\*.
 
-- [condition] ABORT* UNEXPECTED
+- [condition] ABORT* UNEXPECTED DISMISSAL
 
     `RESULT-ABORT*`, `VERDICT-ABORT*` or ERROR\*.
 
@@ -622,12 +622,12 @@ RESULT)`.
 
 - [type] PASS
 
-    An OUTCOME that's not an ABORT\* or an UNEXPECTED FAILURE.
+    An OUTCOME that's not an ABORT\* or an UNEXPECTED-FAILURE.
     PASS is equivalent to `(NOT FAIL)`.
 
 - [type] FAIL
 
-    An ABORT\* or an UNEXPECTED FAILURE. See PASS.
+    An ABORT\* or an UNEXPECTED-FAILURE. See PASS.
 
 ### Printing Events
 
