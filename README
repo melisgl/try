@@ -727,7 +727,6 @@ Only RECORD-EVENT is applicable to all EVENTs. See
     ==> #<TRIAL (WITH-TEST (T1)) EXPECTED-FAILURE 0.004s ⊠1>
     ```
 
-
 - [macro] WITH-FAILURE-EXPECTED (&OPTIONAL (RESULT-EXPECTED-TYPE T) (VERDICT-EXPECTED-TYPE ''SUCCESS)) &BODY BODY
 
     A convenience macro on top of WITH-EXPECTED-OUTCOME,
@@ -916,7 +915,6 @@ it, and it can be changed with the @OUTCOME-RESTARTS and the
     
     - Also, see WITH-SKIP.
 
-
 - [condition] VERDICT TRIAL-EVENT OUTCOME
 
     A VERDICT is the OUTCOME of a TRIAL. It is one of
@@ -944,7 +942,6 @@ it, and it can be changed with the @OUTCOME-RESTARTS and the
     ..
     ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {53038ADB}>) EXPECTED-SUCCESS 0.000s ⋅1>
     ```
-
 
 - [condition] EXPECTED-VERDICT-SUCCESS EXPECTED VERDICT SUCCESS
 
@@ -1136,7 +1133,6 @@ dropped.
     ..
     ```
 
-
 - [function] RETRY-TRIAL &OPTIONAL CONDITION (TRIAL (CURRENT-TRIAL))
 
     Invoke the RETRY-TRIAL restart of RUNNINGP TRIAL. The RETRY-TRIAL
@@ -1247,7 +1243,6 @@ have the same marker as their EXPECTED counterpart but squared.
       (expected-failure   :marker "f")
       (expected-success   :marker "."))
     ```
-
 
 ## The IS Macro
 
@@ -1457,7 +1452,7 @@ functionality such as MATCH-VALUES.
 
 ##### Writing Automatic Capture Rules
 
-- [class] SUB STRUCTURE-OBJECT
+- [structure] SUB
 
     A SUB (short for substitution) says that in the original form IS is
     checking, a SUBFORM was substituted (by SUBSTITUTE-IS-FORM) with
@@ -1504,7 +1499,6 @@ functionality such as MATCH-VALUES.
         where
           #1# = <return-value-of-foo>
           #2# = <value-of-variable-list>
-
 
 #### Explicit Captures
 
@@ -1673,7 +1667,6 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     ..   The predicate did not match "xxx".
     ```
 
-
 - [macro] SIGNALS-NOT (CONDITION-TYPE &KEY PRED (HANDLER T) (ON-RETURN T) (ON-NLX T) NAME MSG CTX) &BODY BODY
 
     Check that BODY does not signal a CONDITION of CONDITION-TYPE (not
@@ -1700,7 +1693,6 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
         (error "xxx")))
     => NIL
     ```
-
 
 - [macro] INVOKES-DEBUGGER-NOT (CONDITION-TYPE &KEY PRED (HANDLER T) (ON-RETURN T) (ON-NLX T) NAME MSG CTX) &BODY BODY
 
@@ -1864,7 +1856,6 @@ functions and macros that may be useful for writing IS checks.
           (string= * "sdf")))
     ```
 
-
 - [function] MISMATCH% SEQUENCE1 SEQUENCE2 &KEY FROM-END (TEST \#'EQL) (START1 0) END1 (START2 0) END2 KEY MAX-PREFIX-LENGTH MAX-SUFFIX-LENGTH
 
     Like CL:MISMATCH but CAPTUREs and returns the common prefix and
@@ -1899,7 +1890,6 @@ functions and macros that may be useful for writing IS checks.
     ..     #1# = 7
     ```
 
-
 - [function] DIFFERENT-ELEMENTS SEQUENCE1 SEQUENCE2 &KEY (PRED \#'EQL) (MISSING :MISSING)
 
     Return the different elements under PRED in the given sequences as
@@ -1916,7 +1906,6 @@ functions and macros that may be useful for writing IS checks.
     ..     #1# = ((:INDEX 1 2 B) (:INDEX 3 :MISSING D))
     ```
 
-
 - [function] SAME-SET-P LIST1 LIST2 &KEY KEY (TEST \#'EQL)
 
     See if LIST1 and LIST2 represent the same set.
@@ -1932,7 +1921,6 @@ functions and macros that may be useful for writing IS checks.
     ..     ONLY-IN-2 = (2)
     ```
 
-
 - [macro] WITH-SHUFFLING NIL &BODY BODY
 
     Execute the forms that make up the list of forms BODY in random
@@ -1947,7 +1935,6 @@ functions and macros that may be useful for writing IS checks.
     .. 122112
     => NIL
     ```
-
 
 #### Comparing Floats
 
@@ -2051,7 +2038,6 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     => 2
     => 3
     ```
-
 
 - [variable] *RUN-DEFTEST-WHEN* NIL
 
@@ -2205,7 +2191,6 @@ See DEFTEST and WITH-TEST for more precise descriptions.
                       :print 'unexpected
                       :describe 'unexpected)))))
     ```
-
 
 ### Calling Test Functions
 
@@ -2617,7 +2602,6 @@ setups.
     ==> #<TRIAL (WITH-TEST (OUTER)) EXPECTED-SUCCESS 0.000s ⋅2>
     ```
 
-
 - [variable] *PRINT-INDENTATION* 2
 
     The number of spaces each printed TRIAL increases the indentation
@@ -2709,7 +2693,6 @@ setups.
     ..
     ==> #<TRIAL (WITH-TEST (OUTER)) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅10>
     ```
-
 
 ### Counting Events
 
@@ -2860,7 +2843,6 @@ TRIAL object.
     .. "my-msg" (MY-ERR)
     ```
 
-
 ## Implementation Notes
 
 Try is supported on ABCL, AllegroCL, CLISP, CCL, CMUCL, ECL and
@@ -2903,7 +2885,6 @@ SBCL.
           (throw 'bar 'bar))))
     => BAR
     ```
-
 
   [0321]: #TRY:ERROR*%20CONDITION "TRY:ERROR* CONDITION"
   [8f78]: #TRY:UNHANDLED-ERROR%20CONDITION "TRY:UNHANDLED-ERROR CONDITION"

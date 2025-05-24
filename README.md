@@ -839,7 +839,6 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
     ==> #<TRIAL (WITH-TEST (T1)) EXPECTED-FAILURE 0.004s ⊠1>
     ```
 
-
 <a id="x-28TRY-3AWITH-FAILURE-EXPECTED-20MGL-PAX-3AMACRO-29"></a>
 
 - [macro] **WITH-FAILURE-EXPECTED** *(&OPTIONAL (RESULT-EXPECTED-TYPE T) (VERDICT-EXPECTED-TYPE ''SUCCESS)) &BODY BODY*
@@ -1080,7 +1079,6 @@ it, and it can be changed with the [Outcome Restarts][7ef5] and the
     
     - Also, see [`WITH-SKIP`][b71e].
 
-
 <a id="x-28TRY-3AVERDICT-20CONDITION-29"></a>
 
 - [condition] **VERDICT** *[TRIAL-EVENT][b36a] [OUTCOME][2656]*
@@ -1110,7 +1108,6 @@ it, and it can be changed with the [Outcome Restarts][7ef5] and the
     ..
     ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {53038ADB}>) EXPECTED-SUCCESS 0.000s ⋅1>
     ```
-
 
 <a id="x-28TRY-3AEXPECTED-VERDICT-SUCCESS-20CONDITION-29"></a>
 
@@ -1330,7 +1327,6 @@ dropped.
     ..
     ```
 
-
 <a id="x-28TRY-3ARETRY-TRIAL-20FUNCTION-29"></a>
 
 - [function] **RETRY-TRIAL** *&OPTIONAL CONDITION (TRIAL (CURRENT-TRIAL))*
@@ -1471,7 +1467,6 @@ have the same marker as their [`EXPECTED`][b194] counterpart but squared.
       (expected-failure   :marker "f")
       (expected-success   :marker "."))
     ```
-
 
 <a id="x-28TRY-3A-40IS-20MGL-PAX-3ASECTION-29"></a>
 
@@ -1699,9 +1694,9 @@ functionality such as [`MATCH-VALUES`][162a].
 
 ##### 5.2.1.1 Writing Automatic Capture Rules
 
-<a id="x-28TRY-3ASUB-20CLASS-29"></a>
+<a id="x-28TRY-3ASUB-20STRUCTURE-29"></a>
 
-- [class] **SUB** *[STRUCTURE-OBJECT][2038]*
+- [structure] **SUB**
 
     A `SUB` (short for substitution) says that in the original form [`IS`][80d6] is
     checking, a `SUBFORM` was substituted (by `SUBSTITUTE-IS-FORM`) with
@@ -1737,7 +1732,7 @@ functionality such as [`MATCH-VALUES`][162a].
 
     In the list `FORM`, whose [`CAR`][d5a2] is `FIRST`, substitute
     subexpressions of interest with a [`GENSYM`][0e59] and return the new form. As
-    the second value, return a list of [`SUB`][6b0e]s.
+    the second value, return a list of [`SUB`][47d5]s.
     
     For example, consider `(IS (FIND (FOO) LIST))`. When
     `SUBSTITUTE-IS-LIST-FORM` is invoked on `(FIND (FOO) LIST)`, it
@@ -1760,7 +1755,6 @@ functionality such as [`MATCH-VALUES`][162a].
         where
           #1# = <return-value-of-foo>
           #2# = <value-of-variable-list>
-
 
 <a id="x-28TRY-3A-40EXPLICIT-CAPTURES-20MGL-PAX-3ASECTION-29"></a>
 
@@ -1949,7 +1943,6 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
     ..   The predicate did not match "xxx".
     ```
 
-
 <a id="x-28TRY-3ASIGNALS-NOT-20MGL-PAX-3AMACRO-29"></a>
 
 - [macro] **SIGNALS-NOT** *(CONDITION-TYPE &KEY PRED (HANDLER T) (ON-RETURN T) (ON-NLX T) NAME MSG CTX) &BODY BODY*
@@ -1980,7 +1973,6 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
         (error "xxx")))
     => NIL
     ```
-
 
 <a id="x-28TRY-3AINVOKES-DEBUGGER-NOT-20MGL-PAX-3AMACRO-29"></a>
 
@@ -2160,7 +2152,6 @@ functions and macros that may be useful for writing [`IS`][80d6] checks.
           (string= * "sdf")))
     ```
 
-
 <a id="x-28TRY-3AMISMATCH-25-20FUNCTION-29"></a>
 
 - [function] **MISMATCH%** *SEQUENCE1 SEQUENCE2 &KEY FROM-END (TEST \#'EQL) (START1 0) END1 (START2 0) END2 KEY MAX-PREFIX-LENGTH MAX-SUFFIX-LENGTH*
@@ -2197,7 +2188,6 @@ functions and macros that may be useful for writing [`IS`][80d6] checks.
     ..     #1# = 7
     ```
 
-
 <a id="x-28TRY-3ADIFFERENT-ELEMENTS-20FUNCTION-29"></a>
 
 - [function] **DIFFERENT-ELEMENTS** *SEQUENCE1 SEQUENCE2 &KEY (PRED \#'EQL) (MISSING :MISSING)*
@@ -2216,7 +2206,6 @@ functions and macros that may be useful for writing [`IS`][80d6] checks.
     ..     #1# = ((:INDEX 1 2 B) (:INDEX 3 :MISSING D))
     ```
 
-
 <a id="x-28TRY-3ASAME-SET-P-20FUNCTION-29"></a>
 
 - [function] **SAME-SET-P** *LIST1 LIST2 &KEY KEY (TEST \#'EQL)*
@@ -2234,7 +2223,6 @@ functions and macros that may be useful for writing [`IS`][80d6] checks.
     ..     ONLY-IN-2 = (2)
     ```
 
-
 <a id="x-28TRY-3AWITH-SHUFFLING-20MGL-PAX-3AMACRO-29"></a>
 
 - [macro] **WITH-SHUFFLING** *NIL &BODY BODY*
@@ -2251,7 +2239,6 @@ functions and macros that may be useful for writing [`IS`][80d6] checks.
     .. 122112
     => NIL
     ```
-
 
 <a id="x-28TRY-3A-40COMPARING-FLOATS-20MGL-PAX-3ASECTION-29"></a>
 
@@ -2371,7 +2358,6 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
     => 2
     => 3
     ```
-
 
 <a id="x-28TRY-3A-2ARUN-DEFTEST-WHEN-2A-20VARIABLE-29"></a>
 
@@ -2537,7 +2523,6 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
                       :print 'unexpected
                       :describe 'unexpected)))))
     ```
-
 
 <a id="x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
 
@@ -3009,7 +2994,6 @@ setups.
     ==> #<TRIAL (WITH-TEST (OUTER)) EXPECTED-SUCCESS 0.000s ⋅2>
     ```
 
-
 <a id="x-28TRY-3A-2APRINT-INDENTATION-2A-20VARIABLE-29"></a>
 
 - [variable] **\*PRINT-INDENTATION\*** *2*
@@ -3109,7 +3093,6 @@ setups.
     ..
     ==> #<TRIAL (WITH-TEST (OUTER)) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅10>
     ```
-
 
 <a id="x-28TRY-3A-40COUNT-20MGL-PAX-3ASECTION-29"></a>
 
@@ -3272,7 +3255,6 @@ happens, the corresponding function call immediately returns the
     .. "my-msg" (MY-ERR)
     ```
 
-
 <a id="x-28TRY-3A-40IMPLEMENTATION-NOTES-20MGL-PAX-3ASECTION-29"></a>
 
 ## 8 Implementation Notes
@@ -3324,7 +3306,6 @@ SBCL.
     => BAR
     ```
 
-
   [0126]: #x-28TRY-3A-2ASTREAM-2A-20VARIABLE-29 "TRY:*STREAM* VARIABLE"
   [012f]: #x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Calling Test Functions"
   [02a3]: http://www.lispworks.com/documentation/HyperSpec/Body/f_abortc.htm "CONTINUE (MGL-PAX:CLHS FUNCTION)"
@@ -3351,7 +3332,6 @@ SBCL.
   [1d5a]: http://www.lispworks.com/documentation/HyperSpec/Body/t_pkg.htm "PACKAGE (MGL-PAX:CLHS CLASS)"
   [1d97]: #x-28TRY-3AWITH-EXPECTED-OUTCOME-20MGL-PAX-3AMACRO-29 "TRY:WITH-EXPECTED-OUTCOME MGL-PAX:MACRO"
   [1eb3]: http://www.lispworks.com/documentation/HyperSpec/Body/f_1pl_1_.htm "1+ (MGL-PAX:CLHS FUNCTION)"
-  [2038]: http://www.lispworks.com/documentation/HyperSpec/Body/t_stu_ob.htm "STRUCTURE-OBJECT (MGL-PAX:CLHS CLASS)"
   [20d8]: #x-28TRY-3A-40EXPLICIT-CAPTURES-20MGL-PAX-3ASECTION-29 "Explicit Captures"
   [21d9]: #x-28TRY-3APASS-20TYPE-29 "TRY:PASS TYPE"
   [231f]: #x-28TRY-3ARESULT-20CONDITION-29 "TRY:RESULT CONDITION"
@@ -3378,6 +3358,7 @@ SBCL.
   [3eef]: #x-28TRY-3A-40IMPLEMENTATION-NOTES-20MGL-PAX-3ASECTION-29 "Implementation Notes"
   [3eef7]: http://www.lispworks.com/documentation/HyperSpec/Body/s_ret_fr.htm "RETURN-FROM (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [4444]: http://www.lispworks.com/documentation/HyperSpec/Body/m_mult_1.htm "MULTIPLE-VALUE-LIST (MGL-PAX:CLHS MGL-PAX:MACRO)"
+  [47d5]: #x-28TRY-3ASUB-20STRUCTURE-29 "TRY:SUB STRUCTURE"
   [4805]: #x-28TRY-3AVERDICT-ABORT-2A-20CONDITION-29 "TRY:VERDICT-ABORT* CONDITION"
   [4bec]: #x-28TRY-3AVERDICT-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29 "TRY:VERDICT (MGL-PAX:READER TRY:TRIAL)"
   [4c86]: #x-28TRY-3A-40EMACS-20MGL-PAX-3ASECTION-29 "Emacs Integration"
@@ -3408,7 +3389,6 @@ SBCL.
   [676d]: http://www.lispworks.com/documentation/HyperSpec/Body/f_wr_pr.htm "PRINC (MGL-PAX:CLHS FUNCTION)"
   [6910]: #x-28TRY-3AWITH-TESTS-RUN-20MGL-PAX-3AMACRO-29 "TRY:WITH-TESTS-RUN MGL-PAX:MACRO"
   [69a2]: #x-28TRY-3ASKIP-20CONDITION-29 "TRY:SKIP CONDITION"
-  [6b0e]: #x-28TRY-3ASUB-20CLASS-29 "TRY:SUB CLASS"
   [6d4e]: #x-28TRY-3ASIGNALS-20MGL-PAX-3AMACRO-29 "TRY:SIGNALS MGL-PAX:MACRO"
   [7230]: #x-28TRY-3A-2APRINTER-2A-20VARIABLE-29 "TRY:*PRINTER* VARIABLE"
   [790c]: #x-28TRY-3A-25-20MACROLET-29 "TRY:% MACROLET"
