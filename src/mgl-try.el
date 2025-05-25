@@ -5,22 +5,22 @@
   :prefix "mgl-try-")
 
 (defface mgl-try-abort-face
-  '((t (:inherit error :bold t)))
+  '((t (:inherit error :inverse-video t :box t :bold t)))
   "Face for TRY:ABORT* event markers."
   :group 'mgl-try-faces)
 
 (defface mgl-try-unexpected-failure-face
-  '((t (:inherit error :bold t)))
+  '((t (:inherit warning :inverse-video t :box t :bold t)))
   "Face for TRY:UNEXPECTED-FAILURE event markers."
   :group 'mgl-try-faces)
 
 (defface mgl-try-unexpected-success-face
-  '((t (:inherit warning :bold t)))
+  '((t (:inherit success :inverse-video t :box t :bold t)))
   "Face for TRY:UNEXPECTED-SUCCESS event markers."
   :group 'mgl-try-faces)
 
 (defface mgl-try-skip-face
-  '((t (:inherit warning)))
+  '((t (:inherit error)))
   "Face for TRY:SKIP event markers."
   :group 'mgl-try-faces)
 
@@ -129,12 +129,12 @@ interactive debugging."
          (,mgl-try-skip-regexp . 'mgl-try-skip-face)
          (,mgl-try-expected-failure-regexp . 'mgl-try-expected-failure-face)
          (,mgl-try-expected-success-regexp . 'mgl-try-expected-success-face)
-         (" ⊟[0-9]+" . 'mgl-try-abort-face)
-         (" ⊠[0-9]+" . 'mgl-try-unexpected-failure-face)
-         (" ⊡[0-9]+" . 'mgl-try-unexpected-success-face)
-         (" -[0-9]+" . 'mgl-try-skip-face)
-         (" ×[0-9]+" . 'mgl-try-expected-failure-face)
-         (" ⋅[0-9]+" . 'mgl-try-expected-success-face)))
+         ("⊟[0-9]+" . 'mgl-try-abort-face)
+         ("⊠[0-9]+" . 'mgl-try-unexpected-failure-face)
+         ("⊡[0-9]+" . 'mgl-try-unexpected-success-face)
+         ("-[0-9]+" . 'mgl-try-skip-face)
+         ("×[0-9]+" . 'mgl-try-expected-failure-face)
+         ("⋅[0-9]+" . 'mgl-try-expected-success-face)))
   (insert "Legend:\n")
   (mgl-try-insert-with-face "⊟: TRY:ABORT\n" 'mgl-try-abort-face)
   (mgl-try-insert-with-face "⊠: TRY:UNEXPECTED-FAILURE\n"

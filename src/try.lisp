@@ -409,7 +409,11 @@
         (*printer* 'tree-printer)
         (*print-indentation* :outline)
         (*print-parent* t)
-        (*categories* (fancy-std-categories)))
+        (*categories*
+          (cons
+           ;; These are consequences of other failures, thus not interesting.
+           '(unexpected-verdict-failure :marker "→⊠")
+           (fancy-std-categories))))
     (with-output-to-string (out)
       (catch 'nlx-barrier
         (unwind-protect
