@@ -9,7 +9,7 @@ documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
 for the latest version.
 
 - [system] "try"
-    - _Version:_ 0.0.1
+    - _Version:_ 0.0.2
     - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
     - _Long Description:_ Try stays as close to normal Lisp evaluation
@@ -484,7 +484,7 @@ described in @EMACS, you may want give them a global binding:
 
 - [function] INSTALL-TRY-ELISP TARGET-DIR
 
-    Copy `mgl-try.el` distributed with this package to TARGET-DIR.
+    Install `mgl-try.el` distributed with this package in TARGET-DIR.
 
 ## Events
 

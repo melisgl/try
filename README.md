@@ -61,7 +61,7 @@ for the latest version.
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
 
 - [system] **"try"**
-    - _Version:_ 0.0.1
+    - _Version:_ 0.0.2
     - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
     - _Long Description:_ Try stays as close to normal Lisp evaluation
@@ -544,7 +544,7 @@ described in [Emacs Integration][4c86], you may want give them a global binding:
 
 - [function] **INSTALL-TRY-ELISP** *TARGET-DIR*
 
-    Copy `mgl-try.el` distributed with this package to `TARGET-DIR`.
+    Install `mgl-try.el` distributed with this package in `TARGET-DIR`.
 
 <a id="x-28TRY-3A-40EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
