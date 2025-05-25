@@ -7,8 +7,8 @@
   TRIAL objects. TRIALs are to tests what function call traces are to
   functions. In more detail, tests
 
-  - create a TRIAL object and signal a TRIAL-START event upon entry to
-    the function,
+  - create a TRIAL object and signal a TRIAL-START event upon entry
+    to the function,
 
   - signal a VERDICT condition before returning normally or via a
     [non-local exit][clhs],

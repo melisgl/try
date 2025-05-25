@@ -270,7 +270,6 @@
                           ;; we let the ON-NLX below deal with it.
                           (or (typep verdict 'skip)
                               (not (eq how-to-end :skip))))
-                 (dbg "Recording ~S." verdict)
                  (setf (slot-value trial 'verdict) verdict)
                  ;; No *RECORD-EVENT* during replay (see
                  ;; REPLAY-EVENTS), and we don't want to overwrite
@@ -293,7 +292,7 @@
           (let ((outcome-type (if (eq how-to-end :skip)
                                   'verdict-skip
                                   'verdict-abort*)))
-            (dbg "NLX without VERDICT detected. Recording ~S." outcome-type)
+            (dbg "NLX without VERDICT detected.")
             (unless (eq how-to-end :skip)
               (setf how-it-ended :abort))
             (funcall *record-event* (make-condition outcome-type

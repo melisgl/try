@@ -262,6 +262,7 @@ rerun it. Now, let's fix `MY-SUITE` and rerun it:
 
 (try !)
 .. MY-SUITE
+..   - SHOULD-WORK
 ..   ⋅ (IS T)
 .. ⋅ MY-SUITE ⋅1
 ..
@@ -290,8 +291,8 @@ object returned by @TESTS.
 ##### Skipping
 
 Sometimes, we do not know up front that a test should not be
-executed. Calling SKIP-TRIAL unwinds from the CURRENT-TRIAL and sets
-it skipped.
+executed. Calling SKIP-TRIAL unwinds from the CURRENT-TRIAL and
+marks it skipped.
 
 ```common-lisp
 (deftest my-suite ()
@@ -497,12 +498,11 @@ The event hierarchy is fairly involved, so let's start with the middle
 layer because it is smallest. The condition EVENT has 4 disjoint
 subclasses:
 
-- TRIAL-START, which corresponds to the entry to a test (see
-  @TESTS),
+- TRIAL-START, starting a TRIAL (by executing a test),
 
 - VERDICT, the OUTCOME of a TRIAL,
 
-- RESULT, the OUTCOME of a check (see @CHECKS), and
+- RESULT, the OUTCOME of a check, and
 
 - ERROR\*, an unexpected CL:ERROR or unadorned non-local exit.
 
@@ -528,10 +528,10 @@ subclasses:
 ### Concrete Events
 
 The non-abstract condition classes of events that are actually
-signalled are called concrete.
+ signalled are called concrete.
 
-TRIAL-START is a concrete event class. RESULTs and VERDICTs have six
- concrete subclasses:
+@CHECKS' RESULTs and @TRIALS' VERDICTs have six concrete subclasses
+ each:
 
 - EXPECTED-RESULT-SUCCESS, UNEXPECTED-RESULT-SUCCESS,
    EXPECTED-RESULT-FAILURE, UNEXPECTED-RESULT-FAILURE,
@@ -540,6 +540,9 @@ TRIAL-START is a concrete event class. RESULTs and VERDICTs have six
 - EXPECTED-VERDICT-SUCCESS, UNEXPECTED-VERDICT-SUCCESS,
    EXPECTED-VERDICT-FAILURE, UNEXPECTED-VERDICT-FAILURE,
    VERDICT-SKIP, VERDICT-ABORT\*
+
+Breaking the symmetry between @CHECKS and @TRIALS, TRIAL-START is a
+ concrete event class, that marks the start of a TRIAL.
 
 ERROR\* is an abstract class with two concrete subclasses:
 
@@ -551,13 +554,19 @@ ERROR\* is an abstract class with two concrete subclasses:
 
 These are the 15 concrete event classes.
 
+- [function] CONCRETE-EVENTS-OF-TYPE TYPE
+
+    The hierarchy of @EVENTS is hairy. Sometimes it's handy to list the
+    @CONCRETE-EVENTS that match a given type. We use this below in the
+    documentation.
+
 ### Event Glue
 
 These condition classes group various bits of the @CONCRETE-EVENTS
  and the @MIDDLE-LAYER-OF-EVENTS for ease of reference.
 
-Concrete event classes except TRIAL-START are subclasses of the
-hyphen-separated words constituting their name. For example,
+Concrete event classes except TRIAL-START and NLX are subclasses of
+the hyphen-separated words constituting their name. For example,
 UNEXPECTED-RESULT-FAILURE inherits from UNEXPECTED, RESULT, and
 FAILURE, so it matches types such as UNEXPECTED or `(AND UNEXPECTED
 RESULT)`.
@@ -566,43 +575,124 @@ RESULT)`.
 
     Common abstract superclass of all events in Try.
 
-- [condition] EXPECTED EVENT
+- [condition] ACT EVENT
+
+    EVENTs that produce evidence or determine the
+    course of a TRIAL are ACTs. All events are ACTs except TRIAL-START.
+    
+    ```common-lisp
+    (concrete-events-of-type '(not act))
+    => (TRIAL-START)
+    ```
+
+EXPECTED and UNEXPECTED partition ACT.
+
+- [condition] EXPECTED ACT
 
     Concrete condition classes with EXPECTED in their
     name are subclasses of EXPECTED. SKIP is also a subclass of
     EXPECTED.
+    
+    ```common-lisp
+    (concrete-events-of-type 'expected)
+    => (EXPECTED-RESULT-SUCCESS EXPECTED-RESULT-FAILURE RESULT-SKIP
+        EXPECTED-VERDICT-SUCCESS EXPECTED-VERDICT-FAILURE VERDICT-SKIP)
+    ```
 
-- [condition] UNEXPECTED EVENT
+- [condition] UNEXPECTED ACT
 
     Concrete condition classes with UNEXPECTED in their
     name are subclasses of UNEXPECTED. ABORT\* is also a subclass of
     UNEXPECTED.
+    
+    ```common-lisp
+    (concrete-events-of-type 'unexpected)
+    => (UNEXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-FAILURE RESULT-ABORT*
+        UNEXPECTED-VERDICT-SUCCESS UNEXPECTED-VERDICT-FAILURE
+        VERDICT-ABORT* UNHANDLED-ERROR NLX)
+    ```
 
-- [condition] SUCCESS EVENT
+SUCCESS, FAILURE and DISMISSAL partition ACT.
+
+- [condition] SUCCESS ACT
 
     See @CHECKS and @TRIAL-VERDICTS for how
     SUCCESS or FAILURE is decided.
+    
+    ```common-lisp
+    (concrete-events-of-type 'success)
+    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+        EXPECTED-VERDICT-SUCCESS UNEXPECTED-VERDICT-SUCCESS)
+    ```
 
-- [condition] FAILURE EVENT
+- [condition] FAILURE ACT
 
     See SUCCESS.
+    
+    ```common-lisp
+    (concrete-events-of-type 'failure)
+    => (EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE
+        EXPECTED-VERDICT-FAILURE UNEXPECTED-VERDICT-FAILURE)
+    ```
 
-- [condition] DISMISSAL EVENT
+- [condition] DISMISSAL ACT
 
     The third possibility after SUCCESS and FAILURE.
     Either SKIP or ABORT\*.
+    
+    ```common-lisp
+    (concrete-events-of-type 'dismissal)
+    => (RESULT-SKIP RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT*
+        UNHANDLED-ERROR NLX)
+    ```
+
+ABORT\* and SKIP partition DISMISSAL.
 
 - [condition] ABORT* UNEXPECTED DISMISSAL
 
-    `RESULT-ABORT*`, `VERDICT-ABORT*` or ERROR\*.
+    ```common-lisp
+    (concrete-events-of-type 'abort*)
+    => (RESULT-ABORT* VERDICT-ABORT* UNHANDLED-ERROR NLX)
+    ```
 
 - [condition] SKIP EXPECTED DISMISSAL
 
-    RESULT-SKIP or VERDICT-SKIP.
+    ```common-lisp
+    (concrete-events-of-type 'skip)
+    => (RESULT-SKIP VERDICT-SKIP)
+    ```
 
-- [condition] LEAF EVENT
+- [condition] LEAF ACT
 
-    RESULT or ERROR\*.
+    Event that do not mark a TRIAL's
+    start (TRIAL-START) or end (VERDICT) are LEAF events. These are the
+    leafs of the tree of nested trials delineated by their TRIAL-START
+    and VERDICT events.
+    
+    ```common-lisp
+    (concrete-events-of-type 'leaf)
+    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+        EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
+        RESULT-ABORT* UNHANDLED-ERROR NLX)
+    ```
+    
+    LEAF EVENTs are RESULTs of @CHECKS and also ERROR\*s.
+    
+    ```common-lisp
+    (equal (concrete-events-of-type 'leaf)
+           (concrete-events-of-type '(or result error*)))
+    => T
+    ```
+    
+    Equivalently, LEAF is the complement of TRIAL-EVENT.
+    
+    ```common-lisp
+    (equal (concrete-events-of-type 'leaf)
+           (concrete-events-of-type '(not trial-event)))
+    => T
+    ```
+
+The following types are shorthands.
 
 - [type] EXPECTED-SUCCESS
 
@@ -620,14 +710,29 @@ RESULT)`.
 
     A shorthand for `(AND UNEXPECTED FAILURE)`.
 
+PASS and FAIL partition ACT.
+
 - [type] PASS
 
     An OUTCOME that's not an ABORT\* or an UNEXPECTED-FAILURE.
     PASS is equivalent to `(NOT FAIL)`.
+    
+    ```common-lisp
+    (concrete-events-of-type 'pass)
+    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+        EXPECTED-RESULT-FAILURE RESULT-SKIP EXPECTED-VERDICT-SUCCESS
+        UNEXPECTED-VERDICT-SUCCESS EXPECTED-VERDICT-FAILURE VERDICT-SKIP)
+    ```
 
 - [type] FAIL
 
     An ABORT\* or an UNEXPECTED-FAILURE. See PASS.
+    
+    ```common-lisp
+    (concrete-events-of-type 'fail)
+    => (UNEXPECTED-RESULT-FAILURE RESULT-ABORT* UNEXPECTED-VERDICT-FAILURE
+        VERDICT-ABORT* UNHANDLED-ERROR NLX)
+    ```
 
 ### Printing Events
 
@@ -662,10 +767,15 @@ Only RECORD-EVENT is applicable to all EVENTs. See
 
 ### Outcomes
 
-- [condition] OUTCOME EVENT
+- [condition] OUTCOME ACT
 
     An OUTCOME is the resolution of either a TRIAL or a
-    check (see @CHECKS), corresponding to subclasses VERDICT and RESULT.
+    check, corresponding to subclasses VERDICT and RESULT.
+    
+    ```common-lisp
+    (concrete-events-of-type '(not outcome))
+    => (TRIAL-START UNHANDLED-ERROR NLX)
+    ```
 
 - [macro] WITH-EXPECTED-OUTCOME (EXPECTED-TYPE) &BODY BODY
 
@@ -883,10 +993,11 @@ it, and it can be changed with the @OUTCOME-RESTARTS and the
     (let ((*print* nil)
           (n 0))
       (with-test ()
-        (handler-bind ((trial-start (lambda (c)
-                                      (format t "TRIAL-START for ~S retry#~S~%"
-                                              (test-name (trial c))
-                                              (n-retries (trial c))))))
+        (handler-bind ((trial-start
+                         (lambda (c)
+                           (format t "TRIAL-START for ~S retry#~S~%"
+                                   (test-name (trial c))
+                                   (n-retries (trial c))))))
           (with-test (this)
             (incf n)
             (when (< n 3)
@@ -1981,8 +2092,8 @@ In Try, tests are Lisp functions that record their execution in
 TRIAL objects. TRIALs are to tests what function call traces are to
 functions. In more detail, tests
 
-- create a TRIAL object and signal a TRIAL-START event upon entry to
-  the function,
+- create a TRIAL object and signal a TRIAL-START event upon entry
+  to the function,
 
 - signal a VERDICT condition before returning normally or via a
   non-local exit,
@@ -2254,11 +2365,16 @@ The rest of the behaviour is described in @EXPLICIT-TRY.
 
     The default matches that of *COLLECT*. See @RERUN.
 
-- [variable] *PRINT* LEAF
+- [variable] *PRINT* (OR LEAF DISMISSAL)
 
-    With the default of LEAF combined with the default *PRINT-PARENT*
-    T, only TRIALs with checks or ERROR\* in them are printed. If
-    UNEXPECTED, only the interesting things are printed. See @PRINT.
+    Events of this type are printed.
+    
+    ```common-lisp
+    (concrete-events-of-type '(or leaf dismissal))
+    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+        EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
+        RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT* UNHANDLED-ERROR NLX)
+    ```
 
 - [variable] *DESCRIBE* (OR UNEXPECTED FAILURE)
 
@@ -2756,8 +2872,8 @@ When a TRIAL is `FUNCALL`ed or passed to TRY, the *test that
 created the trial* is invoked, and it may be run again in its
 entirety or in part. As the test runs, it may invoke other tests.
 Any test (including the top-level one) is skipped if it does not
-correspond to a collected trial or its TRIAL-START event
-and VERDICT do not match the RERUN argument of TRY. When that
+correspond to a collected trial or its TRIAL-START
+event and VERDICT do not match the RERUN argument of TRY. When that
 happens, the corresponding function call immediately returns the
 TRIAL object.
 

@@ -142,8 +142,8 @@
   ;; Its N-RETRIES at the time when TRIAL-START was printed most
   ;; recently for TRIAL.
   n-retries
-  ;; STREAM-LINE and STREAM-COLUMN right after TRIAL's TRIAL-START was
-  ;; printed.
+  ;; STREAM-LINE and STREAM-COLUMN right after TRIAL's TRIAL-START
+  ;; was printed.
   first-line-and-column)
 
 (defun print-state-trial-printed-p (print-state)

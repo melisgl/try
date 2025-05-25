@@ -67,10 +67,15 @@
 (defvar *rerun* 'unexpected
   "The default matches that of *COLLECT*. See @RERUN.")
 
-(defvar *print* 'leaf
-  "With the default of LEAF combined with the default *PRINT-PARENT*
-  T, only TRIALs with checks or ERROR* in them are printed. If
-  UNEXPECTED, only the interesting things are printed. See @PRINT.")
+(defvar *print* '(or leaf dismissal)
+  "Events of this type are [printed][@print].
+
+  ```cl-transcript
+  (concrete-events-of-type '(or leaf dismissal))
+  => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+      EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
+      RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT* UNHANDLED-ERROR NLX)
+  ```")
 
 (defvar *describe* '(or unexpected failure)
   "By default, the context (e.g. @CAPTURES, and the CTX argument
@@ -374,6 +379,7 @@
       (with-current-debug (debug debug)
         (labels ((really-record-event (event)
                    (with-internal-errors
+                     (dbg "Recording ~S." event)
                      (%count-and-collect-event collector event)
                      (%print-event printer event))))
           (let ((*record-event* #'really-record-event))

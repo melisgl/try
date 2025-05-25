@@ -257,6 +257,7 @@
 
   (try !)
   .. MY-SUITE
+  ..   - SHOULD-WORK
   ..   ⋅ (IS T)
   .. ⋅ MY-SUITE ⋅1
   ..
@@ -285,8 +286,8 @@
   ##### Skipping
 
   Sometimes, we do not know up front that a test should not be
-  executed. Calling SKIP-TRIAL unwinds from the CURRENT-TRIAL and sets
-  it skipped.
+  executed. Calling SKIP-TRIAL unwinds from the CURRENT-TRIAL and
+  marks it skipped.
 
   ```cl-transcript (:dynenv try-transcript)
   (deftest my-suite ()

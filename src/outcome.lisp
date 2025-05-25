@@ -9,9 +9,14 @@
   (@checks section)
   (@trials section))
 
-(define-condition outcome (event) ()
+(define-condition outcome (act) ()
   (:documentation "An OUTCOME is the resolution of either a TRIAL or a
-  check (see @CHECKS), corresponding to subclasses VERDICT and RESULT."))
+  [check][@CHECKS], corresponding to subclasses VERDICT and RESULT.
+
+  ```cl-transcript
+  (concrete-events-of-type '(not outcome))
+  => (TRIAL-START UNHANDLED-ERROR NLX)
+  ```"))
 
 
 (defvar *expected-outcome* 'success)
@@ -125,7 +130,10 @@
 (defvar *skip* nil)
 
 (define-condition skip (expected dismissal) ()
-  (:documentation "RESULT-SKIP or VERDICT-SKIP."))
+  (:documentation "```cl-transcript
+  (concrete-events-of-type 'skip)
+  => (RESULT-SKIP VERDICT-SKIP)
+  ```"))
 
 (defmacro with-skip ((&optional (skip t)) &body body)
   "WITH-SKIP skips checks and trials. It forces an immediate

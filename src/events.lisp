@@ -20,12 +20,11 @@
   layer because it is smallest. The condition EVENT has 4 disjoint
   subclasses:
 
-  - TRIAL-START, which corresponds to the entry to a test (see
-    @TESTS),
+  - TRIAL-START, starting a TRIAL (by executing a [test][@TESTS]),
 
   - VERDICT, the OUTCOME of a TRIAL,
 
-  - RESULT, the OUTCOME of a check (see @CHECKS), and
+  - RESULT, the OUTCOME of a [check][@CHECKS], and
 
   - ERROR*, an unexpected CL:ERROR or unadorned [non-local exit][clhs].
 
@@ -49,11 +48,11 @@
   """)
 
 (defsection @concrete-events (:title "Concrete Events")
- """The non-abstract condition classes of events that are actually
- signalled are called concrete.
+  """The non-abstract condition classes of events that are actually
+  signalled are called concrete.
 
-  TRIAL-START is a concrete event class. RESULTs and VERDICTs have six
-  concrete subclasses:
+  @CHECKS' RESULTs and @TRIALS' VERDICTs have six concrete subclasses
+  each:
 
   - EXPECTED-RESULT-SUCCESS, UNEXPECTED-RESULT-SUCCESS,
     EXPECTED-RESULT-FAILURE, UNEXPECTED-RESULT-FAILURE,
@@ -62,6 +61,9 @@
   - EXPECTED-VERDICT-SUCCESS, UNEXPECTED-VERDICT-SUCCESS,
     EXPECTED-VERDICT-FAILURE, UNEXPECTED-VERDICT-FAILURE,
     VERDICT-SKIP, VERDICT-ABORT*
+
+  Breaking the symmetry between @CHECKS and @TRIALS, TRIAL-START is a
+  concrete event class, that marks the start of a TRIAL.
 
   ERROR* is an abstract class with two concrete subclasses:
 
@@ -72,30 +74,57 @@
     trial finishes with a [non-local exit][clhs].
 
  These are the 15 concrete event classes.
- """)
+ """
+  (concrete-events-of-type function))
+
+(defvar *concrete-events*
+  '(trial-start
+    expected-result-success unexpected-result-success
+    expected-result-failure unexpected-result-failure
+    result-skip result-abort*
+    expected-verdict-success unexpected-verdict-success
+    expected-verdict-failure unexpected-verdict-failure
+    verdict-skip verdict-abort*
+    unhandled-error nlx))
+
+(defun concrete-events-of-type (type)
+  "The hierarchy of @EVENTS is hairy. Sometimes it's handy to list the
+  @CONCRETE-EVENTS that match a given type. We use this below in the
+  documentation."
+  (loop for event-type in *concrete-events*
+        ;; SUBTYPEP cannot deduce all true relationships, so make a
+        ;; condition and use TYPEP.
+        when (typep (make-condition event-type) type)
+          collect event-type))
 
 (defsection @event-glue (:title "Event Glue")
   "These condition classes group various bits of the @CONCRETE-EVENTS
    and the @MIDDLE-LAYER-OF-EVENTS for ease of reference.
 
-  Concrete event classes except TRIAL-START are subclasses of the
-  hyphen-separated words constituting their name. For example,
+  Concrete event classes except TRIAL-START and NLX are subclasses of
+  the hyphen-separated words constituting their name. For example,
   UNEXPECTED-RESULT-FAILURE inherits from UNEXPECTED, RESULT, and
   FAILURE, so it matches types such as UNEXPECTED or `(AND UNEXPECTED
   RESULT)`."
   (event condition)
+  (act condition)
+  "EXPECTED and UNEXPECTED partition ACT."
   (expected condition)
   (unexpected condition)
+  "SUCCESS, FAILURE and DISMISSAL partition ACT."
   (success condition)
   (failure condition)
   (dismissal condition)
+  "ABORT* and SKIP partition DISMISSAL."
   (abort* condition)
   (skip condition)
   (leaf condition)
+  "The following types are shorthands."
   (expected-success type)
   (unexpected-success type)
   (expected-failure type)
   (unexpected-failure type)
+  "PASS and FAIL partition ACT."
   (pass type)
   (fail type))
 
@@ -118,32 +147,101 @@
 (define-condition event () ()
   (:documentation "Common abstract superclass of all events in Try."))
 
-(define-condition leaf (event) ()
-  (:documentation "RESULT or ERROR*."))
+(define-condition act (event) ()
+  (:documentation "EVENTs that produce evidence or determine the
+  course of a TRIAL are ACTs. All events are ACTs except TRIAL-START.
 
-(define-condition expected (event) ()
+  ```cl-transcript
+  (concrete-events-of-type '(not act))
+  => (TRIAL-START)
+  ```"))
+
+(define-condition expected (act) ()
   (:documentation "Concrete condition classes with EXPECTED in their
   name are subclasses of EXPECTED. SKIP is also a subclass of
-  EXPECTED."))
+  EXPECTED.
 
-(define-condition unexpected (event) ()
+  ```cl-transcript
+  (concrete-events-of-type 'expected)
+  => (EXPECTED-RESULT-SUCCESS EXPECTED-RESULT-FAILURE RESULT-SKIP
+      EXPECTED-VERDICT-SUCCESS EXPECTED-VERDICT-FAILURE VERDICT-SKIP)
+  ```"))
+
+(define-condition unexpected (act) ()
   (:documentation "Concrete condition classes with UNEXPECTED in their
   name are subclasses of UNEXPECTED. ABORT* is also a subclass of
-  UNEXPECTED."))
+  UNEXPECTED.
 
-(define-condition success (event) ()
+  ```cl-transcript
+  (concrete-events-of-type 'unexpected)
+  => (UNEXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-FAILURE RESULT-ABORT*
+      UNEXPECTED-VERDICT-SUCCESS UNEXPECTED-VERDICT-FAILURE
+      VERDICT-ABORT* UNHANDLED-ERROR NLX)
+  ```"))
+
+(define-condition success (act) ()
   (:documentation "See @CHECKS and @TRIAL-VERDICTS for how
-  SUCCESS or FAILURE is decided."))
+  SUCCESS or FAILURE is decided.
 
-(define-condition failure (event) ()
-  (:documentation "See SUCCESS."))
+  ```cl-transcript
+  (concrete-events-of-type 'success)
+  => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+      EXPECTED-VERDICT-SUCCESS UNEXPECTED-VERDICT-SUCCESS)
+  ```"))
 
-(define-condition dismissal (event) ()
+(define-condition failure (act) ()
+  (:documentation "See SUCCESS.
+
+  ```cl-transcript
+  (concrete-events-of-type 'failure)
+  => (EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE
+      EXPECTED-VERDICT-FAILURE UNEXPECTED-VERDICT-FAILURE)
+  ```"))
+
+(define-condition dismissal (act) ()
   (:documentation "The third possibility after SUCCESS and FAILURE.
-  Either SKIP or ABORT*."))
+  Either SKIP or ABORT*.
+
+  ```cl-transcript
+  (concrete-events-of-type 'dismissal)
+  => (RESULT-SKIP RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT*
+      UNHANDLED-ERROR NLX)
+  ```"))
 
 (define-condition abort* (unexpected dismissal) ()
-  (:documentation "`RESULT-ABORT*`, `VERDICT-ABORT*` or ERROR*."))
+  (:documentation "```cl-transcript
+  (concrete-events-of-type 'abort*)
+  => (RESULT-ABORT* VERDICT-ABORT* UNHANDLED-ERROR NLX)
+  ```"))
+
+(define-condition leaf (act) ()
+  (:documentation "Event that do not mark a TRIAL's
+  start (TRIAL-START) or end (VERDICT) are LEAF events. These are the
+  leafs of the tree of nested trials delineated by their TRIAL-START
+  and VERDICT events.
+
+  ```cl-transcript
+  (concrete-events-of-type 'leaf)
+  => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+      EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
+      RESULT-ABORT* UNHANDLED-ERROR NLX)
+  ```
+
+  LEAF EVENTs are RESULTs of @CHECKS and also ERROR*s.
+
+  ```cl-transcript
+  (equal (concrete-events-of-type 'leaf)
+         (concrete-events-of-type '(or result error*)))
+  => T
+  ```
+
+  Equivalently, LEAF is the complement of TRIAL-EVENT.
+
+  ```cl-transcript
+  (equal (concrete-events-of-type 'leaf)
+         (concrete-events-of-type '(not trial-event)))
+  => T
+  ```"))
 
 
 (deftype expected-success ()
@@ -161,10 +259,24 @@
 
 (deftype pass ()
   "An OUTCOME that's not an ABORT* or an UNEXPECTED-FAILURE.
-  PASS is equivalent to `(NOT FAIL)`."
+  PASS is equivalent to `(NOT FAIL)`.
+
+  ```cl-transcript
+  (concrete-events-of-type 'pass)
+  => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+      EXPECTED-RESULT-FAILURE RESULT-SKIP EXPECTED-VERDICT-SUCCESS
+      UNEXPECTED-VERDICT-SUCCESS EXPECTED-VERDICT-FAILURE VERDICT-SKIP)
+  ```"
   '(and outcome (not (or abort* unexpected-failure))))
+
 (deftype fail ()
-  "An ABORT* or an UNEXPECTED-FAILURE. See PASS."
+  "An ABORT* or an UNEXPECTED-FAILURE. See PASS.
+
+  ```cl-transcript
+  (concrete-events-of-type 'fail)
+  => (UNEXPECTED-RESULT-FAILURE RESULT-ABORT* UNEXPECTED-VERDICT-FAILURE
+      VERDICT-ABORT* UNHANDLED-ERROR NLX)
+  ```"
   '(or abort* unexpected-failure))
 
 

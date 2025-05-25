@@ -31,10 +31,11 @@
   (let ((*print* nil)
         (n 0))
     (with-test ()
-      (handler-bind ((trial-start (lambda (c)
-                                    (format t "TRIAL-START for ~S retry#~S~%"
-                                            (test-name (trial c))
-                                            (n-retries (trial c))))))
+      (handler-bind ((trial-start
+                       (lambda (c)
+                         (format t "TRIAL-START for ~S retry#~S~%"
+                                 (test-name (trial c))
+                                 (n-retries (trial c))))))
         (with-test (this)
           (incf n)
           (when (< n 3)

@@ -12,9 +12,9 @@
                (and *trial* (test-name *trial*))
                (and *trial* (how-to-end *trial*))
                format-args)))
+
 #+nil
 (setq *dbg* nil)
-
 
 (defmacro dbg (format-control &rest format-args)
   `(when *dbg*

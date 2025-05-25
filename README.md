@@ -316,6 +316,7 @@ rerun it. Now, let's fix `MY-SUITE` and rerun it:
 
 (try !)
 .. MY-SUITE
+..   - SHOULD-WORK
 ..   ⋅ (IS T)
 .. ⋅ MY-SUITE ⋅1
 ..
@@ -344,8 +345,8 @@ object returned by [Tests][dc28].
 ##### Skipping
 
 Sometimes, we do not know up front that a test should not be
-executed. Calling [`SKIP-TRIAL`][f45a] unwinds from the [`CURRENT-TRIAL`][e186] and sets
-it skipped.
+executed. Calling [`SKIP-TRIAL`][f45a] unwinds from the [`CURRENT-TRIAL`][e186] and
+marks it skipped.
 
 ```common-lisp
 (deftest my-suite ()
@@ -561,12 +562,11 @@ The event hierarchy is fairly involved, so let's start with the middle
 layer because it is smallest. The condition [`EVENT`][955d] has 4 disjoint
 subclasses:
 
-- [`TRIAL-START`][b664], which corresponds to the entry to a test (see
-  [Tests][dc28]),
+- [`TRIAL-START`][b664], starting a [`TRIAL`][99d0] (by executing a [test][dc28]),
 
-- [`VERDICT`][52e1], the [`OUTCOME`][2656] of a [`TRIAL`][99d0],
+- [`VERDICT`][52e1], the [`OUTCOME`][2656] of a `TRIAL`,
 
-- [`RESULT`][231f], the `OUTCOME` of a check (see [Checks][bb56]), and
+- [`RESULT`][231f], the `OUTCOME` of a [check][bb56], and
 
 - [`ERROR*`][0321], an unexpected `CL:ERROR`([`0`][d162] [`1`][35ba]) or unadorned [non-local exit][b815].
 
@@ -594,10 +594,10 @@ subclasses:
 ### 4.2 Concrete Events
 
 The non-abstract condition classes of events that are actually
-signalled are called concrete.
+ signalled are called concrete.
 
-[`TRIAL-START`][b664] is a concrete event class. [`RESULT`][231f]s and [`VERDICT`][52e1]s have six
- concrete subclasses:
+[Checks][bb56]' [`RESULT`][231f]s and [Trials][e6be]' [`VERDICT`][52e1]s have six concrete subclasses
+ each:
 
 - [`EXPECTED-RESULT-SUCCESS`][609c7], [`UNEXPECTED-RESULT-SUCCESS`][b72c],
    [`EXPECTED-RESULT-FAILURE`][d619], [`UNEXPECTED-RESULT-FAILURE`][daeb],
@@ -606,6 +606,9 @@ signalled are called concrete.
 - [`EXPECTED-VERDICT-SUCCESS`][06c2], [`UNEXPECTED-VERDICT-SUCCESS`][062e],
    [`EXPECTED-VERDICT-FAILURE`][30c9], [`UNEXPECTED-VERDICT-FAILURE`][fdf4],
    [`VERDICT-SKIP`][5786], [`VERDICT-ABORT*`][4805]
+
+Breaking the symmetry between [Checks][bb56] and [Trials][e6be], [`TRIAL-START`][b664] is a
+ concrete event class, that marks the start of a [`TRIAL`][99d0].
 
 [`ERROR*`][0321] is an abstract class with two concrete subclasses:
 
@@ -617,6 +620,14 @@ signalled are called concrete.
 
 These are the 15 concrete event classes.
 
+<a id="x-28TRY-3ACONCRETE-EVENTS-OF-TYPE-20FUNCTION-29"></a>
+
+- [function] **CONCRETE-EVENTS-OF-TYPE** *TYPE*
+
+    The hierarchy of [Events][aaf2] is hairy. Sometimes it's handy to list the
+    [Concrete Events][279a] that match a given type. We use this below in the
+    documentation.
+
 <a id="x-28TRY-3A-40EVENT-GLUE-20MGL-PAX-3ASECTION-29"></a>
 
 ### 4.3 Event Glue
@@ -624,8 +635,8 @@ These are the 15 concrete event classes.
 These condition classes group various bits of the [Concrete Events][279a]
  and the [Middle Layer of Events][3e0c] for ease of reference.
 
-Concrete event classes except [`TRIAL-START`][b664] are subclasses of the
-hyphen-separated words constituting their name. For example,
+Concrete event classes except [`TRIAL-START`][b664] and [`NLX`][b115] are subclasses of
+the hyphen-separated words constituting their name. For example,
 [`UNEXPECTED-RESULT-FAILURE`][daeb] inherits from [`UNEXPECTED`][d6ad], [`RESULT`][231f], and
 [`FAILURE`][f92d], so it matches types such as `UNEXPECTED` or `(AND UNEXPECTED
 RESULT)`.
@@ -636,59 +647,142 @@ RESULT)`.
 
     Common abstract superclass of all events in Try.
 
+<a id="x-28TRY-3AACT-20CONDITION-29"></a>
+
+- [condition] **ACT** *[EVENT][955d]*
+
+    [`EVENT`][955d]s that produce evidence or determine the
+    course of a [`TRIAL`][99d0] are `ACT`s. All events are `ACT`s except [`TRIAL-START`][b664].
+    
+    ```common-lisp
+    (concrete-events-of-type '(not act))
+    => (TRIAL-START)
+    ```
+
+[`EXPECTED`][b194] and [`UNEXPECTED`][d6ad] partition [`ACT`][247c].
+
 <a id="x-28TRY-3AEXPECTED-20CONDITION-29"></a>
 
-- [condition] **EXPECTED** *[EVENT][955d]*
+- [condition] **EXPECTED** *[ACT][247c]*
 
     Concrete condition classes with `EXPECTED` in their
     name are subclasses of `EXPECTED`. [`SKIP`][69a2] is also a subclass of
     `EXPECTED`.
+    
+    ```common-lisp
+    (concrete-events-of-type 'expected)
+    => (EXPECTED-RESULT-SUCCESS EXPECTED-RESULT-FAILURE RESULT-SKIP
+        EXPECTED-VERDICT-SUCCESS EXPECTED-VERDICT-FAILURE VERDICT-SKIP)
+    ```
 
 <a id="x-28TRY-3AUNEXPECTED-20CONDITION-29"></a>
 
-- [condition] **UNEXPECTED** *[EVENT][955d]*
+- [condition] **UNEXPECTED** *[ACT][247c]*
 
     Concrete condition classes with `UNEXPECTED` in their
     name are subclasses of `UNEXPECTED`. [`ABORT*`][8ec3] is also a subclass of
     `UNEXPECTED`.
+    
+    ```common-lisp
+    (concrete-events-of-type 'unexpected)
+    => (UNEXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-FAILURE RESULT-ABORT*
+        UNEXPECTED-VERDICT-SUCCESS UNEXPECTED-VERDICT-FAILURE
+        VERDICT-ABORT* UNHANDLED-ERROR NLX)
+    ```
+
+[`SUCCESS`][269a], [`FAILURE`][f92d] and [`DISMISSAL`][0992] partition [`ACT`][247c].
 
 <a id="x-28TRY-3ASUCCESS-20CONDITION-29"></a>
 
-- [condition] **SUCCESS** *[EVENT][955d]*
+- [condition] **SUCCESS** *[ACT][247c]*
 
     See [Checks][bb56] and [Trial Verdicts][5e1a] for how
     `SUCCESS` or [`FAILURE`][f92d] is decided.
+    
+    ```common-lisp
+    (concrete-events-of-type 'success)
+    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+        EXPECTED-VERDICT-SUCCESS UNEXPECTED-VERDICT-SUCCESS)
+    ```
 
 <a id="x-28TRY-3AFAILURE-20CONDITION-29"></a>
 
-- [condition] **FAILURE** *[EVENT][955d]*
+- [condition] **FAILURE** *[ACT][247c]*
 
     See [`SUCCESS`][269a].
+    
+    ```common-lisp
+    (concrete-events-of-type 'failure)
+    => (EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE
+        EXPECTED-VERDICT-FAILURE UNEXPECTED-VERDICT-FAILURE)
+    ```
 
 <a id="x-28TRY-3ADISMISSAL-20CONDITION-29"></a>
 
-- [condition] **DISMISSAL** *[EVENT][955d]*
+- [condition] **DISMISSAL** *[ACT][247c]*
 
     The third possibility after [`SUCCESS`][269a] and [`FAILURE`][f92d].
     Either [`SKIP`][69a2] or [`ABORT*`][8ec3].
+    
+    ```common-lisp
+    (concrete-events-of-type 'dismissal)
+    => (RESULT-SKIP RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT*
+        UNHANDLED-ERROR NLX)
+    ```
+
+[`ABORT*`][8ec3] and [`SKIP`][69a2] partition [`DISMISSAL`][0992].
 
 <a id="x-28TRY-3AABORT-2A-20CONDITION-29"></a>
 
 - [condition] **ABORT\*** *[UNEXPECTED][d6ad] [DISMISSAL][0992]*
 
-    [`RESULT-ABORT*`][ffab], [`VERDICT-ABORT*`][4805] or [`ERROR*`][0321].
+    ```common-lisp
+    (concrete-events-of-type 'abort*)
+    => (RESULT-ABORT* VERDICT-ABORT* UNHANDLED-ERROR NLX)
+    ```
 
 <a id="x-28TRY-3ASKIP-20CONDITION-29"></a>
 
 - [condition] **SKIP** *[EXPECTED][b194] [DISMISSAL][0992]*
 
-    [`RESULT-SKIP`][7c3f] or [`VERDICT-SKIP`][5786].
+    ```common-lisp
+    (concrete-events-of-type 'skip)
+    => (RESULT-SKIP VERDICT-SKIP)
+    ```
 
 <a id="x-28TRY-3ALEAF-20CONDITION-29"></a>
 
-- [condition] **LEAF** *[EVENT][955d]*
+- [condition] **LEAF** *[ACT][247c]*
 
-    [`RESULT`][231f] or [`ERROR*`][0321].
+    Event that do not mark a [`TRIAL`][99d0]'s
+    start ([`TRIAL-START`][b664]) or end ([`VERDICT`][52e1]) are `LEAF` events. These are the
+    leafs of the tree of nested trials delineated by their `TRIAL-START`
+    and `VERDICT` events.
+    
+    ```common-lisp
+    (concrete-events-of-type 'leaf)
+    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+        EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
+        RESULT-ABORT* UNHANDLED-ERROR NLX)
+    ```
+    
+    `LEAF` [`EVENT`][955d]s are [`RESULT`][231f]s of [Checks][bb56] and also [`ERROR*`][0321]s.
+    
+    ```common-lisp
+    (equal (concrete-events-of-type 'leaf)
+           (concrete-events-of-type '(or result error*)))
+    => T
+    ```
+    
+    Equivalently, `LEAF` is the complement of [`TRIAL-EVENT`][b36a].
+    
+    ```common-lisp
+    (equal (concrete-events-of-type 'leaf)
+           (concrete-events-of-type '(not trial-event)))
+    => T
+    ```
+
+The following types are shorthands.
 
 <a id="x-28TRY-3AEXPECTED-SUCCESS-20TYPE-29"></a>
 
@@ -714,18 +808,33 @@ RESULT)`.
 
     A shorthand for `(AND UNEXPECTED FAILURE)`.
 
+[`PASS`][21d9] and [`FAIL`][d5ea] partition [`ACT`][247c].
+
 <a id="x-28TRY-3APASS-20TYPE-29"></a>
 
 - [type] **PASS**
 
     An [`OUTCOME`][2656] that's not an [`ABORT*`][8ec3] or an [`UNEXPECTED-FAILURE`][b5cb].
     `PASS` is equivalent to `(NOT FAIL)`.
+    
+    ```common-lisp
+    (concrete-events-of-type 'pass)
+    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+        EXPECTED-RESULT-FAILURE RESULT-SKIP EXPECTED-VERDICT-SUCCESS
+        UNEXPECTED-VERDICT-SUCCESS EXPECTED-VERDICT-FAILURE VERDICT-SKIP)
+    ```
 
 <a id="x-28TRY-3AFAIL-20TYPE-29"></a>
 
 - [type] **FAIL**
 
     An [`ABORT*`][8ec3] or an [`UNEXPECTED-FAILURE`][b5cb]. See [`PASS`][21d9].
+    
+    ```common-lisp
+    (concrete-events-of-type 'fail)
+    => (UNEXPECTED-RESULT-FAILURE RESULT-ABORT* UNEXPECTED-VERDICT-FAILURE
+        VERDICT-ABORT* UNHANDLED-ERROR NLX)
+    ```
 
 <a id="x-28TRY-3A-40PRINTING-EVENTS-20MGL-PAX-3ASECTION-29"></a>
 
@@ -772,10 +881,15 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
 
 <a id="x-28TRY-3AOUTCOME-20CONDITION-29"></a>
 
-- [condition] **OUTCOME** *[EVENT][955d]*
+- [condition] **OUTCOME** *[ACT][247c]*
 
     An `OUTCOME` is the resolution of either a [`TRIAL`][99d0] or a
-    check (see [Checks][bb56]), corresponding to subclasses [`VERDICT`][52e1] and [`RESULT`][231f].
+    [check][bb56], corresponding to subclasses [`VERDICT`][52e1] and [`RESULT`][231f].
+    
+    ```common-lisp
+    (concrete-events-of-type '(not outcome))
+    => (TRIAL-START UNHANDLED-ERROR NLX)
+    ```
 
 <a id="x-28TRY-3AWITH-EXPECTED-OUTCOME-20MGL-PAX-3AMACRO-29"></a>
 
@@ -1047,10 +1161,11 @@ it, and it can be changed with the [Outcome Restarts][7ef5] and the
     (let ((*print* nil)
           (n 0))
       (with-test ()
-        (handler-bind ((trial-start (lambda (c)
-                                      (format t "TRIAL-START for ~S retry#~S~%"
-                                              (test-name (trial c))
-                                              (n-retries (trial c))))))
+        (handler-bind ((trial-start
+                         (lambda (c)
+                           (format t "TRIAL-START for ~S retry#~S~%"
+                                   (test-name (trial c))
+                                   (n-retries (trial c))))))
           (with-test (this)
             (incf n)
             (when (< n 3)
@@ -2299,8 +2414,8 @@ In Try, tests are Lisp functions that record their execution in
 [`TRIAL`][99d0] objects. `TRIAL`s are to tests what function call traces are to
 functions. In more detail, tests
 
-- create a `TRIAL` object and signal a [`TRIAL-START`][b664] event upon entry to
-  the function,
+- create a `TRIAL` object and signal a [`TRIAL-START`][b664] event upon entry
+  to the function,
 
 - signal a [`VERDICT`][52e1] condition before returning normally or via a
   [non-local exit][b815],
@@ -2598,11 +2713,16 @@ The rest of the behaviour is described in [Explicit `TRY`][1720].
 
 <a id="x-28TRY-3A-2APRINT-2A-20VARIABLE-29"></a>
 
-- [variable] **\*PRINT\*** *LEAF*
+- [variable] **\*PRINT\*** *(OR LEAF DISMISSAL)*
 
-    With the default of [`LEAF`][f58d] combined with the default [`*PRINT-PARENT*`][cc23]
-    `T`, only [`TRIAL`][99d0]s with checks or [`ERROR*`][0321] in them are printed. If
-    [`UNEXPECTED`][d6ad], only the interesting things are printed. See [Printing Events][b3f9].
+    Events of this type are [printed][b3f9].
+    
+    ```common-lisp
+    (concrete-events-of-type '(or leaf dismissal))
+    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+        EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
+        RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT* UNHANDLED-ERROR NLX)
+    ```
 
 <a id="x-28TRY-3A-2ADESCRIBE-2A-20VARIABLE-29"></a>
 
@@ -3164,8 +3284,8 @@ When a [`TRIAL`][99d0] is [`FUNCALL`][03c7]ed or passed to [`TRY`][b602], the *t
 created the trial* is invoked, and it may be run again in its
 entirety or in part. As the test runs, it may invoke other tests.
 Any test (including the top-level one) is skipped if it does not
-correspond to a [collected][52e5] trial or its [`TRIAL-START`][b664] event
-and [`VERDICT`][52e1] do not match the `RERUN` argument of `TRY`. When that
+correspond to a [collected][52e5] trial or its [`TRIAL-START`][b664]
+event and [`VERDICT`][52e1] do not match the `RERUN` argument of `TRY`. When that
 happens, the corresponding function call immediately returns the
 `TRIAL` object.
 
@@ -3335,6 +3455,7 @@ SBCL.
   [231f]: #x-28TRY-3ARESULT-20CONDITION-29 "TRY:RESULT CONDITION"
   [2337]: #x-28TRY-3A-40REPLAY-20MGL-PAX-3ASECTION-29 "Reprocessing Trials"
   [2364]: #x-28TRY-3A-40CHECK-RESTARTS-20MGL-PAX-3ASECTION-29 "Check Restarts"
+  [247c]: #x-28TRY-3AACT-20CONDITION-29 "TRY:ACT CONDITION"
   [25f5]: http://www.lispworks.com/documentation/HyperSpec/Body/f_null.htm "NULL (MGL-PAX:CLHS FUNCTION)"
   [2656]: #x-28TRY-3AOUTCOME-20CONDITION-29 "TRY:OUTCOME CONDITION"
   [269a]: #x-28TRY-3ASUCCESS-20CONDITION-29 "TRY:SUCCESS CONDITION"

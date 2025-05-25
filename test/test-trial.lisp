@@ -54,8 +54,8 @@
                      (is (equal (test-name (current-trial)) "name")))))))
   (with-test ("trial var and name in DEFTEST")
     (is (passedp (call-deftest (foo77 ()
-                                      (is (try::trialp foo77))
-                                      (is (eq (test-name foo77) 'foo77)))))))
+                                 (is (try::trialp foo77))
+                                 (is (eq (test-name foo77) 'foo77)))))))
   (with-test ("trial var and name in explicit TRY")
     (is (passedp (try (named-lambda-test t0 ()
                         (is (try::trialp t0))
@@ -92,7 +92,7 @@
                           (return-from t0 (values 1 2))))
           (try::trialp *) (= * 1) (= * 2)))
     (is (match-values (call-deftest (foo77 ()
-                                           (return-from foo77 (values 1 2))))
+                                      (return-from foo77 (values 1 2))))
           (try::trialp *) (= * 1) (= * 2)))
     (is (match-values (try (named-lambda-test foo77 ()
                              (return-from foo77 (values 1 2)))
@@ -412,7 +412,8 @@
           (retry-trial))))))
 
 (deftest test-with-test/abort-trial-on-trial-start ()
-  (let ((trial (trial (first (children (try '%abort-on-trial-start))))))
+  (let ((trial (trial (first (children (try '%abort-on-trial-start
+                                            :print nil))))))
     (is (try::trialp trial))
     (is (typep (verdict trial) 'verdict-abort*))))
 
@@ -481,7 +482,8 @@
 (deftest test-with-test/abort-trial-on-general-condition ()
   (let ((trial (try (named-lambda-test foo77 ()
                       (handler-bind ((my-cond #'abort-trial))
-                        (signal 'my-cond))))))
+                        (signal 'my-cond)))
+                    :print nil)))
     (is (try::trialp trial))
     (is (typep (verdict trial) 'verdict-abort*))))
 
