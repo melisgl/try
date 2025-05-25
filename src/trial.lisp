@@ -83,6 +83,7 @@
     ERROR*s collected in reverse chronological order (see @COLLECT).
     The VERDICT of this TRIAL is not among CHILDREN, but the VERDICTs
     of child trials' are.")
+   ;; Only non-collected for the sake of @RERUN.
    (has-non-collected-failed-child-p
     :initform nil
     :initarg :has-non-collected-failed-child-p
@@ -199,10 +200,10 @@
   - It is a VERDICT-SKIP if
 
       - SKIP-TRIAL was called on the trial, or
+
       - ABORT-TRIAL, SKIP-TRIAL, or RETRY-TRIAL was called on an
-        enclosing trial, and
-      - these were not overruled by a later ABORT-TRIAL or RETRY-TRIAL
-        on the trial.
+        enclosing trial, and these were not overruled by a later
+        ABORT-TRIAL or RETRY-TRIAL on the trial.
 
   - It is a VERDICT-ABORT* if ABORT-TRIAL was called on the trial, and
     it wasn't overruled by a later SKIP-TRIAL or RETRY-TRIAL.

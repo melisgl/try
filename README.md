@@ -1145,10 +1145,8 @@ is determined as follows.
     - [`SKIP-TRIAL`][f45a] was called on the trial, or
 
     - [`ABORT-TRIAL`][4f9f], `SKIP-TRIAL`, or [`RETRY-TRIAL`][fae3] was called on an
-      enclosing trial, and
-
-    - these were not overruled by a later `ABORT-TRIAL` or `RETRY-TRIAL`
-      on the trial.
+      enclosing trial, and these were not overruled by a later
+      `ABORT-TRIAL` or `RETRY-TRIAL` on the trial.
 
 - It is a [`VERDICT-ABORT*`][4805] if `ABORT-TRIAL` was called on the trial, and
   it wasn't overruled by a later `SKIP-TRIAL` or `RETRY-TRIAL`.
@@ -1379,8 +1377,8 @@ dropped.
 - [condition] **UNHANDLED-ERROR** *[ERROR\*][0321]*
 
     Signalled when an [`CL:ERROR`][d162] condition reaches the
-    handlers set up [`DEFTEST`][e7ca] or [`WITH-TEST`][8f5d], or when their [`*DEBUGGER-HOOK*`][1cdc]
-    is invoked with a condition that's not an [`EVENT`][955d].
+    handlers set up by [`DEFTEST`][e7ca] or [`WITH-TEST`][8f5d], or when their
+    [`*DEBUGGER-HOOK*`][1cdc] is invoked with a condition that's not an [`EVENT`][955d].
 
 <a id="x-28TRY-3ANESTED-CONDITION-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29"></a>
 
