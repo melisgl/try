@@ -511,6 +511,12 @@
 "))
 
 (deftest test-with-test/abort-trial-on-verdict ()
+  (test-with-test/abort-trial-on-verdict-0)
+  (test-with-test/abort-outer-trial-on-verdict-1)
+  (test-with-test/abort-outer-trial-on-verdict-2)
+  (test-with-test/abort-outer-trial-on-verdict-3))
+
+(deftest test-with-test/abort-trial-on-verdict-0 ()
   (check-try-output ((named-lambda-test t0 ()
                        (handler-bind ((unexpected-verdict-failure
                                         #'abort-trial))
@@ -521,6 +527,50 @@
     × (IS NIL)
   ! NIL ×1
 × T0 ×1
+"))
+
+(deftest test-with-test/abort-outer-trial-on-verdict-1 ()
+  (check-try-output ((named-lambda-test outer ()
+                       (handler-bind ((verdict
+                                        (lambda (c)
+                                          (abort-trial c outer))))
+                         (with-test (inner)
+                           (is t)))))
+                    "OUTER
+  INNER
+    ✓ (IS T)
+  - INNER ✓1
+! OUTER ✓1
+"))
+
+(deftest test-with-test/abort-outer-trial-on-verdict-2 ()
+  (check-try-output ((named-lambda-test outer ()
+                       (handler-bind ((verdict
+                                        (lambda (c)
+                                          (abort-trial nil outer))))
+                         (with-test (inner)
+                           (is t)))))
+                    "OUTER
+  INNER
+    ✓ (IS T)
+  - INNER ✓1
+! OUTER ✓1
+"))
+
+(deftest test-with-test/abort-outer-trial-on-verdict-3 ()
+  (check-try-output ((named-lambda-test outer ()
+                       (catch 'xxx
+                         (handler-bind ((verdict
+                                          (lambda (c)
+                                            (declare (ignore c))
+                                            (throw 'xxx nil))))
+                           (with-test (inner)
+                             (is t))))))
+                    "OUTER
+  INNER
+    ✓ (IS T)
+  ! INNER ✓1
+× OUTER ✓1
 "))
 
 (deftest test-with-test/skip-trial-on-verdict ()

@@ -258,19 +258,46 @@
            (*record-event*
              (lambda (verdict)
                (assert (eq (trial verdict) trial))
-               (setf (slot-value trial 'verdict) verdict)
-               ;; No *RECORD-EVENT* during replay (see REPLAY-EVENTS),
-               ;; and we don't want to overwrite ELAPSED-SECONDS in
-               ;; that case.
-               (when previous-record-event
-                 (setf (slot-value trial 'elapsed-seconds)
-                       (setf (slot-value trial 'elapsed-seconds)
-                             (get-elapsed-seconds)))
-                 (funcall previous-record-event verdict)))))
+               (when (and (null (verdict trial))
+                          ;; When a non-SKIP VERDICT is signalled and
+                          ;; we unwind to an outer trial (from the
+                          ;; debugger or passing the verdict to e.g.
+                          ;; ABORT-TRIAL), SAY-HOW-TO-END sets the
+                          ;; intervening trials to :SKIP. So, when
+                          ;; WITH-TRIAL-RESTARTS call us through
+                          ;; *RECORD-EVENT* with the original verdict,
+                          ;; it will be not necessarily be a skip, and
+                          ;; we let the ON-NLX below deal with it.
+                          (or (typep verdict 'skip)
+                              (not (eq how-to-end :skip))))
+                 (dbg "Recording ~S." verdict)
+                 (setf (slot-value trial 'verdict) verdict)
+                 ;; No *RECORD-EVENT* during replay (see
+                 ;; REPLAY-EVENTS), and we don't want to overwrite
+                 ;; ELAPSED-SECONDS in that case.
+                 (when previous-record-event
+                   (setf (slot-value trial 'elapsed-seconds)
+                         (setf (slot-value trial 'elapsed-seconds)
+                               (get-elapsed-seconds)))
+                   (funcall previous-record-event verdict))))))
       ;; For REPLAY-EVENTS.
       (setf how-it-ended how-to-end)
       (setf how-to-end nil)
-      (signal-outcome nil basic-outcome (list :trial trial)))))
+      (on-nlx
+          (signal-outcome nil basic-outcome (list :trial trial))
+        ;; Record a VERDICT if we haven't yet. If we didn't do this,
+        ;; the TRIAL-START event could go unmatched, confusing both
+        ;; the printer and the user.
+        (when (and (null (verdict trial))
+                   (not (eq how-to-end :retry)))
+          (let ((outcome-type (if (eq how-to-end :skip)
+                                  'verdict-skip
+                                  'verdict-abort*)))
+            (dbg "NLX without VERDICT detected. Recording ~S." outcome-type)
+            (unless (eq how-to-end :skip)
+              (setf how-it-ended :abort))
+            (funcall *record-event* (make-condition outcome-type
+                                                    :trial trial))))))))
 
 (defun %trial-basic-verdict (trial)
   (with-slots (how-to-end has-non-collected-failed-child-p children) trial
@@ -497,8 +524,9 @@
                                   (test-name ,trial)))
               ;; This is the debugger's condition pilfered by :TEST.
               :interactive (list ,last-condition-tested-for)
-              (dbg "Restart ~S called in ~S with ~S."
-                   'abort-trial ,trial ,condition)
+              (dbg "Restart ~S called in ~S with ~S (~S: ~S)."
+                   'abort-trial ,trial ,condition 'verdict-for-trial-p
+                   (verdict-for-trial-p ,trial ,condition))
               (say-how-to-end ,trial :abort :skip)
               (cond ((verdict-for-trial-p ,trial ,condition)
                      ,resignal-verdict-form)
