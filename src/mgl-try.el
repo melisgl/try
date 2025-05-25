@@ -66,6 +66,27 @@
   \\{mgl-try-mode-map}"
   :lighter " Try"
   :keymap mgl-try-mode-map)
+
+
+;;;; Version
+
+(defun mgl-try-find-file-up (file-name)
+  (concat (locate-dominating-file load-file-name file-name)
+          file-name))
+
+(defun mgl-try-read-version ()
+  (with-temp-buffer
+    (insert-file-contents (mgl-try-find-file-up "version.lisp-expr"))
+    (goto-char (point-min))
+    (read (current-buffer))))
+
+;;; See TRY::CHECK-TRY-ELISP-VERSION.
+(defvar mgl-try-version)
+;;; The next line is `(setq mgl-try-version (mgl-try-read-version))`
+;;; in the sources, which gets replaced by the the version in
+;;; `version.lisp-expr` by MGL-TRY:INSTALL-TRY-ELISP.
+(setq mgl-try-version (mgl-try-read-version))
+
 
 (defun mgl-try-read-from-minibuffer (prompt &optional initial-value
                                             default-value history)
@@ -91,8 +112,9 @@ interactive debugging."
                                                    (car mgl-try-history)
                                                    'mgl-try-history)
                      nil))
-  (if (slime-eval '(cl:not (cl:find-package :try)))
+  (if (slime-eval '(cl:null (cl:find-package :try)))
       (message "Try is not loaded on the Common Lisp side.")
+    (slime-eval `(try::check-try-elisp-version ',mgl-try-version))
     (let ((name (if (stringp test-name)
                     `(cl:read-from-string
                       ,test-name)

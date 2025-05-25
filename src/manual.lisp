@@ -477,12 +477,33 @@
   ```"""
   (install-try-elisp function))
 
+(defparameter *try-version*
+  '#.(with-open-file (s (asdf:system-relative-pathname
+                         "try" "version.lisp-expr"))
+       (read s)))
+
 (defun install-try-elisp (target-dir)
-  "Copy `mgl-try.el` distributed with this package to TARGET-DIR."
-  (uiop:copy-file (asdf:system-relative-pathname "try" "src/mgl-try.el")
-                  (merge-pathnames "mgl-try.el"
-                                   (uiop:ensure-directory-pathname
-                                    target-dir))))
+  "Install `mgl-try.el` distributed with this package in TARGET-DIR."
+  (let ((source (asdf:system-relative-pathname "try" "src/mgl-try.el"))
+        (target (merge-pathnames "mgl-try.el"
+                                 (uiop:ensure-directory-pathname target-dir))))
+    (with-open-file (s target :direction :output :if-does-not-exist :create
+                              :if-exists :supersede)
+      (dolist (line (uiop:read-file-lines source))
+        (if (string= line "(setq mgl-try-version (mgl-try-read-version))")
+            (format s "(setq mgl-try-version '~S)~%" *try-version*)
+            (write-line line s))))))
+
+(defun check-try-elisp-version (try-elisp-version)
+  (unless (equal try-elisp-version *try-version*)
+    (cerror "Ignore version mismatch."
+            "~@<In Emacs, mgl-try-version is ~S, ~
+            which is different from the CL version ~S. ~
+            You may need to ~S and M-x mgl-try-reload. ~
+            See ~S for more.~:@>"
+            try-elisp-version *try-version* 'try:install-try-elisp
+            '@emacs-setup))
+  t)
 
 
 (defsection @implementation-notes (:title "Implementation Notes")

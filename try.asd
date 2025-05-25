@@ -19,38 +19,41 @@
   :defsystem-depends-on (#:try.asdf)
   :depends-on (#:alexandria #:cl-ppcre #:closer-mop #:ieee-floats #:mgl-pax
                #:trivial-gray-streams #:uiop)
-  :pathname "src/"
-  :serial t
   ;; We compile each file in a (WITH-COMPILATION-UNIT (:OVERRIDE T)
   ;; ...) so that they are treated as separate compilation units (even
   ;; though they are all nested in another WITH-COMPILATION-UNIT) to
   ;; get warnings about forward references from one file to a later
   ;; one.
   :around-compile "try/asdf:compile-wrapper"
-  :components ((:file "package")
-               (:file "util")
-               (:file "gray-stream")
-               (:file "early")
-               (:file "debug")
-               (:file "events")
-               (:file "outcome")
-               (:file "result")
-               (:file "is")
-               (:file "checks")
-               (:file "floats")
-               (:file "trial-event")
-               (:file "error")
-               (:file "count")
-               (:file "trial")
-               (:file "test")
-               (:file "testable")
-               (:file "rerun")
-               (:file "print")
-               (:file "collect")
-               (:file "try")
-               (:file "replay")
-               (:file "manual")
-               (:file "doc"))
+  :components (;; Recompile everything on version change so that
+               ;; TRY::*TRY-VERSION* is updated.
+               (:static-file "version.lisp-expr")
+               (:module "src/"
+                :serial t
+                :components ((:file "package")
+                             (:file "util")
+                             (:file "gray-stream")
+                             (:file "early")
+                             (:file "debug")
+                             (:file "events")
+                             (:file "outcome")
+                             (:file "result")
+                             (:file "is")
+                             (:file "checks")
+                             (:file "floats")
+                             (:file "trial-event")
+                             (:file "error")
+                             (:file "count")
+                             (:file "trial")
+                             (:file "test")
+                             (:file "testable")
+                             (:file "rerun")
+                             (:file "print")
+                             (:file "collect")
+                             (:file "try")
+                             (:file "replay")
+                             (:file "manual")
+                             (:file "doc"))))
   :in-order-to ((asdf:test-op (asdf:test-op "try/test"))))
 
 (asdf:defsystem :try/test
