@@ -27,10 +27,10 @@
     (verdict (count-and-collect-verdict collector event))))
 
 (defun count-and-collect-leaf (collector leaf)
-  (let* ((count-type (%collector-count-type collector))
-         (collect-type (%collector-collect-type collector))
-         (collectp (safe-typep leaf collect-type)))
-    (when *trial*
+  (when *trial*
+    (let* ((count-type (%collector-count-type collector))
+           (collect-type (%collector-collect-type collector))
+           (collectp (safe-typep leaf collect-type)))
       (cond (collectp
              (push leaf (slot-value *trial* 'children))
              (count-collected-leaf leaf count-type))
