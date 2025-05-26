@@ -69,9 +69,7 @@
   (declare (ignore terse ctx))
   (format stream "~S" (ignore-errors (trial trial-start))))
 
-(define-condition verdict (trial-event outcome)
-  ((elapsed-seconds :initform nil :initarg :elapsed-seconds
-                    :reader elapsed-seconds))
+(define-condition verdict (trial-event outcome) ()
   (:documentation "A VERDICT is the OUTCOME of a TRIAL. It is one of
   `{EXPECTED,UNEXPECTED}-VERDICT-{SUCCESS,FAILURE}`, VERDICT-SKIP and
   VERDICT-ABORT*. Regarding how the verdict type is determined, see
@@ -98,6 +96,9 @@
   ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {53038ADB}>) EXPECTED-SUCCESS 0.000s ⋅1>
   ```
  "))
+
+(defmethod elapsed-seconds ((verdict verdict))
+  (elapsed-seconds (trial verdict)))
 
 (declaim (ftype (function (t t) t) write-trial-counts))
 (declaim (ftype (function (t) t) test-name))

@@ -14,7 +14,14 @@
     (test-checks)
     (test-floats)
     (test-trial)
-    (test-try)))
+    (test-try)
+    (test-transcripts)))
+
+(deftest test-transcripts ()
+  #+sbcl
+  (signals-not (pax:transcription-error)
+    (with-new-implicit-try
+      (pax:document try::@try-manual :stream (make-broadcast-stream)))))
 
 (defun test (&key (debug nil) (print 'unexpected) (describe 'unexpected))
   (warn-on-tests-not-run ((find-package :try-test))

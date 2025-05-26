@@ -480,10 +480,15 @@
 (defvar *testing-timing* nil)
 
 (defun get-elapsed-seconds ()
-  (/ (cond ((eq *testing-timing* t)
-            (* 2 (random internal-time-units-per-second)))
+  (/ (cond ((null *testing-timing*)
+            (- (get-internal-real-time) *start-time*))
            ((numberp *testing-timing*)
             (* *testing-timing* internal-time-units-per-second))
+           ((listp *testing-timing*)
+            (prog1
+                (* (pop *testing-timing*) internal-time-units-per-second)
+              (unless *testing-timing*
+                (setq *testing-timing* t))))
            (t
-            (- (get-internal-real-time) *start-time*)))
+            (* 2 (random internal-time-units-per-second))))
      internal-time-units-per-second))

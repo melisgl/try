@@ -264,7 +264,7 @@
 (defvar *print-duration* nil
   """If true, the number of seconds spent during execution is printed.
 
-  ```cl-transcript (:check-consistency nil)
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*print-duration* t)
         (*debug* nil)
         (*describe* nil))
@@ -273,12 +273,12 @@
       (is (progn (sleep 0.2) t))
       (error "xxx")))
   ..        TIMED
-  ..  0.300   ⋅ (IS (PROGN (SLEEP 0.3) T))
+  ..  0.100   ⋅ (IS (PROGN (SLEEP 0.3) T))
   ..  0.200   ⋅ (IS (PROGN (SLEEP 0.2) T))
-  ..          ⊟ ""xxx (SIMPLE-ERROR)
-  ..  0.504 ⊟ TIMED ⊟1 ⋅2
+  ..          ⊟ "xxx" (SIMPLE-ERROR)
+  ..  0.300 ⊟ TIMED ⊟1 ⋅2
   ..
-  ==> #<TRIAL (WITH-TEST (TIMED)) ABORT* 0.504s ⊟1 ⋅2>
+  ==> #<TRIAL (WITH-TEST (TIMED)) ABORT* 0.300s ⊟1 ⋅2>
   ```
 
   Timing is available for all OUTCOMEs (i.e. for @CHECKS and TRIALs).
