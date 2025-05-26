@@ -31,6 +31,9 @@ jobs:
         run: |
           curl -L https://raw.githubusercontent.com/roswell/roswell/master/scripts/install-for-ci.sh | sh
 
+      - name: Install latest MGL-PAX from GitHub
+        run: ros install melisgl/mgl-pax
+
       - name: Run tests
         env:
           LISP: ${{ matrix.lisp }}
