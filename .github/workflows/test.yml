@@ -35,5 +35,7 @@ jobs:
         env:
           LISP: ${{ matrix.lisp }}
         run: |
-          ros run -e '(ql:quickload :try)' -q
+          ros run -e '(ql:quickload :try)' \
+                  -e '(ql:quickload "mgl-pax/full")' \
+                  -q
           ./test/test.sh $LISP
