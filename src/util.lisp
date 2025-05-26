@@ -492,3 +492,13 @@
            (t
             (* 2 (random internal-time-units-per-second))))
      internal-time-units-per-second))
+
+
+(defmacro without-redefinition-warnings (&body body)
+  #+sbcl
+  `(locally
+       (declare (sb-ext:muffle-conditions sb-kernel:redefinition-warning))
+     (handler-bind ((sb-kernel:redefinition-warning #'muffle-warning))
+       ,@body))
+  #-sbcl
+  `(progn ,@body))

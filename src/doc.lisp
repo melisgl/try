@@ -6,7 +6,7 @@
 ;;; ```cl-transcript (:dynenv try-transcript)
 ;;; ```
 (defun try-transcript (fn)
-  (autoload::without-redefinition-warnings
+  (without-redefinition-warnings
     (let ((*package* (find-package :try))
           (*run-deftest-when* *run-deftest-when*)
           (*testing-timing* '(0.1 0.2 0.3 0.4 0.5 0.6))
