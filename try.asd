@@ -61,7 +61,7 @@
   :author "Gábor Melis"
   :mailto "mega@retes.hu"
   :description "Test system for TRY."
-  :depends-on ("try" (:feature (:sbcl) "mgl-pax/document"))
+  :depends-on ("try" (:feature :sbcl "mgl-pax/document"))
   :components ((:module "test"
                 :serial t
                 :components ((:file "package")
