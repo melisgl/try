@@ -482,6 +482,12 @@
                          "try" "version.lisp-expr"))
        (read s)))
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (setf (asdf:component-version (asdf:find-system "try"))
+        (format nil "~{~A~^.~}"
+                (uiop:safe-read-file-form
+                 (asdf:system-relative-pathname "try" "version.lisp-expr")))))
+
 (defun install-try-elisp (target-dir)
   "Install `mgl-try.el` distributed with this package in TARGET-DIR."
   (let ((source (asdf:system-relative-pathname "try" "src/mgl-try.el"))
