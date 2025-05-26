@@ -42,7 +42,8 @@
   SKIP-TRIAL, ABORT-TRIAL). In this case, there is no CL:ERROR
   associated with the event."))
 
-(defvar *print-backtrace* nil)
+(defvar *print-backtrace* t
+  "Whether to print backtraces gathered when *GATHER-BACKTRACE*.")
 
 (defmethod write-event ((unhandled-error unhandled-error) stream
                         &key terse ctx)
@@ -126,7 +127,7 @@
 (defvar *gather-backtrace* t
   "Capturing the backtrace can be expensive. *GATHER-BACKTRACE*
   controls whether UNHANDLED-ERRORs shall have their BACKTRACE-OF
-  populated.")
+  populated. Also, see *PRINT-BACKTRACE*.")
 
 (defun maybe-backtrace (condition)
   ;; The backtrace for NLX (i.e. when CONDITION is NIL) is

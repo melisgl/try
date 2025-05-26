@@ -8,6 +8,7 @@
         (*print-indentation* 2)
         (*print-duration* nil)
         (*print-compactly* nil)
+        (*print-backtrace* t)
         (*defer-describe* nil))
     (test-utils)
     (test-is)

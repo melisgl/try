@@ -1295,7 +1295,7 @@ dropped.
 
     Capturing the backtrace can be expensive. *GATHER-BACKTRACE*
     controls whether UNHANDLED-ERRORs shall have their BACKTRACE-OF
-    populated.
+    populated. Also, see *PRINT-BACKTRACE*.
 
 - [condition] NLX ERROR\*
 
@@ -2777,6 +2777,10 @@ setups.
     ```
     
     *PRINT-COMPACTLY* has no effect on events being `DESCRIBE`d.
+
+- [variable] *PRINT-BACKTRACE* T
+
+    Whether to print backtraces gathered when *GATHER-BACKTRACE*.
 
 - [variable] *DEFER-DESCRIBE* NIL
 

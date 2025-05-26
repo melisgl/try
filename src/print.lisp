@@ -20,6 +20,7 @@
   (*print-indentation* variable)
   (*print-duration* variable)
   (*print-compactly* variable)
+  (*print-backtrace* variable)
   (*defer-describe* variable))
 
 ;;; FIXME: document this properly.
@@ -530,10 +531,9 @@
         (t
          (with-slots (stream) printer
            (print-event-header printer outcome)
-           (let ((*print-backtrace* t))
-             (with-circularity-detection (stream)
-               (write-event outcome stream :terse t :ctx t))
-             (terpri stream))))))
+           (with-circularity-detection (stream)
+             (write-event outcome stream :terse t :ctx t))
+           (terpri stream)))))
 
 (defmethod finish-printing ((printer tree-printer))
   (describe-to-be-described printer))
