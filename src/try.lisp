@@ -405,29 +405,32 @@
 
 
 (defun try-for-emacs (testable &key rerun-all implicit)
-  (swank::with-buffer-syntax ()
-    (with-output-to-string (out)
-      ;; Documented in the Elisp function `mgl-try'.
-      (let ((*rerun* (if rerun-all t *rerun*))
-            (*stream* (make-broadcast-stream *standard-output* out))
-            ;; Override @PRINT settings so that Elisp can parse the
-            ;; output. *PRINT-BACKTRACE* is the only safe one.
-            (*printer* 'tree-printer)
-            (*print-parent* t)
-            (*print-indentation* :outline)
-            (*print-duration* (if *print-duration* :after-marker nil))
-            (*print-compactly* nil)
-            (*defer-describe* nil)
-            (*categories*
-              (cons
-               '(unexpected-verdict-failure :marker "→⊠")
-               (fancy-std-categories))))
-        (catch 'nlx-barrier
-          (unwind-protect
-               (if implicit
-                   (funcall testable)
-                   (try testable
-                        :rerun (if rerun-all t *try-rerun*)
-                        :stream *stream*
-                        :printer *printer*))
-            (throw 'nlx-barrier nil)))))))
+  (uiop:symbol-call
+   '#:swank '#:call-with-buffer-syntax
+   nil
+   (lambda ()
+     (with-output-to-string (out)
+       ;; Documented in the Elisp function `mgl-try'.
+       (let ((*rerun* (if rerun-all t *rerun*))
+             (*stream* (make-broadcast-stream *standard-output* out))
+             ;; Override @PRINT settings so that Elisp can parse the
+             ;; output. *PRINT-BACKTRACE* is the only safe one.
+             (*printer* 'tree-printer)
+             (*print-parent* t)
+             (*print-indentation* :outline)
+             (*print-duration* (if *print-duration* :after-marker nil))
+             (*print-compactly* nil)
+             (*defer-describe* nil)
+             (*categories*
+               (cons
+                '(unexpected-verdict-failure :marker "→⊠")
+                (fancy-std-categories))))
+         (catch 'nlx-barrier
+           (unwind-protect
+                (if implicit
+                    (funcall testable)
+                    (try testable
+                         :rerun (if rerun-all t *try-rerun*)
+                         :stream *stream*
+                         :printer *printer*))
+             (throw 'nlx-barrier nil))))))))

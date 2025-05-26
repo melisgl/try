@@ -17,8 +17,8 @@
   of what to debug, print, rerun. There is a single fundamental check,
   the extensible IS macro. Everything else is built on top."
   :defsystem-depends-on (#:try.asdf)
-  :depends-on (#:alexandria #:cl-ppcre #:closer-mop #:ieee-floats #:mgl-pax
-               #:trivial-gray-streams #:uiop)
+  :depends-on ("alexandria" "cl-ppcre" "closer-mop" "ieee-floats" "mgl-pax"
+               "trivial-gray-streams" "uiop")
   ;; We compile each file in a (WITH-COMPILATION-UNIT (:OVERRIDE T)
   ;; ...) so that they are treated as separate compilation units (even
   ;; though they are all nested in another WITH-COMPILATION-UNIT) to
@@ -61,7 +61,7 @@
   :author "Gábor Melis"
   :mailto "mega@retes.hu"
   :description "Test system for TRY."
-  :depends-on (#:try)
+  :depends-on ("try" (:feature :sbcl "mgl-pax/document"))
   :components ((:module "test"
                 :serial t
                 :components ((:file "package")
