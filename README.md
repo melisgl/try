@@ -61,7 +61,7 @@ for the latest version.
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
 
 - [system] **"try"**
-    - _Version:_ 0.0.2
+    - _Version:_ 0.0.3
     - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
     - _Long Description:_ Try stays as close to normal Lisp evaluation

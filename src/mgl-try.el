@@ -100,18 +100,47 @@
         default-value
       string)))
 
-(defun mgl-try (test-name rerun-all)
+(defun mgl-try (test-name)
   "Call the Try test TEST-NAME and display its output in a buffer
 with minor mode `mgl-try-mode'.
 
-With a prefix arg, FUNCALL TEST-NAME (see TRY::@IMPLICIT-TRY).
-With the default value of TRY:*DEBUG*, this is suitable for
-interactive debugging."
+- With no prefix arg, TEST-NAME is invoked by the function
+  TRY:TRY (an TRY::@EXPLICIT-TRY). With the default value of
+  TRY:*TRY-DEBUG* being NIL, this will not enter the debugger.
+
+- With a prefix arg, TEST-NAME is FUNCALLed (an
+  TRY::@IMPLICIT-TRY). With the default value of TRY:*DEBUG*,
+  this is suitable for interactive debugging.
+
+To ensure that the output is parsable by Elisp, the following
+Common Lisp variables are overridden:
+
+- TRY:*TRY-PRINTER* and TRY:*PRINTER* (in explicit and implicit
+  modes) are set to TRY:TREE-PRINTER,
+
+- TRY:*PRINT-PARENT* to T,
+
+- TRY:*PRINT-INDENTATION* to :OUTLINE,
+
+- TRY:*PRINT-COMPACTLY* to NIL,
+
+- TRY:*DEFER-DESCRIBE* to NIL.
+
+- TRY:*CATEGORIES* to TRY:FANCY-STD-FAILURE (with a small
+  modification to print UNEXPECTED-VERDICT-FAILUREs with the
+  marker \"→⊠\". This is because their failure is a consequence
+  of other failures, and this way `mgl-try-next-unexpected' skips
+  over them.
+
+Other variables not listed here (such as TRY:*PRINT-BACKTRACE*,
+TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
   (interactive (list (mgl-try-read-from-minibuffer "Try test"
                                                    (slime-symbol-at-point)
                                                    (car mgl-try-history)
-                                                   'mgl-try-history)
-                     nil))
+                                                   'mgl-try-history)))
+  (mgl-try* test-name nil))
+
+(defun mgl-try* (test-name rerun-all)
   (if (slime-eval '(cl:null (cl:find-package :try)))
       (message "Try is not loaded on the Common Lisp side.")
     (slime-eval `(try::check-try-elisp-version ',mgl-try-version))
@@ -119,28 +148,28 @@ interactive debugging."
                     `(cl:read-from-string
                       ,test-name)
                   test-name))
-          (rerun-msg (if rerun-all
-                         " (rerun all)"
-                       "")))
-      (if current-prefix-arg
-          (slime-eval-async `(swank::with-buffer-syntax
-                              ()
-                              (try::try-for-emacs/implicit ,name))
-            (lambda (output)
-              (message "Called %S%s" test-name rerun-msg)))
-        (slime-eval-async `(swank::with-buffer-syntax
-                            ()
-                            (try::try-for-emacs ,name :rerun-all ,rerun-all))
-          (lambda (output)
-            (when (< 0 (length output))
-              (mgl-try-display output))
-            (message "Tried %S%s" test-name rerun-msg)))))))
+          (implicit (not (null current-prefix-arg))))
+      (slime-eval-async `(swank::with-buffer-syntax
+                          ()
+                          (try::try-for-emacs ,name :rerun-all ,rerun-all
+                                              :implicit ,implicit))
+        (lambda (output)
+          (when (or (< 0 (length output))
+                    (eq major-mode 'mgl-try-mode))
+            (mgl-try-display output))
+          (let ((action (if implicit "Called" "Tried"))
+                (rerun-msg (if rerun-all
+                               " (rerun all)"
+                             "")))
+            (message "%s %S%s" action test-name rerun-msg)))))))
 
 (defun mgl-try-display (output)
-  (switch-to-buffer "*try*")
-  (read-only-mode -1)
-  (erase-buffer)
-  (lisp-mode)
+  (let ((package (slime-current-package)))
+    (switch-to-buffer "*try*")
+    (read-only-mode -1)
+    (erase-buffer)
+    (lisp-mode)
+    (setq slime-buffer-package package))
   (outline-minor-mode)
   (setq outline-regexp "\\*+ ")
   (mgl-try-mode)
@@ -179,16 +208,22 @@ interactive debugging."
 
 (defun mgl-try-rerun-! ()
   "Rerun the most recent trial (TRY:!).
-This is subject to TRY:*TRY-RERUN*. See TRY::@RERUN."
+This is subject to TRY:*TRY-RERUN*. See TRY::@RERUN.
+
+Prefix arguments are variables overrides are as described in
+`mgl-try'."
   (interactive)
-  (mgl-try 'try:! nil))
+  (mgl-try* 'try:! nil))
 
 (defun mgl-try-rerun-!-all ()
-  "Rerun the most recently finished test (corresponding to TRY:!).
+  "Rerun the most recently finished trial (TRY:!).
 This unconditionally reruns all tests. It's not subject to
-TRY:*TRY-RERUN*."
+TRY:*TRY-RERUN* or TRY:*RERUN*.
+
+Prefix arguments are variables overrides are as described in
+`mgl-try'."
   (interactive)
-  (mgl-try 'try:! t))
+  (mgl-try* 'try:! t))
 
 
 (defvar mgl-try-unexpected-regexp

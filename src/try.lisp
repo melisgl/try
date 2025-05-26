@@ -404,27 +404,30 @@
       (invoke-debugger outcome))))
 
 
-(defun try-for-emacs (testable &key rerun-all)
-  (let ((*package* (find-package :common-lisp))
-        (*printer* 'tree-printer)
-        (*print-parent* t)
-        (*print-indentation* :outline)
-        (*print-duration* (if *print-duration* :after-marker nil))
-        (*categories*
-          (cons
-           ;; KLUDGE: UNEXPECTED-VERDICT-FAILUREs are consequences of
-           ;; other failures, thus not interesting. By changing its
-           ;; marker, `mgl-try-next-unexpected' will skip over them.
-           '(unexpected-verdict-failure :marker "→⊠")
-           (fancy-std-categories))))
+(defun try-for-emacs (testable &key rerun-all implicit)
+  (swank::with-buffer-syntax ()
     (with-output-to-string (out)
-      (catch 'nlx-barrier
-        (unwind-protect
-             (try testable
-                  :stream (make-broadcast-stream *standard-output* out)
-                  :rerun (if rerun-all t *try-rerun*))
-          (throw 'nlx-barrier nil))))))
-
-(defun try-for-emacs/implicit (testable)
-  (funcall testable)
-  (values))
+      ;; Documented in the Elisp function `mgl-try'.
+      (let ((*rerun* (if rerun-all t *rerun*))
+            (*stream* (make-broadcast-stream *standard-output* out))
+            ;; Override @PRINT settings so that Elisp can parse the
+            ;; output. *PRINT-BACKTRACE* is the only safe one.
+            (*printer* 'tree-printer)
+            (*print-parent* t)
+            (*print-indentation* :outline)
+            (*print-duration* (if *print-duration* :after-marker nil))
+            (*print-compactly* nil)
+            (*defer-describe* nil)
+            (*categories*
+              (cons
+               '(unexpected-verdict-failure :marker "→⊠")
+               (fancy-std-categories))))
+        (catch 'nlx-barrier
+          (unwind-protect
+               (if implicit
+                   (funcall testable)
+                   (try testable
+                        :rerun (if rerun-all t *try-rerun*)
+                        :stream *stream*
+                        :printer *printer*))
+            (throw 'nlx-barrier nil)))))))
