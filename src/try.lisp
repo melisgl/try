@@ -407,11 +407,14 @@
 (defun try-for-emacs (testable &key rerun-all)
   (let ((*package* (find-package :common-lisp))
         (*printer* 'tree-printer)
-        (*print-indentation* :outline)
         (*print-parent* t)
+        (*print-indentation* :outline)
+        (*print-duration* (if *print-duration* :after-marker nil))
         (*categories*
           (cons
-           ;; These are consequences of other failures, thus not interesting.
+           ;; KLUDGE: UNEXPECTED-VERDICT-FAILUREs are consequences of
+           ;; other failures, thus not interesting. By changing its
+           ;; marker, `mgl-try-next-unexpected' will skip over them.
            '(unexpected-verdict-failure :marker "→⊠")
            (fancy-std-categories))))
     (with-output-to-string (out)

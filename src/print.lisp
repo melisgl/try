@@ -436,17 +436,27 @@
         finally (return 0)))
 
 (defun print-event-header (printer event)
-  (let ((stream (stream-of printer)))
-    (%ensure-new-line stream)
-    (when (print-duration-p printer)
-      (if (typep event 'outcome)
-          (print-duration (elapsed-seconds event) stream)
-          (format stream "      "))
-      (format stream " "))
-    (%print-indent-for printer event)
-    (let ((marker (category-marker event *categories*)))
-      (when marker
-        (format stream "~A " marker)))))
+  (let ((stream (stream-of printer))
+        (print-duration (print-duration-p printer)))
+    (flet ((print-duration (afterp)
+             (when print-duration
+               (cond ((and (not afterp)
+                           (not (eq print-duration :after-marker)))
+                      (if (typep event 'outcome)
+                          (print-duration (elapsed-seconds event) stream)
+                          (format stream "      "))
+                      (format stream " "))
+                     ((and afterp (eq print-duration :after-marker))
+                      (when (typep event 'outcome)
+                        (let ((seconds (elapsed-seconds event)))
+                          (format stream "(~,3Fs) " seconds))))))))
+      (%ensure-new-line stream)
+      (print-duration nil)
+      (%print-indent-for printer event)
+      (let ((marker (category-marker event *categories*)))
+        (when marker
+          (format stream "~A " marker)))
+      (print-duration t))))
 
 ;;; Just in case the running tests wrote to STREAM as well.
 (defun %ensure-new-line (stream)
