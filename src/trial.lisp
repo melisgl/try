@@ -271,9 +271,8 @@
                           (or (typep verdict 'skip)
                               (not (eq how-to-end :skip))))
                  (setf (slot-value trial 'verdict) verdict)
-                 ;; No *RECORD-EVENT* during replay (see
-                 ;; REPLAY-EVENTS), and we don't want to overwrite
-                 ;; ELAPSED-SECONDS in that case.
+                 ;; No *RECORD-EVENT* during @REPLAY, and we don't
+                 ;; want to overwrite ELAPSED-SECONDS in that case.
                  (when previous-record-event
                    (setf (slot-value trial 'elapsed-seconds)
                          (setf (slot-value trial 'elapsed-seconds)

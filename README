@@ -2932,33 +2932,59 @@ TRIAL object.
     their current values are ignored to be able to keep consistent
     counts (see @COUNT).
     
-    Suppose we have run a large test using the default `:PRINT 'LEAF`
-    `:COLLECT 'UNEXPECTED` arguments for TRY, and now we have too much
-    output to look at. Instead of searching for the interesting bits in
-    the output, we can replay the events and print only the UNEXPECTED
-    events:
+    Suppose we ran a large test using the default `:PRINT` and into a
+    rare non-deterministic bug.
     
-    ```
-    (replay-events ! :print 'unexpected)
+    ```common-lisp
+    (deftest some-test ()
+      (with-test (inner)
+        (is t)
+        (is (= 10 7))   ; fake non-deterministic bug
+        (is t))
+      (error "my-msg"))
+    
+    (try 'some-test)
     ```
     
-    Or we could tell the printer to just print markers for *CATEGORIES*
-    and :DESCRIBE at the end:
+    Now, the output is too large with EXPECTED events and the backtrace
+    cluttering it. We could try running the test again with different
+    settings, or even just rerunning it, but that might make
+    the bug go away. Instead of searching for the interesting bits in
+    the text output, we can replay the events and print only the
+    UNEXPECTED events:
     
+    ```common-lisp
+    (let ((*print-backtrace* nil))
+      (replay-events ! :print 'unexpected))
+    .. SOME-TEST
+    ..   INNER
+    ..     ⊠ (IS (= 10 7))
+    ..   ⊠ INNER ⊠1 ⋅2
+    ..   ⊟ "my-msg" (SIMPLE-ERROR)
+    .. ⊟ SOME-TEST ⊟1 ⊠1 ⋅2
+    ..
+    ==> #<TRIAL (SOME-TEST) ABORT* 0.500s ⊟1 ⊠1 ⋅2>
     ```
-    (let ((*print-parent* nil)
+    
+    Now, we decide that nesting of test is unimportant here, change to
+    new printer settings and replay:
+    
+    ```common-lisp
+    (let ((*print-backtrace* nil)
+          (*print-parent* nil)
           (*print-compactly* t)
-          (*defer-describe* t)
-          (*categories* (ascii-std-categories)))
+          (*defer-describe* t))
       (replay-events !))
-    .. ................F................!.....
-    .. 
-    .. ;; UNEXPECTED-FAILURE (F) in SOME-TEST INNER-TEST:
-    .. (IS (= 5 6))
-    .. debug info
-    .. 
-    .. ;; UNHANDLED-ERROR (!) in SOME-TEST:
-    .. "my-msg" (MY-ERR)
+    .. ⊠⊟
+    .. ⊟ SOME-TEST ⊟1 ⊠1 ⋅2
+    ..
+    .. ;; UNEXPECTED-RESULT-FAILURE (⊠) in SOME-TEST INNER:
+    .. (IS (= 10 7))
+    ..
+    .. ;; UNHANDLED-ERROR (⊟) in SOME-TEST:
+    .. "my-msg" (SIMPLE-ERROR)
+    ..
+    ==> #<TRIAL (SOME-TEST) ABORT* 0.500s ⊟1 ⊠1 ⋅2>
     ```
 
 ## Implementation Notes
