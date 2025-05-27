@@ -74,7 +74,7 @@ that, everything should be passed around in objects, so what happens
 to the specials doesn't matter. But nested TRYs establish a new
 context (new event handlers, printer object, etc). This can be
 prevented, but that would break other code (maybe Try's own tests).
-Maybe the right default is use the outer context but allows opt out?
+Maybe the right default is use the outer context but allow opt out?
 * MAYBE find the exact source location somehow with M-. on the repl output?
 PAX has MARK-THIS-SOURCE-LOCATION.
 

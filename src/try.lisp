@@ -421,10 +421,8 @@
              (*print-duration* (if *print-duration* :after-marker nil))
              (*print-compactly* nil)
              (*defer-describe* nil)
-             (*categories*
-               (cons
-                '(unexpected-verdict-failure :marker "→⊠")
-                (fancy-std-categories))))
+             (*categories* (cons '(unexpected-verdict-failure :marker "→⊠")
+                                 (fancy-std-categories))))
          (catch 'nlx-barrier
            (unwind-protect
                 (if implicit

@@ -3290,10 +3290,11 @@ When a [`TRIAL`][99d0] is [`FUNCALL`][03c7]ed or passed to [`TRY`][b602], the *t
 created the trial* is invoked, and it may be run again in its
 entirety or in part. As the test runs, it may invoke other tests.
 Any test (including the top-level one) is skipped if it does not
-correspond to a [collected][52e5] trial or its [`TRIAL-START`][b664]
-event and [`VERDICT`][52e1] do not match the `RERUN` argument of `TRY`. When that
+correspond to a [collected][52e5] trial or its [`TRIAL-START`][b664] event
+and [`VERDICT`][52e1] do not match the `RERUN` argument of `TRY`. When that
 happens, the corresponding function call immediately returns the
-`TRIAL` object.
+`TRIAL` object. In trials that are rerun, @CHECKs are executed
+normally.
 
 - A new trial is skipped (as if with [`SKIP-TRIAL`][f45a]) if `RERUN` is not `T`
   and
@@ -3305,6 +3306,10 @@ happens, the corresponding function call immediately returns the
     - the first such trial does not match the `RERUN` type argument of
       `TRY` in that neither its `TRIAL-START`, `VERDICT` events match the
       type `RERUN`, nor do any of its collected [`RESULT`][231f]s and trials.
+
+- If `RERUN` is `T`, then the test is run in its entirety, including
+  even the non-collected trials. Use `RERUN` [`EVENT`][955d] to run only the
+  collected trials.
 
 - The *test that created the trial* is determined as follows.
 
@@ -3328,9 +3333,9 @@ happens, the corresponding function call immediately returns the
       on a rerun the same `TESTABLE` is run again.
 
     All three possibilities involve entering `DEFTEST` or `WITH-TEST`,
-    or invoking `TRY`: the same cases that we have when calling tests
-    functions (see [Calling Test Functions][012f]). Thus, even if a trial is rerun
-    with `FUNCALL`, execution is guaranteed to happen under `TRY`.
+    or invoking `TRY`: the same cases that we have with [Calling Test Functions][012f].
+    Thus, even if a trial is rerun with `FUNCALL`, execution is
+    guaranteed to happen under `TRY`.
 
 
 <a id="x-28TRY-3A-40REPLAY-20MGL-PAX-3ASECTION-29"></a>

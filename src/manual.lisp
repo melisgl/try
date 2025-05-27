@@ -360,59 +360,7 @@
   Plus, with support for selectively @RERUN, the need for fixtures is
   lessened.
 
-  ##### Packages
-
-  The suggested way of writing tests is to call test functions
-  explicitly:
-
-  ```
-  (defpackage :some-test-package
-    (:use #:common-lisp #:try))
-  (in-package :some-test-package)
-
-  (deftest test-all ()
-    (test-this)
-    (test-that))
-
-  (deftest test-this ()
-    (test-this/more))
-
-  (deftest test-this/more ()
-    (is t))
-
-  (deftest test-that ()
-    (is t))
-
-  (deftest not-called ()
-    (is t))
-
-  (defun test ()
-    (warn-on-tests-not-run ((find-package :some-test-package))
-      (try 'test-all)))
-
-  (test)
-  .. TEST-ALL
-  ..   TEST-THIS
-  ..     TEST-THIS/MORE
-  ..       ⋅ (IS T)
-  ..     ⋅ TEST-THIS/MORE ⋅1
-  ..   ⋅ TEST-THIS ⋅1
-  ..   TEST-THAT
-  ..     ⋅ (IS T)
-  ..   ⋅ TEST-THAT ⋅1
-  .. ⋅ TEST-ALL ⋅2
-  .. WARNING: Test NOT-CALLED not run.
-  ==> #<TRIAL (TEST-ALL) EXPECTED-SUCCESS 0.012s ⋅2>
-  ```
-
-  Note how the TEST function uses WARN-ON-TESTS-NOT-RUN to catch any
-  tests defined in `SOME-TEST-PACKAGE` that were not run. Tests can be
-  deleted by FMAKUNBOUND, UNINTERN, or by redefining the function with
-  DEFUN. Tests defined in a given package can be listed with
-  LIST-PACKAGE-TESTS.
-
-  This style allows higher level tests to establish the dynamic
-  environment necessary for lower level tests.
+  [@package-example note][docstring]
   """)
 
 
@@ -554,3 +502,61 @@
         (throw 'bar 'bar))))
   => BAR
   ```")
+
+
+;;; This is last because SLIME gets confused by the IN-PACKAGE within
+;;; triple quotes and thinks that anything below is in that package.
+(note @package-example
+      """##### Packages
+
+  The suggested way of writing tests is to call test functions
+  explicitly:
+
+  ```
+  (defpackage :some-test-package
+    (:use #:common-lisp #:try))
+  (in-package :some-test-package)
+
+  (deftest test-all ()
+    (test-this)
+    (test-that))
+
+  (deftest test-this ()
+    (test-this/more))
+
+  (deftest test-this/more ()
+    (is t))
+
+  (deftest test-that ()
+    (is t))
+
+  (deftest not-called ()
+    (is t))
+
+  (defun test ()
+    (warn-on-tests-not-run ((find-package :some-test-package))
+      (try 'test-all)))
+
+  (test)
+  .. TEST-ALL
+  ..   TEST-THIS
+  ..     TEST-THIS/MORE
+  ..       ⋅ (IS T)
+  ..     ⋅ TEST-THIS/MORE ⋅1
+  ..   ⋅ TEST-THIS ⋅1
+  ..   TEST-THAT
+  ..     ⋅ (IS T)
+  ..   ⋅ TEST-THAT ⋅1
+  .. ⋅ TEST-ALL ⋅2
+  .. WARNING: Test NOT-CALLED not run.
+  ==> #<TRIAL (TEST-ALL) EXPECTED-SUCCESS 0.012s ⋅2>
+  ```
+
+  Note how the TEST function uses WARN-ON-TESTS-NOT-RUN to catch any
+  tests defined in `SOME-TEST-PACKAGE` that were not run. Tests can be
+  deleted by FMAKUNBOUND, UNINTERN, or by redefining the function with
+  DEFUN. Tests defined in a given package can be listed with
+  LIST-PACKAGE-TESTS.
+
+  This style allows higher level tests to establish the dynamic
+  environment necessary for lower level tests.""")
