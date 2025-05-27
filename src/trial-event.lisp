@@ -27,7 +27,7 @@
   CURRENT-TRIAL, and the @TRIAL-RESTARTS are available. It is also
   signalled when a trial is retried:
 
-  ```cl-transcript
+  ```cl-transcript (:dynenv try-transcript)
   (let ((*print* nil)
         (n 0))
     (with-test ()
@@ -106,9 +106,7 @@
 (defmethod write-event ((verdict verdict) stream &key terse ctx)
   (if (and terse ctx)
       (let ((trial (trial verdict)))
-        (if (stringp (test-name trial))
-            (format stream "~A" (test-name trial))
-            (format stream "~S" (test-name trial)))
+        (format stream "~S" (test-name trial))
         (write-trial-counts trial stream))
       (format stream "~S" (ignore-errors (trial verdict)))))
 

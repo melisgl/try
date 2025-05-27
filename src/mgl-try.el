@@ -102,7 +102,9 @@
 
 (defun mgl-try (test-name)
   "Call the Try test TEST-NAME and display its output in a buffer
-with minor mode `mgl-try-mode'.
+with minor mode `mgl-try-mode'. TEST-NAME defaults to the symbol
+under point or, in `mgl-try-mode', to the name of the innermost
+global test that contains the current line.
 
 - With no prefix arg, TEST-NAME is invoked by the function
   TRY:TRY (an TRY::@EXPLICIT-TRY). With the default value of
@@ -112,11 +114,21 @@ with minor mode `mgl-try-mode'.
   TRY::@IMPLICIT-TRY). With the default value of TRY:*DEBUG*,
   this is suitable for interactive debugging.
 
+As long as the `mgl-try-mode' buffer exists, `mgl-try' (bound
+\"t\" in that buffer), will use the trial with which the buffer
+was created as TRY:*RECORD-CONTEXT* (without affecting it global
+binding). Thus, all invocations of `mgl-try' will go to the same
+buffer and use the dynamic environment of the first trial. If
+that's no longer desired, just kill the buffer (bound to \"q\").
+
 To ensure that the output is parsable by Elisp, the following
 Common Lisp variables are overridden:
 
-- TRY:*TRY-PRINTER* and TRY:*PRINTER* (in explicit and implicit
-  modes) are set to TRY:TREE-PRINTER,
+- All trials are collected. That is, TRY:*COLLECT* and
+  TRY:*TRY-COLLECT* (in implicit and explicit modes) are set to
+  TRIAL-EVENT.
+
+- TRY:*TRY-PRINTER* and TRY:*PRINTER* are set to TRY:TREE-PRINTER,
 
 - TRY:*PRINT-PARENT* to T,
 
@@ -134,13 +146,41 @@ Common Lisp variables are overridden:
 
 Other variables not listed here (such as TRY:*PRINT-BACKTRACE*,
 TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
-  (interactive (list (mgl-try-read-from-minibuffer "Try test"
-                                                   (slime-symbol-at-point)
-                                                   (car mgl-try-history)
-                                                   'mgl-try-history)))
+  (interactive (list (mgl-try-read-from-minibuffer
+                      "Try test"
+                      (mgl-try-default-test-name)
+                      (car mgl-try-history)
+                      'mgl-try-history)))
   (mgl-try* test-name nil))
 
-(defun mgl-try* (test-name rerun-all)
+(defun mgl-try-default-test-name ()
+  (if (not mgl-try-mode)
+      (slime-symbol-at-point)
+    (save-excursion
+      (beginning-of-line)
+      (cl-loop
+       (let ((test-name (mgl-try-mode-global-test-name-on-current-line)))
+         (when test-name
+           (cl-return test-name)))
+       (let ((orig-point (point)))
+         ;; `outline-up-heading' is tempting, but it finds the parent
+         ;; for verdict lines.
+         (outline-previous-visible-heading 1)
+         (when (= (point) orig-point)
+           (cl-return)))))))
+
+(defun mgl-try-mode-global-test-name-on-current-line ()
+  (when (looking-at "\\*")
+    (slime-symbol-at-point)
+    (search-forward " " (line-end-position))
+    ;; TRY:TRIAL-START events have either a normal entry or a skip
+    ;; marker.
+    (when (search-forward-regexp "[→-] " (+ (point) 2) t)
+      (slime-symbol-at-point))))
+
+(defvar mgl-try-buffer-name "*try*")
+
+(defun mgl-try* (test-name rerun)
   (if (slime-eval '(cl:null (cl:find-package :try)))
       (message "Try is not loaded on the Common Lisp side.")
     (slime-eval `(try::check-try-elisp-version ',mgl-try-version))
@@ -151,79 +191,95 @@ TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
           (implicit (not (null current-prefix-arg))))
       (slime-eval-async `(swank::with-buffer-syntax
                           ()
-                          (try::try-for-emacs ,name :rerun-all ,rerun-all
-                                              :implicit ,implicit))
+                          (try::try-for-emacs
+                           ,name :rerun ,rerun
+                           :implicit ,implicit
+                           :set-rerun-context ,(null (get-buffer
+                                                      mgl-try-buffer-name))))
         (lambda (output)
           (when (or (< 0 (length output))
-                    (eq major-mode 'mgl-try-mode))
+                    mgl-try-mode)
             (mgl-try-display output))
           (let ((action (if implicit "Called" "Tried"))
-                (rerun-msg (if rerun-all
+                (rerun-msg (if (eq rerun t)
                                " (rerun all)"
                              "")))
             (message "%s %S%s" action test-name rerun-msg)))))))
 
 (defun mgl-try-display (output)
   (let ((package (slime-current-package)))
-    (switch-to-buffer "*try*")
+    (pop-to-buffer mgl-try-buffer-name)
     (read-only-mode -1)
     (erase-buffer)
     (lisp-mode)
-    (setq slime-buffer-package package))
-  (outline-minor-mode)
-  (setq outline-regexp "\\*+ ")
-  (mgl-try-mode)
-  (font-lock-add-keywords
-   nil `((,mgl-try-abort-regexp . 'mgl-try-abort-face)
-         (,mgl-try-unexpected-failure-regexp . 'mgl-try-unexpected-failure-face)
-         (,mgl-try-unexpected-success-regexp . 'mgl-try-unexpected-success-face)
-         (,mgl-try-skip-regexp . 'mgl-try-skip-face)
-         (,mgl-try-expected-failure-regexp . 'mgl-try-expected-failure-face)
-         (,mgl-try-expected-success-regexp . 'mgl-try-expected-success-face)
-         ("⊟[0-9]+" . 'mgl-try-abort-face)
-         ("⊠[0-9]+" . 'mgl-try-unexpected-failure-face)
-         ("⊡[0-9]+" . 'mgl-try-unexpected-success-face)
-         ("-[0-9]+" . 'mgl-try-skip-face)
-         ("×[0-9]+" . 'mgl-try-expected-failure-face)
-         ("⋅[0-9]+" . 'mgl-try-expected-success-face)))
-  (insert "Legend:\n")
-  (mgl-try-insert-with-face "⊟: TRY:ABORT\n" 'mgl-try-abort-face)
-  (mgl-try-insert-with-face "⊠: TRY:UNEXPECTED-FAILURE\n"
-                            'mgl-try-unexpected-failure-face)
-  (mgl-try-insert-with-face "⊡: TRY:UNEXPECTED-SUCCESS\n"
-                            'mgl-try-unexpected-success-face)
-  (mgl-try-insert-with-face "-: TRY:SKIP\n" 'mgl-try-skip-face)
-  (mgl-try-insert-with-face "×: TRY:EXPECTED-FAILURE\n"
-                            'mgl-try-expected-failure-face)
-  (mgl-try-insert-with-face "⋅: TRY:EXPECTED-SUCCESS\n\n"
-                            'mgl-try-expected-success-face)
-  (insert output)
-  (read-only-mode)
-  (outline-show-all)
-  (outline-hide-body))
+    (setq slime-buffer-package package)
+    (outline-minor-mode)
+    (setq outline-regexp "\\*+ ")
+    (mgl-try-mode)
+    (font-lock-add-keywords
+     nil `((,mgl-try-abort-regexp . 'mgl-try-abort-face)
+           (,mgl-try-unexpected-failure-regexp
+            . 'mgl-try-unexpected-failure-face)
+           (,mgl-try-unexpected-success-regexp
+            . 'mgl-try-unexpected-success-face)
+           (,mgl-try-skip-regexp . 'mgl-try-skip-face)
+           (,mgl-try-expected-failure-regexp . 'mgl-try-expected-failure-face)
+           (,mgl-try-expected-success-regexp . 'mgl-try-expected-success-face)
+           ("⊟[0-9]+" . 'mgl-try-abort-face)
+           ("⊠[0-9]+" . 'mgl-try-unexpected-failure-face)
+           ("⊡[0-9]+" . 'mgl-try-unexpected-success-face)
+           ("-[0-9]+" . 'mgl-try-skip-face)
+           ("×[0-9]+" . 'mgl-try-expected-failure-face)
+           ("⋅[0-9]+" . 'mgl-try-expected-success-face)))
+    (insert "Legend:\n")
+    (mgl-try-insert-with-face "⊟: TRY:ABORT\n" 'mgl-try-abort-face)
+    (mgl-try-insert-with-face "⊠: TRY:UNEXPECTED-FAILURE\n"
+                              'mgl-try-unexpected-failure-face)
+    (mgl-try-insert-with-face "⊡: TRY:UNEXPECTED-SUCCESS\n"
+                              'mgl-try-unexpected-success-face)
+    (mgl-try-insert-with-face "-: TRY:SKIP\n" 'mgl-try-skip-face)
+    (mgl-try-insert-with-face "×: TRY:EXPECTED-FAILURE\n"
+                              'mgl-try-expected-failure-face)
+    (mgl-try-insert-with-face "⋅: TRY:EXPECTED-SUCCESS\n\n"
+                              'mgl-try-expected-success-face)
+    (insert output)
+    (read-only-mode)
+    (outline-show-all)
+    (outline-hide-body)
+    (mgl-try-flash-region (point-min) (point-max))
+    (goto-char (point-min))
+    (mgl-try-next-not-skip)
+    (ignore-errors
+      (outline-hide-subtree)
+      (outline-previous-visible-heading 1))))
+
+(defun mgl-try-flash-region (start end &optional timeout)
+  "Temporarily highlight region from START to END."
+  (let ((overlay (make-overlay start end)))
+    (overlay-put overlay 'face 'secondary-selection)
+    (run-with-timer (or timeout 0.2) nil 'delete-overlay overlay)))
 
 (defun mgl-try-insert-with-face (string face)
   (put-text-property 0 (length string) 'font-lock-face face string)
   (insert string))
 
 (defun mgl-try-rerun-! ()
-  "Rerun the most recent trial (TRY:!).
-This is subject to TRY:*TRY-RERUN*. See TRY::@RERUN.
+  "Rerun the most recent trial conducted by Emacs (this is
+distinct from TRY:!). See TRY:*TRY-RERUN* and TRY::@RERUN.
 
 Prefix arguments are variables overrides are as described in
 `mgl-try'."
   (interactive)
-  (mgl-try* 'try:! nil))
+  (mgl-try* 'try::*emacs-!* :unspecified))
 
 (defun mgl-try-rerun-!-all ()
-  "Rerun the most recently finished trial (TRY:!).
-This unconditionally reruns all tests. It's not subject to
-TRY:*TRY-RERUN* or TRY:*RERUN*.
+  "Like `mgl-try-rerun-!', but TRY:*TRY-RERUN* and
+TRY:*RERUN* are ignored, and all test are rerun.
 
 Prefix arguments are variables overrides are as described in
 `mgl-try'."
   (interactive)
-  (mgl-try* 'try:! t))
+  (mgl-try* 'try::*emacs-!* t))
 
 
 (defvar mgl-try-unexpected-regexp
@@ -262,19 +318,43 @@ and show its subtree."
   (mgl-try-next-regexp mgl-try-not-expected-success-regexp
                        "event that's not an expected success"))
 
+(defvar mgl-try-not-skip-regexp
+  (concat "\\(" mgl-try-abort-regexp
+          "\\)\\|\\(" mgl-try-unexpected-failure-regexp
+          "\\)\\|\\(" mgl-try-unexpected-success-regexp
+          "\\)\\|\\(" mgl-try-expected-success-regexp
+          "\\)\\|\\(" mgl-try-expected-failure-regexp "\\)"))
+
+(defun mgl-try-previous-not-skip-success ()
+  "Move point to the previous event that's not a TRY:SKIP,
+and show its subtree."
+  (interactive)
+  (mgl-try-previous-regexp mgl-try-not-skip-regexp
+                           "event that's not a skip"))
+
+(defun mgl-try-next-not-skip ()
+  "Move point to the next event that's not a TRY:SKIP,
+and show its subtree."
+  (interactive)
+  (mgl-try-next-regexp mgl-try-not-skip-regexp
+                       "event that's not a skip"))
+
 (defun mgl-try-previous-regexp (regexp what)
-  (if (ignore-errors (search-backward-regexp regexp nil nil))
-      (outline-show-subtree)
-    (message "No previous %s" what)))
+  (if (null (ignore-errors (search-backward-regexp regexp nil nil)))
+      (message "No previous %s" what)
+    (beginning-of-line)
+    (outline-show-subtree)))
 
 (defun mgl-try-next-regexp (regexp what)
   (let ((pos (save-excursion
                (ignore-errors
                  (search-forward-regexp regexp nil nil)))))
     (if (null pos)
-        (message "No next %s" what)
+        (when (called-interactively-p 'any)
+          (message "No next %s" what))
       (ignore-errors (outline-hide-leaves))
       (goto-char pos)
+      (beginning-of-line)
       (outline-show-subtree))))
 
 (provide 'mgl-try)

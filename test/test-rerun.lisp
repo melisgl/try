@@ -6,7 +6,8 @@
   (test-try/rerun/skipping)
   (test-try/rerun/retry)
   (test-try/rerun/implicit)
-  (test-try/rerun/failure/nlx))
+  (test-try/rerun/failure/nlx)
+  (test-try/rerun-context))
 
 
 (deftest test-try/rerun/list-function-designators ()
@@ -411,3 +412,60 @@ T0
         (with-std-try
           (with-silent-implicit-try
             (funcall !)))))))
+
+
+(deftest %context ()
+  (is t)
+  (%middle)
+  (is t)
+  (%other))
+
+(deftest %middle ()
+  (is t)
+  (%leaf)
+  (is t))
+
+(deftest %leaf ()
+  (is t))
+
+(deftest %other ()
+  (is t))
+
+(deftest test-try/rerun-context ()
+  (dolist (maker (list (lambda ()
+                         (with-new-implicit-try
+                           (let ((*collect* t)
+                                 (*print* nil))
+                             (%context))))
+                       (lambda () (try '%context :collect t :print nil))))
+    (let ((*rerun-context* (funcall maker)))
+      (let ((expected "%CONTEXT
+  ✓ (IS T)
+  %MIDDLE
+    ✓ (IS T)
+    %LEAF
+      ✓ (IS T)
+    ✓ %LEAF ✓1
+    ✓ (IS T)
+  ✓ %MIDDLE ✓3
+  ✓ (IS T)
+  - %OTHER
+✓ %CONTEXT ✓5
+"))
+        (check-try-output ('%leaf) expected)
+        (check-implicit-try-output ((funcall '%leaf)) expected)
+        (check-try-output ('%middle) expected)
+        (check-implicit-try-output ((funcall '%middle)) expected))
+      (let ((expected "%CONTEXT
+  ✓ (IS T)
+  - %MIDDLE
+  ✓ (IS T)
+  %OTHER
+    ✓ (IS T)
+  ✓ %OTHER ✓1
+✓ %CONTEXT ✓3
+"))
+        (check-try-output ('%other) expected)
+        (check-implicit-try-output ((funcall '%other)) expected))
+      (signals (warning :pred "Ignoring")
+        (try '%simple-success :print nil)))))

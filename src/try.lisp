@@ -60,9 +60,10 @@
   VERDICTs together, with the default of LEAF, VERDICTs are not
   counted. See @COUNT.")
 
-(defvar *collect* 'unexpected
-  "To save memory, only the UNEXPECTED are collected by default.
-  See @COLLECT.")
+(defvar *collect* '(or trial-event unexpected)
+  "By default all [TRIALs][class] and UNEXPECTED are [collected][@collect].
+  This is sufficient for being able to @RERUN anything in
+  [context][*rerun-context*].")
 
 (defvar *rerun* 'unexpected
   "The default matches that of *COLLECT*. See @RERUN.")
@@ -365,6 +366,8 @@
           (,print :print) (,describe :describe))
         do (check-event-type type arg-name))
   (check-printer-arg printer)
+  (multiple-value-setq (testable rerun)
+    (munge-try-args-for-rerun-context testable rerun))
   (with-try-context
     (let ((collector (make-%collector :count-type count
                                       :collect-type collect))
@@ -404,15 +407,37 @@
       (invoke-debugger outcome))))
 
 
-(defun try-for-emacs (testable &key rerun-all implicit)
+;;; Like !, but for Emacs.
+(defvar *emacs-!* nil)
+
+;;; Like *RERUN-CONTEXT*, but for Emacs.
+(defvar *emacs-rerun-context* nil)
+
+(deftype global-test-start () '(satisfies global-test-start-p))
+
+(defun global-test-start-p (event)
+  (and (typep event 'trial-start)
+       (trial-of-global-test-p (trial event))))
+
+;;; FIXME: Non-interning?
+(defun try-for-emacs (testable &key rerun implicit set-rerun-context)
   (uiop:symbol-call
    '#:swank '#:call-with-buffer-syntax
    nil
    (lambda ()
+     (assert (member rerun '(nil :unspecified t)))
+     (when (eq rerun t)
+       (setq set-rerun-context t))
      (with-output-to-string (out)
        ;; Documented in the Elisp function `mgl-try'.
-       (let ((*rerun* (if rerun-all t *rerun*))
-             (*stream* (make-broadcast-stream *standard-output* out))
+       (let ((*rerun-context* (and (null rerun)
+                                   (not set-rerun-context)
+                                   *emacs-rerun-context*))
+             ;; Ensure that rerunning in context can find everything.
+             (*collect* 'trial-event)
+             (*rerun* (if (eq rerun t) t *rerun*))
+             (*stream* (make-broadcast-stream out *standard-output*))
+             (*error-output* (make-broadcast-stream out *error-output*))
              ;; Override @PRINT settings so that Elisp can parse the
              ;; output. *PRINT-BACKTRACE* is the only safe one.
              (*printer* 'tree-printer)
@@ -421,14 +446,28 @@
              (*print-duration* (if *print-duration* :after-marker nil))
              (*print-compactly* nil)
              (*defer-describe* nil)
-             (*categories* (cons '(unexpected-verdict-failure :marker "→⊠")
-                                 (fancy-std-categories))))
+             (*categories*
+               (list*
+                ;; For `mgl-try-mode-global-test-name-on-current-line'
+                '(global-test-start :marker "→")
+                ;; For `mgl-try-next-unexpected' to skip over these
+                '(unexpected-verdict-failure :marker "→⊠")
+                (fancy-std-categories)))
+             (! nil)
+             (!! nil)
+             (!!! nil)
+             (*recent-trials* ())
+             (*n-recent-trials* 1))
          (catch 'nlx-barrier
            (unwind-protect
-                (if implicit
-                    (funcall testable)
-                    (try testable
-                         :rerun (if rerun-all t *try-rerun*)
-                         :stream *stream*
-                         :printer *printer*))
+                (let ((trial (if implicit
+                                 (funcall testable)
+                                 (try testable
+                                      :collect *try-print*
+                                      :rerun (if (eq rerun t) t *try-rerun*)
+                                      :stream *stream*
+                                      :printer *printer*))))
+                  (setq *emacs-!* !)
+                  (when set-rerun-context
+                    (setq *emacs-rerun-context* trial)))
              (throw 'nlx-barrier nil))))))))

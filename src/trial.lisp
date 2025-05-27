@@ -83,6 +83,7 @@
     ERROR*s collected in reverse chronological order (see @COLLECT).
     The VERDICT of this TRIAL is not among CHILDREN, but the VERDICTs
     of child trials' are.")
+   (rerun-entirely-p :initform nil :accessor rerun-entirely-p)
    ;; Only non-collected for the sake of @RERUN.
    (has-non-collected-failed-child-p
     :initform nil
@@ -122,6 +123,12 @@
 
   TRIALs are not to be instantiated by client code.
   """))
+
+(defun trial-of-global-test-p (trial)
+  (let ((cform (cform trial)))
+    (and (listp cform)
+         (symbolp (first cform))
+         (not (eq (first cform) 'try)))))
 
 (declaim (ftype function call-trial))
 

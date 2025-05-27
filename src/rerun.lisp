@@ -1,5 +1,7 @@
 (in-package :try)
 
+(in-readtable pythonic-string-syntax)
+
 (defsection @rerun (:title "Rerunning Trials")
   "When a TRIAL is `FUNCALL`ed or passed to TRY, the _test that
   created the trial_ is invoked, and it may be run again in its
@@ -8,7 +10,7 @@
   correspond to a [collected][@collect] trial or its TRIAL-START event
   and VERDICT do not match the RERUN argument of TRY. When that
   happens, the corresponding function call immediately returns the
-  TRIAL object. In trials that are rerun, @CHECKs are executed
+  TRIAL object. In trials that are rerun, @CHECKS are executed
   normally.
 
   - A new trial is skipped (as if with SKIP-TRIAL) if RERUN is not T
@@ -50,7 +52,8 @@
       All three possibilities involve entering DEFTEST or WITH-TEST,
       or invoking TRY: the same cases that we have with @IMPLICIT-TRY.
       Thus, even if a trial is rerun with FUNCALL, execution is
-      guaranteed to happen under TRY.")
+      guaranteed to happen under TRY."
+  (*rerun-context* (variable nil)))
 
 (declaim (ftype (function (t) t) try/implicit))
 
@@ -88,6 +91,7 @@
         (with-trial (trial)
           (funcall function trial))))))
 
+;;; FIXME: This is never called.
 (defun call-try-trial (trial)
   (let ((cform (cform trial)))
     (destructuring-bind (function-designator &rest args) cform
@@ -99,8 +103,9 @@
 (defun %make-rerun-trial-event-handler (trial-to-rerun rerun-type)
   (let ((trial-being-rerun nil)
         ;; The first element of CHILD-TRIALS-NOT-RUN is a list of
-        ;; children of TRIAL-BEING-RERUN which have not been skipped
-        ;; nor run, yet.
+        ;; child trials of TRIAL-BEING-RERUN which have not been
+        ;; skipped nor run, yet. The rest are for the enclosing
+        ;; trials.
         (child-trials-not-run (list (list trial-to-rerun)))
         (skippingp nil))
     (labels ((mark-child-trial-run (trial)
@@ -111,6 +116,12 @@
                (mark-child-trial-run trial)
                (setq trial-being-rerun trial)
                (push (reverse (child-trials trial)) child-trials-not-run))
+             ;; Like ENTER-TRIAL, but there is no rerun event matching
+             ;; for TRIAL or its descendants
+             (rerun-entirely (trial)
+               (setq trial-being-rerun trial)
+               (push :rerun-entirely child-trials-not-run))
+             ;; This pairs with both ENTER-TRIAL and RERUN-ENTIRELY.
              (leave-trial ()
                (pop child-trials-not-run)
                (setq trial-being-rerun (parent trial-being-rerun)))
@@ -119,7 +130,7 @@
                           (trial-call-= child trial))
                         (first child-trials-not-run)))
              (rerun-trial-p (trial)
-               (dbg "rerun-trial-p: ~S ~S~%" trial
+               (dbg "rerun-trial-p: ~S => ~S" trial
                     (trial-has-event-of-type-p trial rerun-type))
                (trial-has-event-of-type-p trial rerun-type)))
       (lambda (c)
@@ -131,16 +142,22 @@
              ;; TRIAL-START with N-RETRIES = 0 was handled here that
              ;; this trial shall be rerun.
              (when (zerop (n-retries trial))
-               (let ((child-with-same-call
-                       (first-child-with-same-call trial)))
-                 (cond ((and child-with-same-call
-                             (rerun-trial-p child-with-same-call))
-                        (enter-trial child-with-same-call))
-                       (t
-                        (when child-with-same-call
-                          (mark-child-trial-run child-with-same-call))
-                        (setq skippingp t)
-                        (skip-trial c)))))))
+               (if (eq (first child-trials-not-run) :rerun-entirely)
+                   ;; This is a descendent of RERUN-ENTIRELY-P trial.
+                   (rerun-entirely trial)
+                   (let ((child-with-same-call
+                           (first-child-with-same-call trial)))
+                     (cond ((and child-with-same-call
+                                 (rerun-entirely-p child-with-same-call))
+                            (rerun-entirely child-with-same-call))
+                           ((and child-with-same-call
+                                 (rerun-trial-p child-with-same-call))
+                            (enter-trial child-with-same-call))
+                           (t
+                            (when child-with-same-call
+                              (mark-child-trial-run child-with-same-call))
+                            (setq skippingp t)
+                            (skip-trial c))))))))
           (verdict
            (if skippingp
                (setq skippingp nil)
@@ -172,3 +189,112 @@
                      (trial-has-event-of-type-p (trial child) type)
                      (safe-typep child type)))
                (children trial))))
+
+
+;;; FIXME: What about non-global tests?
+(defvar *rerun-context* nil
+  """A [TRIAL][class] or NIL. If it's a TRIAL, then TRY will
+  [rerun][@rerun] this trial skipping everything that does not lead to
+  an invocation of its TESTABLE argument (see @TESTABLES). If no route
+  to the basic testable functions can be found among the
+  [collected][@collect] events of the context, then a warning is
+  signalled and the context is ignored.
+
+  Consider the following code evaluated in the package TRY:
+
+  ```cl-transcript (:dynenv try-transcript)
+  (deftest test-try ()
+    (let ((*package* (find-package :cl-user)))
+      (test-whatever)
+      (test-printing)))
+
+  (deftest test-whatever ()
+    (is t))
+
+  (deftest test-printing ()
+    (is (equal (prin1-to-string 'x) "TRY::X")))
+
+  (test-try)
+  .. TEST-TRY
+  ..   TEST-WHATEVER
+  ..     ⋅ (IS T)
+  ..   ⋅ TEST-WHATEVER ⋅1
+  ..   TEST-PRINTING
+  ..     ⋅ (IS (EQUAL (PRIN1-TO-STRING 'X) "TRY::X"))
+  ..   ⋅ TEST-PRINTING ⋅1
+  .. ⋅ TEST-TRY ⋅2
+  ..
+  ==> #<TRIAL (TEST-TRY) EXPECTED-SUCCESS 0.500s ⋅2>
+
+  ;; This could also be an implicit try such as (TEST-PRINTING),
+  ;; but this way we avoid entering the debugger.
+  (try 'test-printing)
+  .. TEST-PRINTING
+  ..   ⊠ (IS (EQUAL #1=(PRIN1-TO-STRING 'X) "TRY::X"))
+  ..     where
+  ..       #1# = "X"
+  .. ⊠ TEST-PRINTING ⊠1
+  ..
+  ==> #<TRIAL (TEST-PRINTING) UNEXPECTED-FAILURE 0.200s ⊠1>
+  ```
+
+  TEST-PRINTING fails because when called directly, *PACKAGE* is not
+  the expected `CL-USER`. However, when *RERUN-CONTEXT* is set,
+  `TEST-PRINTING` will be executed in the correct dynamic environment.
+
+  ```cl-transcript (:dynenv try-transcript)
+  (setq *rerun-context*
+        ;; Avoid the debugger, as a matter of style.
+        (try 'test-try))
+  
+  (test-printing)
+  .. TEST-TRY
+  ..   - TEST-WHATEVER
+  ..   TEST-PRINTING
+  ..     ⋅ (IS (EQUAL (PRIN1-TO-STRING 'X) "TRY::X"))
+  ..   ⋅ TEST-PRINTING ⋅1
+  .. ⋅ TEST-TRY ⋅1
+  ..
+  ```
+
+  Note how `TEST-WHATEVER` was SKIPped because it leads to no calls to
+  `TEST-PRINTING`.
+
+  See @EMACS for a convenient way of taking advantage of this feature.""")
+
+(declaim (ftype function replay-events))
+
+(defun filter-rerun-context-events (trial names)
+  (let ((foundp nil))
+    (values
+     (replay-events trial
+                    :collect (lambda (event)
+                               (when (and (typep event 'trial-start)
+                                          (find (test-name (trial event))
+                                                names :test #'equal))
+                                 (setq foundp t)
+                                 (setf (rerun-entirely-p (trial event)) t)))
+                    :print nil)
+     foundp)))
+
+(defun munge-try-args-for-rerun-context (testable rerun)
+  (alexandria:nth-value-or 1
+    (when *rerun-context*
+      (multiple-value-bind (context foundp)
+          (filter-rerun-context-events
+           *rerun-context* (mapcar #'trial-to-test-name
+                                   (list-function-designators testable)))
+        (if foundp
+            ;; We want to run everything that was not filtered out,
+            ;; hence the setting of RERUN to EVENT.
+            (values context 'event)
+            (warn "~@<Ignoring ~S ~S as none of ~S ~S are found ~
+                  among its ~Sed trials.~:@>~%"
+                  '*rerun-context* *rerun-context* '@testables
+                  testable '@collect))))
+    (values testable rerun)))
+
+(defun trial-to-test-name (obj)
+  (if (typep obj 'trial)
+      (test-name obj)
+      obj))

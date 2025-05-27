@@ -342,8 +342,10 @@
 
   ##### Fixtures
 
-  There is no direct support for fixtures in Try. One can easily write
-  macros like the following.
+  There is no direct support for fixtures in Try because they are not
+  needed with the ability of @RERUN in [context][*rerun-context*].
+
+  If one insists, macros like the following are easy to write.
 
   ```
   (defvar *server* nil)
@@ -356,9 +358,6 @@
            (with-server (make-expensive-server)
              (with-xxx-body)))))
   ```
-
-  Plus, with support for selectively @RERUN, the need for fixtures is
-  lessened.
 
   [@package-example note][docstring]
   """)
@@ -378,16 +377,20 @@
   - `\\P` and `\\N` to move between events which are not
     EXPECTED-SUCCESSes.
 
-  - `t` to run an arbitrary test (defaults to symbol under point).
-    With a prefix arg, the test is called directly (see
-    TRY::@IMPLICIT-TRY) with no arguments.
+  - `t` runs an arbitrary test (defaults to the name of the innermost
+    global test function that contains the current line) in the
+    context associated with the Emacs buffer, which is similar but
+    distinct from *RERUN-CONTEXT*. With a prefix arg, the test is
+    called [implicitly][try::@implicit-try] with no arguments. This is
+    suitable for interactive debugging under the default settings.
 
-  - `r` to rerun the most recent trial (TRY:!), subject to the
-    filtering described @RERUN. With a prefix arg, the test is called
-    directly.
+  - `r` [reruns][@rerun] the most recent trial conducted by
+    Emacs (this is distinct from TRY:!). With a prefix argument, the
+    test is called implicitly.
 
-  - `\\R` to rerun the most recently finished test (and all tests it
-    calls). With a prefix arg, the test is called directly.
+  - `\\R` is like `r`, but *TRY-RERUN* and TRY:*RERUN* are set to T,
+    so all test are rerun. With a prefix argument, the test is called
+    implicitly.
 
   - some low-level outline mode commands are also given convenient
     bindings:

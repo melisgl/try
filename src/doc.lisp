@@ -11,6 +11,7 @@
           (*run-deftest-when* *run-deftest-when*)
           (*testing-timing* '(0.1 0.2 0.3 0.4 0.5 0.6))
           (*categories* (fancy-std-categories))
+          (*rerun-context* nil)
           (mgl-pax:*transcribe-check-consistency*
             '((:output try-transcript-output=)
               (:readable equal)
@@ -61,5 +62,6 @@
         (pax:*document-html-max-navigation-table-of-contents-level* 3))
     (update-asdf-system-readmes @try-manual :try
                                 :formats '(:plain :markdown))
+    #+nil
     (update-asdf-system-html-docs @try-manual :try
                                   :pages (pax-pages))))

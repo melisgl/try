@@ -5,9 +5,16 @@
 (defsection @replay (:title "Reprocessing Trials")
   (replay-events function))
 
+;;; This allows dressing up predicate functions as types.
+(defvar *collect-satisfies-pred* nil)
+(defun collect-satisfies-pred-p (event)
+  (dbg "(collect-satisfies-pred-p ~S) => ~S"
+       event (funcall *collect-satisfies-pred* event))
+  (funcall *collect-satisfies-pred* event))
+
 (defun replay-events (trial &key (collect *try-collect*)
-                      (print *try-print*) (describe *try-describe*)
-                      (stream *try-stream*) (printer *try-printer*))
+                              (print *try-print*) (describe *try-describe*)
+                              (stream *try-stream*) (printer *try-printer*))
   """REPLAY-EVENTS reprocesses the events collected (see @COLLECT)
   in TRIAL. It takes the same arguments as TRY except
   [DEBUG][argument], [COUNT][argument] and RERUN. This is because
@@ -74,30 +81,36 @@
   """
   (try-default-unspecified-args :replayp t)
   (check-type trial trial)
-  (loop for (type arg-name) in
-        `((,collect :collect) (,print :print) (,describe :describe))
-        do (check-event-type type arg-name))
-  (check-printer-arg printer)
-  (with-try-context
-    (let* ((*categories* (categories trial))
-           (collector (make-%collector :count-type (count-of trial)
-                                       :collect-type collect))
-           (printer (make-instance printer :stream stream
-                                   :print-type print
-                                   :describe-type describe))
-           (*record-event* nil))
-      (handler-bind ((event
-                       (lambda (event)
-                         (when (eq *try-id* try-id)
-                           (with-internal-errors
-                             ;; See END-TRIAL.
-                             (when *record-event*
-                               (funcall *record-event* event))
-                             (%count-and-collect-event collector event)
-                             (%print-event printer event))))))
-        (%unwind-protect
-            (%replay-events (verdict trial))
-          (finish-printing printer))))))
+  ;; This is an undocumented feature to allow filtering e.g by test
+  ;; name.
+  (let ((*collect-satisfies-pred*
+          (when (functionp collect)
+            (prog1 collect
+              (setq collect '(satisfies collect-satisfies-pred-p))))))
+    (loop for (type arg-name) in
+          `((,collect :collect) (,print :print) (,describe :describe))
+          do (check-event-type type arg-name))
+    (check-printer-arg printer)
+    (with-try-context
+      (let* ((*categories* (categories trial))
+             (collector (make-%collector :count-type (count-of trial)
+                                         :collect-type collect))
+             (printer (make-instance printer :stream stream
+                                             :print-type print
+                                             :describe-type describe))
+             (*record-event* nil))
+        (handler-bind ((event
+                         (lambda (event)
+                           (when (eq *try-id* try-id)
+                             (with-internal-errors
+                               ;; See END-TRIAL.
+                               (when *record-event*
+                                 (funcall *record-event* event))
+                               (%count-and-collect-event collector event)
+                               (%print-event printer event))))))
+          (%unwind-protect
+              (%replay-events (verdict trial))
+            (finish-printing printer)))))))
 
 (defun %replay-events (trial)
   (labels
@@ -124,3 +137,4 @@
         (has-non-collected-failed-child-p trial)
         :counter (copy-counter (non-collected-counter trial))
         :non-collected-counter (copy-counter (non-collected-counter trial))))
+

@@ -470,9 +470,7 @@
   (let ((trial (trial event))
         (stream (stream-of printer)))
     (print-event-header printer event)
-    (if (stringp (test-name trial))
-        (format stream "~A" (test-name trial))
-        (format stream "~S" (test-name trial)))
+    (format stream "~S" (test-name trial))
     (when (plusp (n-retries trial))
       (format stream " retry #~S" (n-retries trial)))))
 

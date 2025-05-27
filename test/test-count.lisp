@@ -1,9 +1,10 @@
 (in-package :try-test)
 
 (deftest test-try/count ()
-  (test-count/all)
-  (test-count/replay)
-  (test-count/replay/categories-and-count))
+  (let ((*collect* 'unexpected))
+    (test-count/all)
+    (test-count/replay)
+    (test-count/replay/categories-and-count)))
 
 
 (deftest test-count/all ()

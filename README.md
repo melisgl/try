@@ -61,7 +61,7 @@ for the latest version.
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
 
 - [system] **"try"**
-    - _Version:_ 0.0.3
+    - _Version:_ 0.0.4
     - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
     - _Long Description:_ Try stays as close to normal Lisp evaluation
@@ -401,8 +401,10 @@ To run tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
 
 ##### Fixtures
 
-There is no direct support for fixtures in Try. One can easily write
-macros like the following.
+There is no direct support for fixtures in Try because they are not
+needed with the ability of [Rerunning Trials][e4ac] in [context][38e8].
+
+If one insists, macros like the following are easy to write.
 
 ```
 (defvar *server* nil)
@@ -415,9 +417,6 @@ macros like the following.
          (with-server (make-expensive-server)
            (with-xxx-body)))))
 ```
-
-Plus, with support for selectively [Rerunning Trials][e4ac], the need for fixtures is
-lessened.
 
 ##### Packages
 
@@ -490,16 +489,20 @@ buffer, the following key bindings are available.
 - `P` and `N` to move between events which are not
   [`EXPECTED-SUCCESS`][c96a]es.
 
-- `t` to run an arbitrary test (defaults to symbol under point).
-  With a prefix arg, the test is called directly (see
-  [Calling Test Functions][012f]) with no arguments.
+- `t` runs an arbitrary test (defaults to the name of the innermost
+  global test function that contains the current line) in the
+  context associated with the Emacs buffer, which is similar but
+  distinct from [`*RERUN-CONTEXT*`][38e8]. With a prefix arg, the test is
+  called [implicitly][012f] with no arguments. This is
+  suitable for interactive debugging under the default settings.
 
-- `r` to rerun the most recent trial ([`TRY:!`][92af]), subject to the
-  filtering described [Rerunning Trials][e4ac]. With a prefix arg, the test is called
-  directly.
+- `r` [reruns][e4ac] the most recent trial conducted by
+  Emacs (this is distinct from [`TRY:!`][92af]). With a prefix argument, the
+  test is called implicitly.
 
-- `R` to rerun the most recently finished test (and all tests it
-  calls). With a prefix arg, the test is called directly.
+- `R` is like `r`, but [`*TRY-RERUN*`][01e7] and [`TRY:*RERUN*`][63db] are set to `T`,
+  so all test are rerun. With a prefix argument, the test is called
+  implicitly.
 
 - some low-level outline mode commands are also given convenient
   bindings:
@@ -1024,11 +1027,11 @@ indeed 5, some kind of `RESULT` [`SUCCESS`][269a] or [`FAILURE`][f92d] will be s
 [`UNEXPECTED-RESULT-FAILURE`][daeb] to signal. Furthermore, if [`WITH-SKIP`][b71e] is in
 effect, then [`RESULT-SKIP`][7c3f] is signalled.
 
-The result is signalled with `#'SIGNAL` if it is a [`PASS`][21d9], else it's
-signalled with `#'ERROR`. This distinction matters only if the event
-is not handled, which is never the case in a [`TRIAL`][99d0]. Standalone
-checks though – those not enclosed by a trial – invoke the debugger on
-`RESULT`s which are not of type [`PASS`][21d9].
+The result is signalled with the function [`SIGNAL`][8f49] if it is a [`PASS`][21d9],
+else it's signalled with [`ERROR`][35ba]. This distinction matters
+only if the event is not handled, which is never the case in a
+[`TRIAL`][99d0]. Standalone checks though – those not enclosed by a trial –
+invoke the debugger on `RESULT`s which are not of type [`PASS`][21d9].
 
 The signalled `RESULT` is not final until [`RECORD-EVENT`][ce49] is invoked on
 it, and it can be changed with the [Outcome Restarts][7ef5] and the
@@ -2522,11 +2525,11 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
       (is t)
       (return-from some-feature (values 1 2)))
     .. #<TRIAL (WITH-TEST ("obscure feature")) RUNNING>
-    .. obscure feature
+    .. "obscure feature"
     ..   ⋅ (IS T)
-    .. ⋅ obscure feature ⋅1
+    .. ⋅ "obscure feature" ⋅1
     ..
-    ==> #<TRIAL (WITH-TEST ("obscure feature")) EXPECTED-SUCCESS 0.002s ⋅1>
+    ==> #<TRIAL (WITH-TEST ("obscure feature")) EXPECTED-SUCCESS 0.200s ⋅1>
     => 1
     => 2
     ```
@@ -2574,11 +2577,11 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
       (is t)
       (return (values 1 2)))
     .. #<TRIAL (WITH-TEST ("Some feature")) RUNNING>
-    .. Some feature
+    .. "Some feature"
     ..   ⋅ (IS T)
-    .. ⋅ Some feature ⋅1
+    .. ⋅ "Some feature" ⋅1
     ..
-    ==> #<TRIAL (WITH-TEST ("Some feature")) EXPECTED-SUCCESS 0.000s ⋅1>
+    ==> #<TRIAL (WITH-TEST ("Some feature")) EXPECTED-SUCCESS 0.200s ⋅1>
     => 1
     => 2
     ```
@@ -2700,10 +2703,11 @@ The rest of the behaviour is described in [Explicit `TRY`][1720].
 
 <a id="x-28TRY-3A-2ACOLLECT-2A-20VARIABLE-29"></a>
 
-- [variable] **\*COLLECT\*** *UNEXPECTED*
+- [variable] **\*COLLECT\*** *(OR TRIAL-EVENT UNEXPECTED)*
 
-    To save memory, only the [`UNEXPECTED`][d6ad] are collected by default.
-    See [Collecting Events][52e5].
+    By default all [`TRIAL`s][99d0] and [`UNEXPECTED`][d6ad] are [collected][52e5].
+    This is sufficient for being able to [Rerunning Trials][e4ac] anything in
+    [context][38e8].
 
 <a id="x-28TRY-3A-2ARERUN-2A-20VARIABLE-29"></a>
 
@@ -3293,7 +3297,7 @@ Any test (including the top-level one) is skipped if it does not
 correspond to a [collected][52e5] trial or its [`TRIAL-START`][b664] event
 and [`VERDICT`][52e1] do not match the `RERUN` argument of `TRY`. When that
 happens, the corresponding function call immediately returns the
-`TRIAL` object. In trials that are rerun, @CHECKs are executed
+`TRIAL` object. In trials that are rerun, [Checks][bb56] are executed
 normally.
 
 - A new trial is skipped (as if with [`SKIP-TRIAL`][f45a]) if `RERUN` is not `T`
@@ -3337,6 +3341,79 @@ normally.
     Thus, even if a trial is rerun with `FUNCALL`, execution is
     guaranteed to happen under `TRY`.
 
+
+<a id="x-28TRY-3A-2ARERUN-CONTEXT-2A-20VARIABLE-29"></a>
+
+- [variable] **\*RERUN-CONTEXT\*** *NIL*
+
+    A [`TRIAL`][99d0] or `NIL`. If it's a `TRIAL`, then [`TRY`][b602] will
+    [rerun][e4ac] this trial skipping everything that does not lead to
+    an invocation of its `TESTABLE` argument (see [Testables][cdc3]). If no route
+    to the basic testable functions can be found among the
+    [collected][52e5] events of the context, then a warning is
+    signalled and the context is ignored.
+    
+    Consider the following code evaluated in the package `TRY`:
+    
+    ```common-lisp
+    (deftest test-try ()
+      (let ((*package* (find-package :cl-user)))
+        (test-whatever)
+        (test-printing)))
+    
+    (deftest test-whatever ()
+      (is t))
+    
+    (deftest test-printing ()
+      (is (equal (prin1-to-string 'x) "TRY::X")))
+    
+    (test-try)
+    .. TEST-TRY
+    ..   TEST-WHATEVER
+    ..     ⋅ (IS T)
+    ..   ⋅ TEST-WHATEVER ⋅1
+    ..   TEST-PRINTING
+    ..     ⋅ (IS (EQUAL (PRIN1-TO-STRING 'X) "TRY::X"))
+    ..   ⋅ TEST-PRINTING ⋅1
+    .. ⋅ TEST-TRY ⋅2
+    ..
+    ==> #<TRIAL (TEST-TRY) EXPECTED-SUCCESS 0.500s ⋅2>
+    
+    ;; This could also be an implicit try such as (TEST-PRINTING).
+    ;; This way we avoid entering the debugger.
+    (try 'test-printing)
+    .. TEST-PRINTING
+    ..   ⊠ (IS (EQUAL #1=(PRIN1-TO-STRING 'X) "TRY::X"))
+    ..     where
+    ..       #1# = "X"
+    .. ⊠ TEST-PRINTING ⊠1
+    ..
+    ==> #<TRIAL (TEST-PRINTING) UNEXPECTED-FAILURE 0.200s ⊠1>
+    ```
+    
+    `TEST-PRINTING` fails because when called directly, [`*PACKAGE*`][5ed1] is not
+    the expected `CL-USER`. However, when `*RERUN-CONTEXT*` is set,
+    `TEST-PRINTING` will be executed in the correct dynamic environment.
+    
+    ```common-lisp
+    (setq *rerun-context*
+          ;; Avoid the debugger, as a matter of style.
+          (try 'test-try))
+    
+    (test-printing)
+    .. TEST-TRY
+    ..   - TEST-WHATEVER
+    ..   TEST-PRINTING
+    ..     ⋅ (IS (EQUAL (PRIN1-TO-STRING 'X) "TRY::X"))
+    ..   ⋅ TEST-PRINTING ⋅1
+    .. ⋅ TEST-TRY ⋅1
+    ..
+    ```
+    
+    Note how `TEST-WHATEVER` was [`SKIP`][69a2]ped because it leads to no calls to
+    `TEST-PRINTING`.
+    
+    See [Emacs Integration][4c86] for a convenient way of taking advantage of this feature.
 
 <a id="x-28TRY-3A-40REPLAY-20MGL-PAX-3ASECTION-29"></a>
 
@@ -3463,6 +3540,7 @@ SBCL.
 
   [0126]: #x-28TRY-3A-2ASTREAM-2A-20VARIABLE-29 "TRY:*STREAM* VARIABLE"
   [012f]: #x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Calling Test Functions"
+  [01e7]: #x-28TRY-3A-2ATRY-RERUN-2A-20VARIABLE-29 "TRY:*TRY-RERUN* VARIABLE"
   [02a3]: http://www.lispworks.com/documentation/HyperSpec/Body/f_abortc.htm "CONTINUE (MGL-PAX:CLHS FUNCTION)"
   [0321]: #x-28TRY-3AERROR-2A-20CONDITION-29 "TRY:ERROR* CONDITION"
   [03c7]: http://www.lispworks.com/documentation/HyperSpec/Body/f_funcal.htm "FUNCALL (MGL-PAX:CLHS FUNCTION)"
@@ -3505,6 +3583,7 @@ SBCL.
   [351f]: #x-28TRY-3ACAPTURE-VALUES-20MGL-PAX-3AMACRO-29 "TRY:CAPTURE-VALUES MGL-PAX:MACRO"
   [35ba]: http://www.lispworks.com/documentation/HyperSpec/Body/f_error.htm "ERROR (MGL-PAX:CLHS FUNCTION)"
   [37c1]: #x-28TRY-3A-40MISC-CHECKS-20MGL-PAX-3ASECTION-29 "Miscellaneous Checks"
+  [38e8]: #x-28TRY-3A-2ARERUN-CONTEXT-2A-20VARIABLE-29 "TRY:*RERUN-CONTEXT* VARIABLE"
   [39df]: http://www.lispworks.com/documentation/HyperSpec/Body/m_w_std_.htm "WITH-STANDARD-IO-SYNTAX (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [3ace]: #x-28TRY-3ABACKTRACE-OF-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29 "TRY:BACKTRACE-OF (MGL-PAX:READER TRY:UNHANDLED-ERROR)"
   [3bb4]: #x-28TRY-3A-2ACOUNT-2A-20VARIABLE-29 "TRY:*COUNT* VARIABLE"
@@ -3536,6 +3615,7 @@ SBCL.
   [5c01]: http://www.lispworks.com/documentation/HyperSpec/Body/m_lambda.htm "LAMBDA (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [5d4a]: #x-28TRY-3ARUNNINGP-20FUNCTION-29 "TRY:RUNNINGP FUNCTION"
   [5e1a]: #x-28TRY-3A-40TRIAL-VERDICTS-20MGL-PAX-3ASECTION-29 "Trial Verdicts"
+  [5ed1]: http://www.lispworks.com/documentation/HyperSpec/Body/v_pkg.htm "*PACKAGE* (MGL-PAX:CLHS VARIABLE)"
   [609c]: http://www.lispworks.com/documentation/HyperSpec/Body/f_fmakun.htm "FMAKUNBOUND (MGL-PAX:CLHS FUNCTION)"
   [609c7]: #x-28TRY-3AEXPECTED-RESULT-SUCCESS-20CONDITION-29 "TRY:EXPECTED-RESULT-SUCCESS CONDITION"
   [628a]: #x-28TRY-3A-40LINKS-20MGL-PAX-3ASECTION-29 "Links and Systems"
@@ -3567,6 +3647,7 @@ SBCL.
   [8b9c]: #x-28TRY-3A-40IMPLICIT-TRY-IMPLEMENTATION-20MGL-PAX-3ASECTION-29 "Implementation of Implicit `TRY`"
   [8cf6]: #x-28TRY-3ARETRY-CHECK-20FUNCTION-29 "TRY:RETRY-CHECK FUNCTION"
   [8ec3]: #x-28TRY-3AABORT-2A-20CONDITION-29 "TRY:ABORT* CONDITION"
+  [8f49]: http://www.lispworks.com/documentation/HyperSpec/Body/f_signal.htm "SIGNAL (MGL-PAX:CLHS FUNCTION)"
   [8f5d]: #x-28TRY-3AWITH-TEST-20MGL-PAX-3AMACRO-29 "TRY:WITH-TEST MGL-PAX:MACRO"
   [8f78]: #x-28TRY-3AUNHANDLED-ERROR-20CONDITION-29 "TRY:UNHANDLED-ERROR CONDITION"
   [8f7a]: http://www.lispworks.com/documentation/HyperSpec/Body/v_pr_lev.htm "*PRINT-LENGTH* (MGL-PAX:CLHS VARIABLE)"

@@ -295,11 +295,11 @@
   UNEXPECTED-RESULT-FAILURE to signal. Furthermore, if WITH-SKIP is in
   effect, then RESULT-SKIP is signalled.
 
-  The result is signalled with `#'SIGNAL` if it is a PASS, else it's
-  signalled with `#'ERROR`. This distinction matters only if the event
-  is not handled, which is never the case in a TRIAL. Standalone
-  checks though – those not enclosed by a trial – invoke the debugger on
-  RESULTs which are not of type PASS.
+  The result is signalled with the function `SIGNAL` if it is a PASS,
+  else it's signalled with [ERROR][function]. This distinction matters
+  only if the event is not handled, which is never the case in a
+  TRIAL. Standalone checks though – those not enclosed by a trial –
+  invoke the debugger on RESULTs which are not of type PASS.
 
   The signalled RESULT is not final until RECORD-EVENT is invoked on
   it, and it can be changed with the @OUTCOME-RESTARTS and the

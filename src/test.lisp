@@ -217,11 +217,11 @@
     (is t)
     (return-from some-feature (values 1 2)))
   .. #<TRIAL (WITH-TEST ("obscure feature")) RUNNING>
-  .. obscure feature
+  .. "obscure feature"
   ..   ⋅ (IS T)
-  .. ⋅ obscure feature ⋅1
+  .. ⋅ "obscure feature" ⋅1
   ..
-  ==> #<TRIAL (WITH-TEST ("obscure feature")) EXPECTED-SUCCESS 0.002s ⋅1>
+  ==> #<TRIAL (WITH-TEST ("obscure feature")) EXPECTED-SUCCESS 0.200s ⋅1>
   => 1
   => 2
   ```
@@ -269,11 +269,11 @@
     (is t)
     (return (values 1 2)))
   .. #<TRIAL (WITH-TEST ("Some feature")) RUNNING>
-  .. Some feature
+  .. "Some feature"
   ..   ⋅ (IS T)
-  .. ⋅ Some feature ⋅1
+  .. ⋅ "Some feature" ⋅1
   ..
-  ==> #<TRIAL (WITH-TEST ("Some feature")) EXPECTED-SUCCESS 0.000s ⋅1>
+  ==> #<TRIAL (WITH-TEST ("Some feature")) EXPECTED-SUCCESS 0.200s ⋅1>
   => 1
   => 2
   ```
