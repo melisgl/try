@@ -79,19 +79,17 @@
   => 3
   ```
   """
-  (multiple-value-bind (args-form args)
-      ;; Capture the actual args with which the function was called in
-      ;; DEFTEST-ARGS.
+  (multiple-value-bind (arglist-form lambda-list)
       (lambda-list-to-arglist-form lambda-list)
     (multiple-value-bind (body declarations doc)
         (alexandria:parse-body body :documentation t)
       (let ((trial name)
             (with-test-body (make-symbol (format nil "~S" 'deftest))))
         `(progn
-           (defun ,name ,args
+           (defun ,name ,lambda-list
              ,@(when doc (list doc))
              ,@declarations
-             (let ((,trial (make-trial ',name (cons ',name ,args-form))))
+             (let ((,trial (make-trial ',name (cons ',name ,arglist-form))))
                ,(if (expand-with-trial-in-deftest-p env)
                     `(if *try-id*
                          (with-trial (,trial)

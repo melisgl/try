@@ -25,46 +25,51 @@
            (= (length body) 1))
       (first body)
       `(progn ,@body)))
+
 
-;;; See TEST-ENSURE-REST-ARG.
-(defun ensure-rest-arg (lambda-list &optional (rest-var (make-gensym 'rest)))
-  (let ((rest (member '&rest lambda-list)))
-    (if rest
-        ;; Return the name of the &REST argument.
-        (values lambda-list (second rest))
-        ;; Let's insert a &REST argument. It must be after any
-        ;; &OPTIONAL but before &KEY and &AUX. Since &KEY and &AUX
-        ;; must be after any optional args anyway, let's just put it
-        ;; before either or at the end of the lambda list.
-        (let ((position (position-if (lambda (arg)
-                                       (member arg '(&key &aux)))
-                                     lambda-list)))
-          (values (if position
-                      (append (subseq lambda-list 0 position)
-                              (list '&rest rest-var)
-                              (subseq lambda-list position))
-                      (append lambda-list (list '&rest rest-var)))
-                  rest-var)))))
-
-;;; Return a form that (when evaluated in a function with LAMBDA-LIST)
-;;; evaluates to the actual arglist of the function. See
-;;; TEST-LAMBDA-LIST-WITH-&REST-TO-ARGLIST-FORM.
-(defun lambda-list-with-&rest-to-arglist-form (lambda-list)
-  (let ((rest-var (second (member '&rest lambda-list))))
-    (assert rest-var () "No ~S found in ~S." '&rest lambda-list)
-    `(append (list ,@(loop for element in lambda-list
-                           until (eq element '&rest)
-                           unless (eq element '&optional)
-                             collect (if (atom element)
-                                         element
-                                         ;; &OPTIONAL (O 0)
-                                         (first element))))
-             ,rest-var)))
+;;;; Thanks to Gleefre on Libera #commonlisp.
 
 (defun lambda-list-to-arglist-form (lambda-list)
-  (let ((lambda-list (ensure-rest-arg lambda-list 'rest)))
-    (values (lambda-list-with-&rest-to-arglist-form lambda-list)
-            lambda-list)))
+  (multiple-value-bind (req opt rest key aokp aux keyp)
+      (alexandria:parse-ordinary-lambda-list lambda-list)
+    (cond ((and (endp opt) (null rest) (endp key))
+           (values `(list ,@req) lambda-list))
+          (t
+           (when keyp (setf rest (or rest (gensym))))
+           (setf opt (mapcar #'ensure-indicator opt))
+           (values `(nconc (list ,@req)
+                           ,(collect-opt opt)
+                           ,@(when rest `(,rest)))
+                   (assemble-lambda-list req opt rest key aokp aux keyp))))))
+
+(defun denormalize (var)
+  (destructuring-bind (name def &optional p) var
+    (when (and (listp name)
+               (keywordp (car name))
+               (string= (car name) (cadr name)))
+      (setf name (cadr name)))
+    (cond (p `(,name ,def ,p))
+          (def `(,name ,def))
+          ((listp name) `(,name))
+          (t name))))
+
+(defun assemble-lambda-list (req opt rest key aokp aux keyp)
+  `(,@req
+    ,@(when opt `(&optional ,@(mapcar #'denormalize opt)))
+    ,@(when rest `(&rest ,rest))
+    ,@(when keyp `(&key ,@(mapcar #'denormalize key)))
+    ,@(when aokp `(&allow-other-keys))
+    ,@(when aux `(&aux ,@(mapcar #'denormalize aux)))))
+
+(defun ensure-indicator (var)
+  (destructuring-bind (name def p) var
+    `(,name ,def ,(or p (gensym)))))
+
+(defun collect-opt (opt)
+  (when opt
+    (destructuring-bind (name init-form p) (car opt)
+      (declare (ignore init-form))
+      `(when ,p (list* ,name ,(collect-opt (cdr opt)))))))
 
 
 ;;;; Special variables
@@ -504,10 +509,9 @@
   `(progn ,@body))
 
 (defmacro without-compiler-notes (&body body)
-  #+sbcl
   `(locally
-       (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
-     (handler-bind ((sb-ext:compiler-note #'muffle-warning))
-       ,@body))
-  #-sbcl
-  `(progn ,@body))
+       #+sbcl (declare (sb-ext:muffle-conditions sb-ext:compiler-note)
+                       (sb-ext:muffle-conditions style-warning))
+       (handler-bind (#+sbcl (sb-ext:compiler-note #'muffle-warning)
+                      (style-warning #'muffle-warning))
+         ,@body)))

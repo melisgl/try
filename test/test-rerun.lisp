@@ -410,7 +410,8 @@ T0
   (let ((*fail-or-die* :fail))
     (with-std-try
       (with-silent-implicit-try
-        (%fail-or-die :print nil))))
+        (let ((*print* nil))
+          (%fail-or-die)))))
   (signals-not (try::try-internal-error)
     (let ((*fail-or-die* :die))
       (catch 'die
