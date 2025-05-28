@@ -12,33 +12,17 @@
 (declaim (special *count*))
 
 (defclass trial ()
-  ((test-name
+  (;; Don't use this for anything other than presentation because
+   ;; WITH-TEST's NAME argument that ends up here can be anything.
+   (test-name
     :initform (error "TRIALs are not to be instantiated directly.")
     ;; We use a non-exported symbol as the initarg to force a clear
     ;; access to internals when instantiating TRIALs directly.
     :initarg %test-name :reader test-name)
    ;; CFORM (short for call-form, in honour of CLHS `function-form')
-   ;; is like (<FUNCTION-DESIGNATOR> . <ARGS>), where
-   ;; FUNCTION-DESIGNATOR may be a symbol denoting a global function
-   ;; or a function object.
-   ;;
-   ;; - For trials created by calling a function defined with DEFTEST,
-   ;;   this is (<NAME-OF-A-DEFTEST> . <ARGS>). The call may be
-   ;;   explicitly to TRY, e.g. (TRY 'NAME-OF-A-DEFTEST), or implicit
-   ;;   as in (NAME-OF-A-DEFTEST), which calls TRY implicitly if it is
-   ;;   not already running within a TRY call. These trials are
-   ;;   NAMED-TRIAL-P.
-   ;;
-   ;; - For trials created by WITH-TEST, the FUNCTION-DESIGNATOR is
-   ;;   the actual function object (often a closure) corresponding to
-   ;;   the body of WITH-TEST. These trials are LAMBDA-TRIAL-P and
-   ;;   have no ARGS.
-   ;;
-   ;; - For trials created by calling TRY, this is (TRY <TESTABLE>)
-   ;;   where TESTABLE is, of course, the argument that was passed to
-   ;;   TRY when this trial was created. Among other things, the
-   ;;   TESTABLE may be a symbol, a function, a list, or a package.
-   ;;   These trials are TRY-TRIAL-P.
+   ;; is like (FUNCTION-DESIGNATOR . ARGS), where FUNCTION-DESIGNATOR
+   ;; may be a symbol denoting a global function or a function object.
+   ;; See DEFTEST-TRIAL-P, WITH-TEST-TRIAL-P and TRY-TRIAL-P.
    (cform :initarg :cform :reader cform)
    (parent :initform *trial* :reader parent)
    ;; The length of the PARENT chain.
@@ -157,7 +141,7 @@
     (with-slots (test-name how-to-end) trial
       (format stream "~S~@[ ~A~]~@[ RETRY#~A~]~@[ ~A~]~@[ ~,3Fs~]"
               (ignore-errors
-               (if (lambda-trial-p trial)
+               (if (with-test-trial-p trial)
                    `(with-test (,(test-name trial)))
                    (cform trial)))
               (ignore-errors
@@ -184,23 +168,6 @@
 
 (defun trialp (object)
   (typep object 'trial))
-
-(defun named-trial-p (trial)
-  (let ((function-designator (first (cform trial))))
-    (and (not (eq function-designator 'try))
-         (symbolp function-designator))))
-
-(defun lambda-trial-p (trial)
-  (functionp (first (cform trial))))
-
-(defun try-trial-p (trial)
-  (eq (first (cform trial)) 'try))
-
-(defun try-trial-testable (trial)
-  (destructuring-bind (function-name &rest args) (cform trial)
-    (assert (eq function-name 'try))
-    (assert (= (length args) 1))
-    (first args)))
 
 
 (defsection @trial-verdicts (:title "Trial Verdicts")
@@ -706,3 +673,81 @@
                    (clean-up-cancelled-nlx-of-retry-for-end-trial ,trial)
                    (with-retry/catch (:catch ,resignal-verdict-catch)
                      (end-trial ,trial)))))))))))
+
+
+;;; CFORM is like (NAME-OF-A-DEFTEST . ARGS). See DEFTEST and one of
+;;; the branches in CALL-TESTABLE.
+;;;
+;;; These trials created by calling a function defined with DEFTEST
+;;; (either with @EXPLICIT-TRY, @IMPLICIT-TRY or nested). TEST-NAME is
+;;; set to NAME-OF-A-DEFTEST.
+(defun deftest-trial-p (trial)
+  (let ((function-designator (first (cform trial))))
+    (and (not (eq function-designator 'try))
+         (symbolp function-designator))))
+
+;;; CFORM is like (FN). See WITH-TEST.
+;;;
+;;; These trials are created by WITH-TEST (@IMPLICIT-TRY or nested,
+;;; @EXPLICIT-TRY is not possible). FN is FUNCTIONP (it corresponds to
+;;; the body of WITH-TEST). They have no ARGS.
+(defun with-test-trial-p (trial)
+  (functionp (first (cform trial))))
+
+;;; CFORM is like (TRY TESTABLE). See one of the branches in
+;;; CALL-TESTABLE.
+;;;
+;;; These trials are created by an @EXPLICIT-TRY with TESTABLE as its
+;;; arg. TESTABLE cannot be TEST-BOUND-P because those end up as
+;;; DEFTEST-TRIAL-P (again, see CALL-TESTABLE). NAME is the same as
+;;; CFORM.
+(defun try-trial-p (trial)
+  (eq (first (cform trial)) 'try))
+
+(declaim (ftype function try/implicit))
+(declaim (ftype (function (t) t) test-bound-p))
+(declaim (ftype function call-testable))
+
+(defun call-trial (trial)
+  (if *try-id*
+      (cond ((deftest-trial-p trial)
+             (call-deftest-trial trial))
+            ((with-test-trial-p trial)
+             (call-with-test-trial trial))
+            (t
+             (call-try-trial trial)))
+      (try/implicit trial)))
+
+(defun call-deftest-trial (trial)
+  (destructuring-bind (symbol &rest args) (cform trial)
+    (assert (symbolp symbol))
+    (unless (fboundp symbol)
+      (error "~@<Cannot call ~S because it is no longer ~S.~:@>"
+             symbol 'fboundp))
+    (unless (test-bound-p symbol)
+      (error "~@<Cannot call ~S because it is no longer ~S.~:@>"
+             symbol 'test-bound-p))
+    (apply symbol args)))
+
+(defun call-with-test-trial (trial)
+  (let ((cform (cform trial)))
+    (destructuring-bind (function &rest args) cform
+      (assert (functionp function))
+      (assert (endp args))
+      (let ((trial (make-instance 'trial
+                                  '%test-name (test-name trial)
+                                  :cform cform)))
+        (with-trial (trial)
+          (funcall function trial))))))
+
+(defun call-try-trial (trial)
+  (destructuring-bind (function-designator &rest args) (cform trial)
+    (assert (eq function-designator 'try))
+    (destructuring-bind (testable) args
+      (call-testable testable))))
+
+(defun try-trial-testable (trial)
+  (destructuring-bind (function-name &rest args) (cform trial)
+    (assert (eq function-name 'try))
+    (assert (= (length args) 1))
+    (first args)))

@@ -55,51 +55,6 @@
       guaranteed to happen under TRY."
   (*rerun-context* (variable nil)))
 
-(declaim (ftype (function (t) t) try/implicit))
-
-(defun call-trial (trial)
-  (if *try-id*
-      (let* ((cform (cform trial))
-             (function-designator (first cform)))
-        (cond ((symbolp function-designator)
-               (call-named-trial cform))
-              ((functionp function-designator)
-               (call-lambda-trial trial))
-              (t
-               (call-try-trial trial))))
-      (try/implicit trial)))
-
-(defun call-named-trial (cform)
-  (destructuring-bind (symbol &rest args) cform
-    (assert (symbolp symbol))
-    (unless (fboundp symbol)
-      (error "~@<Cannot call ~S because it is no longer ~S.~:@>"
-             symbol 'fboundp))
-    (unless (test-bound-p symbol)
-      (error "~@<Cannot call ~S because it is no longer ~S.~:@>"
-             symbol 'test-bound-p))
-    (apply symbol args)))
-
-(defun call-lambda-trial (trial)
-  (let ((cform (cform trial)))
-    (destructuring-bind (function &rest args) cform
-      (assert (functionp function))
-      (assert (endp args))
-      (let ((trial (make-instance 'trial
-                                  '%test-name (test-name trial)
-                                  :cform cform)))
-        (with-trial (trial)
-          (funcall function trial))))))
-
-;;; FIXME: This is never called.
-(defun call-try-trial (trial)
-  (let ((cform (cform trial)))
-    (destructuring-bind (function-designator &rest args) cform
-      (assert (eq function-designator 'try))
-      (destructuring-bind (testable) args
-        (call-testable testable)))))
-
-
 (defun %make-rerun-trial-event-handler (trial-to-rerun rerun-type)
   (let ((trial-being-rerun nil)
         ;; The first element of CHILD-TRIALS-NOT-RUN is a list of
@@ -177,8 +132,8 @@
                (equal args1 args2))
           ;; Heuristically accept WITH-TESTs as the same if they have
           ;; the same name.
-          (and (lambda-trial-p trial1)
-               (lambda-trial-p trial2)
+          (and (with-test-trial-p trial1)
+               (with-test-trial-p trial2)
                (equal (test-name trial1) (test-name trial2)))))))
 
 (defun trial-has-event-of-type-p (trial type)

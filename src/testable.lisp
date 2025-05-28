@@ -29,11 +29,15 @@
   (multiple-value-bind (function-designators wrapper-cform)
       (list-function-designators testable)
     (if wrapper-cform
-        (call-with-wrapper function-designators wrapper-cform)
+        (call-basic-testables function-designators wrapper-cform)
+        ;; No wrapper is needed. Hence, this must be a single
+        ;; TEST-BOUND-P name or a TRIAL object.
         (destructuring-bind (function-designator) function-designators
+          (assert (or (typep function-designator 'trial)
+                      (test-bound-p function-designator)))
           (funcall function-designator)))))
 
-(defun call-with-wrapper (function-designators wrapper-cform)
+(defun call-basic-testables (function-designators wrapper-cform)
   (let ((wrapper (make-instance 'trial
                                 '%test-name wrapper-cform
                                 :cform wrapper-cform)))

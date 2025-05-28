@@ -411,7 +411,7 @@
      ,@body))
 
 (defun maybe-mark-test-run (trial)
-  (when (and (boundp '*tests-run*) (named-trial-p trial))
+  (when (and (boundp '*tests-run*) (deftest-trial-p trial))
     (incf (gethash (test-name trial) *tests-run* 0))))
 
 (defmacro warn-on-tests-not-run ((&optional (package *package*)) &body body)

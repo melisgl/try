@@ -82,7 +82,12 @@
       (let ((trial (try trial :print nil)))
         (is (equal (try::cform trial) `(try ,list)))
         (is (passedp trial))
-        (is (typep (verdict trial) 'verdict-skip))))
+        (is (typep (verdict trial) 'verdict-skip)))
+      (with-test ("rerun LIST with FUNCALL in WITH-TEST")
+        (is (try::try-trial-p trial))
+        ;; This exercises TRY::CALL-TRY-TRIAL via TRY::CALL-TRIAL.
+        (with-test ()
+          (funcall trial))))
     (let* ((list '(%is/failure %simple-failure))
            (trial (try list :print nil)))
       (is (equal (try::cform trial) `(try ,list)))
@@ -360,12 +365,12 @@ T0
 (deftest test-try/rerun/implicit/failure ()
   (with-test ("explicit TRY with named trial => named trial")
     (let ((trial (try '%simple-failure :print nil)))
-      (is (try::named-trial-p trial))
+      (is (try::deftest-trial-p trial))
       (is (equal (try::cform trial) '(%simple-failure)))))
   ;; Check that an implicit call to TRY by %SIMPLE-FAILURE will behave
   ;; the same.
   (let ((trial (with-silent-implicit-try (%simple-failure))))
-    (is (try::named-trial-p trial))
+    (is (try::deftest-trial-p trial))
     (is (not (passedp (try trial :print nil))))
     ;; Same with FUNCALL on TRIAL.
     (check-implicit-try-output ((funcall trial))
@@ -383,7 +388,7 @@ T0
     (is (try::try-trial-p trial)))
   ;; With implicit TRY, that's not required.
   (let ((trial (with-silent-implicit-try (%simple-failure-with-args 5))))
-    (is (try::named-trial-p trial))
+    (is (try::deftest-trial-p trial))
     (is (not (passedp (try trial :print nil))))
     (check-implicit-try-output ((funcall trial))
                                "%SIMPLE-FAILURE-WITH-ARGS
