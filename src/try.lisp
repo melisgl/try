@@ -1,43 +1,58 @@
 (in-package :try)
 
-(defsection @implicit-try (:title "Calling Test Functions")
-  "Tests can be run explicitly by invoking the TRY function or
-  implicitly by calling a test function:
+(defsection @calling-test-functions (:title "Calling Test Functions")
+  "Tests always run under TRY, but TRY may be explicit or implicit
+  depending whether the outermost test was called via TRY or directly
+  as a Lisp function.
 
-  ```cl-transcript (:dynenv try-transcript)
-  (deftest my-test ()
-    (is t))
+  Nested invocations of tests, be them explicit or implicit, do not
+  establish nested TRYs. EVENT handling is performed only at the
+  outermost level."
+  (@tryvar glossary-term)
+  (@explicit-try section)
+  (@implicit-try section))
 
-  (my-test)
-  .. MY-TEST
-  ..   ⋅ (IS T)
-  .. ⋅ MY-TEST ⋅1
-  ..
-  ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.004s ⋅1>
-  ```
-
-  The situation is similar with a WITH-TEST:
-
-  ```cl-transcript (:dynenv try-transcript)
-  (with-test (my-test)
-    (is t))
-  .. MY-TEST
-  ..   ⋅ (IS T)
-  .. ⋅ MY-TEST ⋅1
-  ..
-  ==> #<TRIAL (WITH-TEST (MY-TEST)) EXPECTED-SUCCESS 0.000s ⋅1>
-  ```
-
-  Behind the scenes, the outermost test function calls TRY with
+(defsection @implicit-try (:title "Implicit TRY")
+  "We speak of an implicit TRY when the outermost test is entered
+  via a Lisp function call. In this case, as the test function is
+  entered, it invokes itself behind the scenes (implicitly) via TRY:
 
   ```
-  (try trial :debug *debug* :collect *collect* :rerun *rerun*
+  (try ... :debug *debug* :collect *collect* :rerun *rerun*
        :print *print* :describe *describe*
        :stream *stream* :printer *printer*)
   ```
 
-  TRY then calls the test function belonging to [TRIAL][dislocated].
-  The rest of the behaviour is described in @EXPLICIT-TRY."
+  As its invoked again, it sees that it is now running under TRY and
+  proceeds to execute normally.
+
+  An implicit TRY can only happen with the following two constructs.
+
+  - Global test function
+
+      ```cl-transcript (:dynenv try-transcript)
+      (deftest my-test ()
+        (is t))
+
+      (my-test)
+      .. MY-TEST
+      ..   ⋅ (IS T)
+      .. ⋅ MY-TEST ⋅1
+      ..
+      ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.004s ⋅1>
+      ```
+
+  - WITH-TEST
+
+      ```cl-transcript (:dynenv try-transcript)
+      (with-test (my-test)
+        (is t))
+      .. MY-TEST
+      ..   ⋅ (IS T)
+      .. ⋅ MY-TEST ⋅1
+      ..
+      ==> #<TRIAL (WITH-TEST (MY-TEST)) EXPECTED-SUCCESS 0.000s ⋅1>
+      ```"
   (*debug* variable)
   (*count* variable)
   (*collect* variable)
@@ -45,9 +60,10 @@
   (*print* variable)
   (*describe* variable)
   (*stream* (variable (make-synonym-stream '*debug-io*)))
-  (*printer* variable))
+  (*printer* variable)
+  (@implicit-try-implementation section))
 
-(defvar *debug* '(and unexpected (not nlx) (not verdict))
+(define-try-var *debug* '(and unexpected (not nlx) (not verdict))
   "The default value makes TRY invoke the debugger on UNHANDLED-ERROR,
   RESULT-ABORT*, UNEXPECTED-RESULT-FAILURE, and
   UNEXPECTED-RESULT-SUCCESS. NLX is excluded because it is caught as
@@ -55,20 +71,20 @@
   environment of the actual cause is likely gone. VERDICT is excluded
   because it is a consequence of its child outcomes.")
 
-(defvar *count* 'leaf
+(define-try-var *count* 'leaf
   "Although the default value of *CATEGORIES* lumps RESULTs and
   VERDICTs together, with the default of LEAF, VERDICTs are not
   counted. See @COUNT.")
 
-(defvar *collect* '(or trial-event unexpected)
-  "By default all [TRIALs][class] and UNEXPECTED are [collected][@collect].
-  This is sufficient for being able to @RERUN anything in
-  [context][*rerun-context*].")
+(define-try-var *collect* '(or trial-event unexpected)
+  "By default all [TRIALs][class] and UNEXPECTED are
+  [collected][@collect]. This is sufficient for being able to @RERUN
+  anything in [context][*rerun-context*].")
 
-(defvar *rerun* 'unexpected
+(define-try-var *rerun* 'unexpected
   "The default matches that of *COLLECT*. See @RERUN.")
 
-(defvar *print* '(or leaf dismissal)
+(define-try-var *print* '(or leaf dismissal)
   "Events of this type are [printed][@print].
 
   ```cl-transcript
@@ -78,127 +94,19 @@
       RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT* UNHANDLED-ERROR NLX)
   ```")
 
-(defvar *describe* '(or unexpected failure)
-  "By default, the context (e.g. @CAPTURES, and the CTX argument
-  of is and other checks) of UNEXPECTED events is described. See
-  @PRINT.")
+(define-try-var *describe* '(or unexpected failure)
+  "By default, the context (e.g. @CAPTURES, and the CTX argument of
+  is and other checks) of UNEXPECTED events is described. See @PRINT.")
 
-(defvar *stream* (make-synonym-stream '*debug-io*))
+(define-try-var *stream* (make-synonym-stream '*debug-io*))
 
-(defvar *printer* 'tree-printer)
+(define-try-var *printer* 'tree-printer)
 
 ;;; CALL-TRIAL goes through here.
 (defun try/implicit (trial)
   (try trial :debug *debug* :count *count* :collect *collect* :rerun *rerun*
        :print *print* :describe *describe*
        :stream *stream* :printer *printer*))
-
-
-(defsection @explicit-try (:title "Explicit TRY")
-  "Instead of invoking the test function directly, tests can also be
-  run by invoking the TRY function.
-
-  ```cl-transcript (:dynenv try-transcript)
-  (deftest my-test ()
-    (is t))
-
-  (try 'my-test)
-  .. MY-TEST
-  ..   ⋅ (IS T)
-  .. ⋅ MY-TEST ⋅1
-  ..
-  ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.000s ⋅1>
-  ```
-
-  The situation is similar with a WITH-TEST, only that TRY wraps an
-  extra TRIAL around the execution of the LAMBDA to ensure that all
-  EVENTs are signalled within a trial.
-
-  ```
-  (try (lambda ()
-         (with-test (my-test)
-           (is t))))
-  .. (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>)
-  ..   MY-TEST
-  ..     ⋅ (IS T)
-  ..   ⋅ MY-TEST ⋅1
-  .. ⋅ (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) ⋅1
-  ..
-  ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) EXPECTED-SUCCESS 0.000s ⋅1>
-  ```
-
-  Invoking tests with an explicit TRY is very similar to just calling
-  the test functions directly (see @IMPLICIT-TRY). The differences
-  are that TRY
-
-  - can run @TESTABLES,
-  - has a function argument for each of the *DEBUG*, *COLLECT*, etc
-    variables.
-
-  Those arguments default to *TRY-DEBUG*, *TRY-COLLECT*, etc, which
-  parallel and default to *DEBUG*, *COLLECT*, etc if set to
-  :UNSPECIFIED. *TRY-DEBUG* is NIL, the rest of them are :UNSPECIFIED.
-
-  These defaults encourage the use of an explicit TRY call in the
-  non-interactive case and calling the test functions directly in the
-  interactive one, but this is not enforced in any way."
-  (try function)
-  (set-try-debug function)
-  (*try-debug* variable)
-  (*try-count* variable)
-  (*try-collect* variable)
-  (*try-rerun* variable)
-  (*try-print* variable)
-  (*try-describe* variable)
-  (*try-stream* variable)
-  (*try-printer* variable)
-  (*n-recent-trials* variable)
-  (recent-trial function)
-  (! (variable nil))
-  (!! (variable nil))
-  (!!! (variable nil))
-  (@testables section)
-  (@implicit-try-implementation section))
-
-(defvar *try-debug* nil
-  "The default value for TRY's :DEBUG argument. If
-  :UNSPECIFIED, then the value of *DEBUG* is used instead.")
-(defvar *try-count* :unspecified
-  "The default value for TRY's :COUNT argument. If
-  :UNSPECIFIED, then the value of *COUNT* is used instead.")
-(defvar *try-collect* :unspecified
-  "The default value for TRY's :COLLECT argument. If
-  :UNSPECIFIED, then the value of *COLLECT* is used instead.")
-(defvar *try-rerun* :unspecified
-  "The default value for TRY's :RERUN argument. If
-  :UNSPECIFIED, then the value of *RERUN* is used instead.")
-(defvar *try-print* :unspecified
-  "The default value for TRY's :PRINT argument. If
-  :UNSPECIFIED, then the value of *PRINT* is used instead.")
-(defvar *try-describe* :unspecified
-  "The default value for TRY's :DESCRIBE argument. If
-  :UNSPECIFIED, then the value of *DESCRIBE* is used instead.")
-(defvar *try-stream* :unspecified
-  "The default value for TRY's :STREAM argument. If
-  :UNSPECIFIED, then the value of *STREAM* is used instead.")
-(defvar *try-printer* :unspecified
-  "The default value for TRY's :PRINTER argument. If
-  :UNSPECIFIED, then the value of *PRINTER* is used instead.")
-
-(defmacro try-default-unspecified-args (&key replayp)
-  `(flet ((default-var (explicit-try-value implicit-try-value)
-            (if (eq explicit-try-value :unspecified)
-                implicit-try-value
-                explicit-try-value)))
-     (setq collect (default-var collect *collect*))
-     ,@(unless replayp
-         '((setq debug (default-var debug *debug*))
-           (setq count (default-var count *count*))
-           (setq rerun (default-var rerun *rerun*))))
-     (setq print (default-var print *print*))
-     (setq describe (default-var describe *describe*))
-     (setq stream (default-var stream *stream*))
-     (setq printer (default-var printer *printer*))))
 
 (defsection @implicit-try-implementation
     (:title "Implementation of Implicit TRY")
@@ -218,6 +126,117 @@
   (with-test (recurse)
     (funcall recurse))
   ```")
+
+
+(defsection @explicit-try (:title "Explicit TRY")
+  "We speak of an explicit TRY when the outermost test function is
+  called directly by TRY.
+
+  Global test functions can be TRYed explicitly by giving their name:
+
+  ```cl-transcript (:dynenv try-transcript)
+  (deftest my-test ()
+    (is t))
+
+  (try 'my-test)
+  .. MY-TEST
+  ..   ⋅ (IS T)
+  .. ⋅ MY-TEST ⋅1
+  ..
+  ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.000s ⋅1>
+  ```
+
+  However, WITH-TEST has no global name, so to delay its execution
+  until TRY calls it, it needs to be wrapped in a LAMBDA.
+
+  ```
+  (try (lambda ()
+         (with-test (my-test)
+           (is t))))
+  .. (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>)
+  ..   MY-TEST
+  ..     ⋅ (IS T)
+  ..   ⋅ MY-TEST ⋅1
+  .. ⋅ (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) ⋅1
+  ..
+  ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) EXPECTED-SUCCESS 0.000s ⋅1>
+  ```
+
+  In the example above, TRY wrapped a [TRIAL][class] around the
+  execution of the lambda, to ensure that the tree of TRIALs has a
+  single root. This TRIAL object also remembers the lambda function
+  for [rerunning][@rerun]. This situation arises when the function to
+  run is constructed from composite @TESTABLES.
+
+  Explicit and implicit TRYs are very similar. The differences are
+  that explicit TRY
+
+  - can run @TESTABLES (it takes care of wrapping them in a function),
+  - has a function argument for each of the *DEBUG*, *COLLECT*, etc
+    variables.
+
+  Those arguments default to *TRY-DEBUG*, *TRY-COLLECT*, etc, which
+  parallel and default to *DEBUG*, *COLLECT*, etc if set to
+  :UNSPECIFIED. *TRY-DEBUG* is NIL, the rest of them are :UNSPECIFIED.
+  These defaults encourage the use of an explicit TRY call in the
+  non-interactive case and calling the test functions directly in the
+  interactive one, but this is not enforced in any way."
+  (try function)
+  (set-try-debug function)
+  (*try-debug* variable)
+  (*try-count* variable)
+  (*try-collect* variable)
+  (*try-rerun* variable)
+  (*try-print* variable)
+  (*try-describe* variable)
+  (*try-stream* variable)
+  (*try-printer* variable)
+  (*n-recent-trials* variable)
+  (recent-trial function)
+  (! (variable nil))
+  (!! (variable nil))
+  (!!! (variable nil))
+  (@testables section))
+
+(define-try-var *try-debug* nil
+  "The default value for TRY's :DEBUG argument.
+  If :UNSPECIFIED, then the value of *DEBUG* is used instead.")
+(define-try-var *try-count* :unspecified
+  "The default value for TRY's :COUNT argument.
+  If :UNSPECIFIED, then the value of *COUNT* is used instead.")
+(define-try-var *try-collect* :unspecified
+  "The default value for TRY's :COLLECT argument.
+  If :UNSPECIFIED, then the value of *COLLECT* is used instead.")
+(define-try-var *try-rerun* :unspecified
+  "The default value for TRY's :RERUN argument.
+  If :UNSPECIFIED, then the value of *RERUN* is used instead.")
+(define-try-var *try-print* :unspecified
+  "The default value for TRY's :PRINT argument.
+  If :UNSPECIFIED, then the value of *PRINT* is used instead.")
+(define-try-var *try-describe* :unspecified
+  "The default value for TRY's :DESCRIBE argument.
+  If :UNSPECIFIED, then the value of *DESCRIBE* is used instead.")
+(define-try-var *try-stream* :unspecified
+  "The default value for TRY's :STREAM argument.
+  If :UNSPECIFIED, then the value of *STREAM* is used instead.")
+(define-try-var *try-printer* :unspecified
+  "The default value for TRY's :PRINTER argument.
+  If :UNSPECIFIED, then the value of *PRINTER* is used instead.")
+
+(defmacro try-default-unspecified-args (&key replayp)
+  `(flet ((default-var (explicit-try-value implicit-try-value)
+            (if (eq explicit-try-value :unspecified)
+                implicit-try-value
+                explicit-try-value)))
+     (setq collect (default-var collect *collect*))
+     ,@(unless replayp
+         '((setq debug (default-var debug *debug*))
+           (setq count (default-var count *count*))
+           (setq rerun (default-var rerun *rerun*))))
+     (setq print (default-var print *print*))
+     (setq describe (default-var describe *describe*))
+     (setq stream (default-var stream *stream*))
+     (setq printer (default-var printer *printer*))))
 
 (defmacro with-try-context (&body body)
   `(let* ((*internal-error* nil)
@@ -333,9 +352,10 @@
             (collect *try-collect*) (rerun *try-rerun*)
             (print *try-print*) (describe *try-describe*)
             (stream *try-stream*) (printer *try-printer*))
-  "TRY runs TESTABLE and handles the EVENTs to collect, debug, print
-  the results of checks and trials, and to decide what tests to skip
-  and what to rerun.
+  "TRY runs [TESTABLE][@testables] and handles the EVENTs to
+  [count][@count], [collect][@collect], debug, [print][@print] the
+  results of checks and trials, and to decide what tests to SKIP and
+  what to [rerun][@rerun].
 
   DEBUG, COUNT, COLLECT, RERUN, PRINT, and DESCRIBE must all be valid
   specifiers for types that are either NIL (the empty type) or have a
@@ -361,12 +381,13 @@
   - Finally, when rerunning a trial (i.e. when TESTABLE is a trial),
     on a TRIAL-START event, the trial may be skipped (see @RERUN).
 
-  TRY returns the values returned by the outermost trial (see @TESTS).
+  TRY returns the values returned by the outermost trial. This is just
+  the [TRIAL][class] object in the absence of an explicit RETURN or
+  RETURN-FROM (see examples in @TESTS).
 
   If TRY is called within the dynamic extent of another TRY run, then
   it simply calls TESTABLE, ignores the other arguments and leaves
-  event handling to the enclosing TRY. In other words, it behaves as a
-  nested [implicit TRY][@implicit-try]."
+  event handling to the enclosing TRY."
   (try-default-unspecified-args)
   (loop for (type arg-name) in
         `((,debug :debug) (,count :count) (,collect :collect) (,rerun :rerun)

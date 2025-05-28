@@ -53,10 +53,19 @@
    ;; ELAPSED-SECONDS, CATEGORIES, and COUNT are for REPLAY-EVENTS.
    (elapsed-seconds :initform nil :initarg :elapsed-seconds
                     :reader elapsed-seconds)
+   ;; Capture or inherit these @TRYVARs.
    (categories :initform (if *trial* (categories *trial*) *categories*)
                :initarg :categories :reader categories)
    (count :initform (if *trial* (count-of *trial*) *count*)
           :initarg :count :reader count-of)
+   (gather-backtrace-p :initform (if *trial*
+                                     (trial-gather-backtrace-p *trial*)
+                                     *gather-backtrace*)
+                       :reader trial-gather-backtrace-p)
+   (print-backtrace-p :initform (if *trial*
+                                    (trial-print-backtrace-p *trial*)
+                                    *print-backtrace*)
+                      :reader trial-print-backtrace-p)
    ;; The rest of the slots are reinitialized in
    ;; START-RETRY-FOR-TRIAL.
    (n-retries

@@ -27,8 +27,7 @@
   (list-package-tests function)
   (with-tests-run macro)
   (warn-on-tests-not-run macro)
-  (@implicit-try section)
-  (@explicit-try section)
+  (@calling-test-functions section)
   #+nil
   (@debug section)
   (@print section)

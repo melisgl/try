@@ -449,9 +449,8 @@ buffer, the following key bindings are available.
       test function that contains the current line) in the context
       associated with the Emacs buffer, which is similar but
       distinct from *RERUN-CONTEXT*. With a prefix arg, the test is
-      called implicitly with no arguments.
-      This is suitable for interactive debugging under the default
-      settings.
+      an @IMPLICIT-TRY with no arguments. This is suitable for
+      interactive debugging under the default settings.
 
     - `r` reruns the most recent trial conducted by
       Emacs (this is distinct from TRY:!). With a prefix argument,
@@ -754,7 +753,7 @@ PASS and FAIL partition ACT.
 
 - [variable] *EVENT-PRINT-BINDINGS* ((\*PRINT-CIRCLE\* T))
 
-    EVENTs are conditions signalled in code that may change printer
+    @TRYVAR. EVENTs are conditions signalled in code that may change printer
     variables such as *PRINT-CIRCLE*, *PRINT-LENGTH*, etc. To control
     how events are printed, the list of variable bindings in
     *EVENT-PRINT-BINDINGS* is established whenever an EVENT is printed
@@ -1309,7 +1308,7 @@ dropped.
 
 - [variable] *GATHER-BACKTRACE* T
 
-    Capturing the backtrace can be expensive. *GATHER-BACKTRACE*
+    @TRYVAR. Capturing the backtrace can be expensive. *GATHER-BACKTRACE*
     controls whether UNHANDLED-ERRORs shall have their BACKTRACE-OF
     populated. Also, see *PRINT-BACKTRACE*.
 
@@ -1345,10 +1344,10 @@ have the same marker as their EXPECTED counterpart but squared.
 
 - [variable] *CATEGORIES* "- see above -"
 
-    A list of of elements like `(TYPE &KEY MARKER)`.
-    When @PRINT, @CONCRETE-EVENTS are printed with the marker of the
-    first matching type. When @COUNT, the counts associated with all
-    matching types are incremented.
+    @TRYVAR. A list of of elements like `(TYPE &KEY MARKER)`. When @PRINT,
+    @CONCRETE-EVENTS are printed with the marker of the first matching
+    type. When @COUNT, the counts associated with all matching types are
+    incremented.
 
 - [function] FANCY-STD-CATEGORIES
 
@@ -2319,94 +2318,29 @@ See DEFTEST and WITH-TEST for more precise descriptions.
 
 ### Calling Test Functions
 
-Tests can be run explicitly by invoking the TRY function or
-implicitly by calling a test function:
+Tests always run under TRY, but TRY may be explicit or implicit
+depending whether the outermost test was called via TRY or directly
+as a Lisp function.
 
-```common-lisp
-(deftest my-test ()
-  (is t))
+Nested invocations of tests, be them explicit or implicit, do not
+establish nested TRYs. EVENT handling is performed only at the
+outermost level.
 
-(my-test)
-.. MY-TEST
-..   ⋅ (IS T)
-.. ⋅ MY-TEST ⋅1
-..
-==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.004s ⋅1>
-```
+- [glossary-term] Try var
 
-The situation is similar with a WITH-TEST:
+    There are lots of special variables that affect TRY. To avoid the
+    plight of Common Lisp STREAMs and guarantee consistent output and
+    behaviour even if these variables are changed during a single TRY
+    run, the values of variables are captured when TRY is first invoked.
+    That is, when the outermost test function is entered. These
+    variables are called Try vars.
 
-```common-lisp
-(with-test (my-test)
-  (is t))
-.. MY-TEST
-..   ⋅ (IS T)
-.. ⋅ MY-TEST ⋅1
-..
-==> #<TRIAL (WITH-TEST (MY-TEST)) EXPECTED-SUCCESS 0.000s ⋅1>
-```
+#### Explicit TRY
 
-Behind the scenes, the outermost test function calls TRY with
+We speak of an explicit TRY when the outermost test function is
+called directly by TRY.
 
-```
-(try trial :debug *debug* :collect *collect* :rerun *rerun*
-     :print *print* :describe *describe*
-     :stream *stream* :printer *printer*)
-```
-
-TRY then calls the test function belonging to TRIAL.
-The rest of the behaviour is described in @EXPLICIT-TRY.
-
-- [variable] *DEBUG* (AND UNEXPECTED (NOT NLX) (NOT VERDICT))
-
-    The default value makes TRY invoke the debugger on UNHANDLED-ERROR,
-    RESULT-ABORT\*, UNEXPECTED-RESULT-FAILURE, and
-    UNEXPECTED-RESULT-SUCCESS. NLX is excluded because it is caught as
-    the test function is being exited, but by that time the dynamic
-    environment of the actual cause is likely gone. VERDICT is excluded
-    because it is a consequence of its child outcomes.
-
-- [variable] *COUNT* LEAF
-
-    Although the default value of *CATEGORIES* lumps RESULTs and
-    VERDICTs together, with the default of LEAF, VERDICTs are not
-    counted. See @COUNT.
-
-- [variable] *COLLECT* (OR TRIAL-EVENT UNEXPECTED)
-
-    By default all TRIALs and UNEXPECTED are collected.
-    This is sufficient for being able to @RERUN anything in
-    context.
-
-- [variable] *RERUN* UNEXPECTED
-
-    The default matches that of *COLLECT*. See @RERUN.
-
-- [variable] *PRINT* (OR LEAF DISMISSAL)
-
-    Events of this type are printed.
-    
-    ```common-lisp
-    (concrete-events-of-type '(or leaf dismissal))
-    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
-        EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
-        RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT* UNHANDLED-ERROR NLX)
-    ```
-
-- [variable] *DESCRIBE* (OR UNEXPECTED FAILURE)
-
-    By default, the context (e.g. @CAPTURES, and the CTX argument
-    of is and other checks) of UNEXPECTED events is described. See
-    @PRINT.
-
-- [variable] *STREAM* (MAKE-SYNONYM-STREAM '\*DEBUG-IO\*)
-
-- [variable] *PRINTER* TREE-PRINTER
-
-### Explicit TRY
-
-Instead of invoking the test function directly, tests can also be
-run by invoking the TRY function.
+Global test functions can be TRYed explicitly by giving their name:
 
 ```common-lisp
 (deftest my-test ()
@@ -2420,9 +2354,8 @@ run by invoking the TRY function.
 ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.000s ⋅1>
 ```
 
-The situation is similar with a WITH-TEST, only that TRY wraps an
-extra TRIAL around the execution of the LAMBDA to ensure that all
-EVENTs are signalled within a trial.
+However, WITH-TEST has no global name, so to delay its execution
+until TRY calls it, it needs to be wrapped in a LAMBDA.
 
 ```
 (try (lambda ()
@@ -2437,11 +2370,16 @@ EVENTs are signalled within a trial.
 ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) EXPECTED-SUCCESS 0.000s ⋅1>
 ```
 
-Invoking tests with an explicit TRY is very similar to just calling
-the test functions directly (see @IMPLICIT-TRY). The differences
-are that TRY
+In the example above, TRY wrapped a TRIAL around the
+execution of the lambda, to ensure that the tree of TRIALs has a
+single root. This TRIAL object also remembers the lambda function
+for rerunning. This situation arises when the function to
+run is constructed from composite @TESTABLES.
 
-- can run @TESTABLES,
+Explicit and implicit TRYs are very similar. The differences are
+that explicit TRY
+
+- can run @TESTABLES (it takes care of wrapping them in a function),
 
 - has a function argument for each of the *DEBUG*, *COLLECT*, etc
   variables.
@@ -2449,16 +2387,16 @@ are that TRY
 Those arguments default to *TRY-DEBUG*, *TRY-COLLECT*, etc, which
 parallel and default to *DEBUG*, *COLLECT*, etc if set to
 :UNSPECIFIED. *TRY-DEBUG* is NIL, the rest of them are :UNSPECIFIED.
-
 These defaults encourage the use of an explicit TRY call in the
 non-interactive case and calling the test functions directly in the
 interactive one, but this is not enforced in any way.
 
 - [function] TRY TESTABLE &KEY (DEBUG \*TRY-DEBUG\*) (COUNT \*TRY-COUNT\*) (COLLECT \*TRY-COLLECT\*) (RERUN \*TRY-RERUN\*) (PRINT \*TRY-PRINT\*) (DESCRIBE \*TRY-DESCRIBE\*) (STREAM \*TRY-STREAM\*) (PRINTER \*TRY-PRINTER\*)
 
-    TRY runs TESTABLE and handles the EVENTs to collect, debug, print
-    the results of checks and trials, and to decide what tests to skip
-    and what to rerun.
+    TRY runs TESTABLE and handles the EVENTs to
+    count, collect, debug, print the
+    results of checks and trials, and to decide what tests to SKIP and
+    what to rerun.
     
     DEBUG, COUNT, COLLECT, RERUN, PRINT, and DESCRIBE must all be valid
     specifiers for types that are either NIL (the empty type) or have a
@@ -2487,12 +2425,13 @@ interactive one, but this is not enforced in any way.
     - Finally, when rerunning a trial (i.e. when TESTABLE is a trial),
       on a TRIAL-START event, the trial may be skipped (see @RERUN).
     
-    TRY returns the values returned by the outermost trial (see @TESTS).
+    TRY returns the values returned by the outermost trial. This is just
+    the TRIAL object in the absence of an explicit RETURN or
+    RETURN-FROM (see examples in @TESTS).
     
     If TRY is called within the dynamic extent of another TRY run, then
     it simply calls TESTABLE, ignores the other arguments and leaves
-    event handling to the enclosing TRY. In other words, it behaves as a
-    nested implicit TRY.
+    event handling to the enclosing TRY.
 
 - [function] SET-TRY-DEBUG DEBUG
 
@@ -2503,43 +2442,43 @@ interactive one, but this is not enforced in any way.
 
 - [variable] *TRY-DEBUG* NIL
 
-    The default value for TRY's :DEBUG argument. If
-    :UNSPECIFIED, then the value of *DEBUG* is used instead.
+    @TRYVAR. The default value for TRY's :DEBUG argument.
+    If :UNSPECIFIED, then the value of *DEBUG* is used instead.
 
 - [variable] *TRY-COUNT* :UNSPECIFIED
 
-    The default value for TRY's :COUNT argument. If
-    :UNSPECIFIED, then the value of *COUNT* is used instead.
+    @TRYVAR. The default value for TRY's :COUNT argument.
+    If :UNSPECIFIED, then the value of *COUNT* is used instead.
 
 - [variable] *TRY-COLLECT* :UNSPECIFIED
 
-    The default value for TRY's :COLLECT argument. If
-    :UNSPECIFIED, then the value of *COLLECT* is used instead.
+    @TRYVAR. The default value for TRY's :COLLECT argument.
+    If :UNSPECIFIED, then the value of *COLLECT* is used instead.
 
 - [variable] *TRY-RERUN* :UNSPECIFIED
 
-    The default value for TRY's :RERUN argument. If
-    :UNSPECIFIED, then the value of *RERUN* is used instead.
+    @TRYVAR. The default value for TRY's :RERUN argument.
+    If :UNSPECIFIED, then the value of *RERUN* is used instead.
 
 - [variable] *TRY-PRINT* :UNSPECIFIED
 
-    The default value for TRY's :PRINT argument. If
-    :UNSPECIFIED, then the value of *PRINT* is used instead.
+    @TRYVAR. The default value for TRY's :PRINT argument.
+    If :UNSPECIFIED, then the value of *PRINT* is used instead.
 
 - [variable] *TRY-DESCRIBE* :UNSPECIFIED
 
-    The default value for TRY's :DESCRIBE argument. If
-    :UNSPECIFIED, then the value of *DESCRIBE* is used instead.
+    @TRYVAR. The default value for TRY's :DESCRIBE argument.
+    If :UNSPECIFIED, then the value of *DESCRIBE* is used instead.
 
 - [variable] *TRY-STREAM* :UNSPECIFIED
 
-    The default value for TRY's :STREAM argument. If
-    :UNSPECIFIED, then the value of *STREAM* is used instead.
+    @TRYVAR. The default value for TRY's :STREAM argument.
+    If :UNSPECIFIED, then the value of *STREAM* is used instead.
 
 - [variable] *TRY-PRINTER* :UNSPECIFIED
 
-    The default value for TRY's :PRINTER argument. If
-    :UNSPECIFIED, then the value of *PRINTER* is used instead.
+    @TRYVAR. The default value for TRY's :PRINTER argument.
+    If :UNSPECIFIED, then the value of *PRINTER* is used instead.
 
 - [variable] *N-RECENT-TRIALS* 3
 
@@ -2563,7 +2502,7 @@ interactive one, but this is not enforced in any way.
 
     Equivalent to `(RECENT-TRIAL 2)`.
 
-#### Testables
+##### Testables
 
 Valid first arguments to TRY are called testables. A testable may
 be:
@@ -2593,7 +2532,100 @@ When given a list of testables, TRY calls each testable one by one.
 Finally, a PACKAGE stands for the result of calling
 LIST-PACKAGE-TESTS on that package.
 
-#### Implementation of Implicit TRY
+#### Implicit TRY
+
+We speak of an implicit TRY when the outermost test is entered
+via a Lisp function call. In this case, as the test function is
+entered, it invokes itself behind the scenes (implicitly) via TRY:
+
+```
+(try ... :debug *debug* :collect *collect* :rerun *rerun*
+     :print *print* :describe *describe*
+     :stream *stream* :printer *printer*)
+```
+
+As its invoked again, it sees that it is now running under TRY and
+proceeds to execute normally.
+
+An implicit TRY can only happen with the following two constructs.
+
+- Global test function
+
+    ```common-lisp
+    (deftest my-test ()
+      (is t))
+    
+    (my-test)
+    .. MY-TEST
+    ..   ⋅ (IS T)
+    .. ⋅ MY-TEST ⋅1
+    ..
+    ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.004s ⋅1>
+    ```
+
+- WITH-TEST
+
+    ```common-lisp
+    (with-test (my-test)
+      (is t))
+    .. MY-TEST
+    ..   ⋅ (IS T)
+    .. ⋅ MY-TEST ⋅1
+    ..
+    ==> #<TRIAL (WITH-TEST (MY-TEST)) EXPECTED-SUCCESS 0.000s ⋅1>
+    ```
+
+
+- [variable] *DEBUG* (AND UNEXPECTED (NOT NLX) (NOT VERDICT))
+
+    @TRYVAR. The default value makes TRY invoke the debugger on UNHANDLED-ERROR,
+    RESULT-ABORT\*, UNEXPECTED-RESULT-FAILURE, and
+    UNEXPECTED-RESULT-SUCCESS. NLX is excluded because it is caught as
+    the test function is being exited, but by that time the dynamic
+    environment of the actual cause is likely gone. VERDICT is excluded
+    because it is a consequence of its child outcomes.
+
+- [variable] *COUNT* LEAF
+
+    @TRYVAR. Although the default value of *CATEGORIES* lumps RESULTs and
+    VERDICTs together, with the default of LEAF, VERDICTs are not
+    counted. See @COUNT.
+
+- [variable] *COLLECT* (OR TRIAL-EVENT UNEXPECTED)
+
+    @TRYVAR. By default all TRIALs and UNEXPECTED are
+    collected. This is sufficient for being able to @RERUN
+    anything in context.
+
+- [variable] *RERUN* UNEXPECTED
+
+    @TRYVAR. The default matches that of *COLLECT*. See @RERUN.
+
+- [variable] *PRINT* (OR LEAF DISMISSAL)
+
+    @TRYVAR. Events of this type are printed.
+    
+    ```common-lisp
+    (concrete-events-of-type '(or leaf dismissal))
+    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+        EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
+        RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT* UNHANDLED-ERROR NLX)
+    ```
+
+- [variable] *DESCRIBE* (OR UNEXPECTED FAILURE)
+
+    @TRYVAR. By default, the context (e.g. @CAPTURES, and the CTX argument of
+    is and other checks) of UNEXPECTED events is described. See @PRINT.
+
+- [variable] *STREAM* (MAKE-SYNONYM-STREAM '\*DEBUG-IO\*)
+
+    @TRYVAR.
+
+- [variable] *PRINTER* TREE-PRINTER
+
+    @TRYVAR.
+
+##### Implementation of Implicit TRY
 
 What's happening in the implementation is that a test function,
 when it is called, checks whether it is running under the TRY
@@ -2690,9 +2722,9 @@ setups.
 
 - [variable] *PRINT-PARENT* T
 
-    When an EVENT is signalled and its parent TRIAL's type matches
+    @TRYVAR. When an EVENT is signalled and its parent TRIAL's type matches
     *PRINT-PARENT*, the trial is printed as if its TRIAL-START matched
-    the PRINT argument of TRY.
+     the PRINT argument of TRY.
     
     ```common-lisp
     (let ((*print* 'leaf)
@@ -2740,12 +2772,12 @@ setups.
 
 - [variable] *PRINT-INDENTATION* 2
 
-    The number of spaces each printed TRIAL increases the indentation
+    @TRYVAR. The number of spaces each printed TRIAL increases the indentation
     of its children.
 
 - [variable] *PRINT-DURATION* NIL
 
-    If true, the number of seconds spent during execution is printed.
+    @TRYVAR. If true, the number of seconds spent during execution is printed.
     
     ```common-lisp
     (let ((*print-duration* t)
@@ -2774,7 +2806,7 @@ setups.
 
 - [variable] *PRINT-COMPACTLY* NIL
 
-    EVENTs whose type matches *PRINT-COMPACTLY* are printed less
+    @TRYVAR. EVENTs whose type matches *PRINT-COMPACTLY* are printed less
     verbosely. LEAF events are printed only with their marker, and
     VERDICTs of trials without printed child trials are printed with `=>
     <MARKER>` (see *CATEGORIES*).
@@ -2802,11 +2834,11 @@ setups.
 
 - [variable] *PRINT-BACKTRACE* T
 
-    Whether to print backtraces gathered when *GATHER-BACKTRACE*.
+    @TRYVAR. Whether to print backtraces gathered when *GATHER-BACKTRACE*.
 
 - [variable] *DEFER-DESCRIBE* NIL
 
-    When an EVENT is to be `*DESCRIBE*`d and its type matches
+    @TRYVAR. When an EVENT is to be `*DESCRIBE*`d and its type matches
     *DEFER-DESCRIBE*, then instead of printing the often longish context
     information in the tree of events, it is deferred until after TRY
     has finished. The following example only prints LEAF events (due to
@@ -2948,7 +2980,7 @@ normally.
 
 - [variable] *RERUN-CONTEXT* NIL
 
-    A TRIAL or NIL. If it's a TRIAL, then TRY will
+    @TRYVAR. A TRIAL or NIL. If it's a TRIAL, then TRY will
     rerun this trial skipping everything that does not lead to
     an invocation of its TESTABLE argument (see @TESTABLES). If no route
     to the basic testable functions can be found among the

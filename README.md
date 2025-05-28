@@ -36,15 +36,16 @@
     - [6.3 Check Utilities][906a]
         - [6.3.1 Comparing Floats][9fa9]
 - [7 Tests][dc28]
-    - [7.1 Calling Test Functions][012f]
-    - [7.2 Explicit `TRY`][1720]
-        - [7.2.1 Testables][cdc3]
-        - [7.2.2 Implementation of Implicit `TRY`][8b9c]
-    - [7.3 Printing Events][b3f9]
-    - [7.4 Counting Events][886e]
-    - [7.5 Collecting Events][52e5]
-    - [7.6 Rerunning Trials][e4ac]
-    - [7.7 Reprocessing Trials][2337]
+    - [7.1 Calling Test Functions][5379]
+        - [7.1.1 Explicit `TRY`][1720]
+            - [7.1.1.1 Testables][cdc3]
+        - [7.1.2 Implicit `TRY`][012f]
+            - [7.1.2.1 Implementation of Implicit `TRY`][8b9c]
+    - [7.2 Printing Events][b3f9]
+    - [7.3 Counting Events][886e]
+    - [7.4 Collecting Events][52e5]
+    - [7.5 Rerunning Trials][e4ac]
+    - [7.6 Reprocessing Trials][2337]
 - [8 Implementation Notes][3eef]
 - [9 Glossary][c759]
 
@@ -505,9 +506,8 @@ buffer, the following key bindings are available.
       test function that contains the current line) in the context
       associated with the Emacs buffer, which is similar but
       distinct from [`*RERUN-CONTEXT*`][38e8]. With a prefix arg, the test is
-      called [implicitly][012f] with no arguments.
-      This is suitable for interactive debugging under the default
-      settings.
+      an [Implicit `TRY`][012f] with no arguments. This is suitable for
+      interactive debugging under the default settings.
 
     - `r` [reruns][e4ac] the most recent trial conducted by
       Emacs (this is distinct from [`TRY:!`][92af]). With a prefix argument,
@@ -860,7 +860,7 @@ The following types are shorthands.
 
 - [variable] **\*EVENT-PRINT-BINDINGS\*** *((\*PRINT-CIRCLE\* T))*
 
-    [`EVENT`][955d]s are conditions signalled in code that may change printer
+    [Try var][0d7a]. [`EVENT`][955d]s are conditions signalled in code that may change printer
     variables such as [`*PRINT-CIRCLE*`][c8cb], [`*PRINT-LENGTH*`][8f7a], etc. To control
     how events are printed, the list of variable bindings in
     `*EVENT-PRINT-BINDINGS*` is established whenever an `EVENT` is printed
@@ -1527,7 +1527,7 @@ dropped.
 
 - [variable] **\*GATHER-BACKTRACE\*** *T*
 
-    Capturing the backtrace can be expensive. `*GATHER-BACKTRACE*`
+    [Try var][0d7a]. Capturing the backtrace can be expensive. `*GATHER-BACKTRACE*`
     controls whether [`UNHANDLED-ERROR`][8f78]s shall have their [`BACKTRACE-OF`][3ace]
     populated. Also, see [`*PRINT-BACKTRACE*`][7647].
 
@@ -1569,10 +1569,10 @@ have the same marker as their [`EXPECTED`][b194] counterpart but squared.
 
 - [variable] **\*CATEGORIES\*** *"- see above -"*
 
-    A list of of elements like `(TYPE &KEY MARKER)`.
-    When [Printing Events][b3f9], [Concrete Events][279a] are printed with the marker of the
-    first matching type. When [Counting Events][886e], the counts associated with all
-    matching types are incremented.
+    [Try var][0d7a]. A list of of elements like `(TYPE &KEY MARKER)`. When [Printing Events][b3f9],
+    [Concrete Events][279a] are printed with the marker of the first matching
+    type. When [Counting Events][886e], the counts associated with all matching types are
+    incremented.
 
 <a id="x-28TRY-3AFANCY-STD-CATEGORIES-20FUNCTION-29"></a>
 
@@ -2653,116 +2653,37 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
                       :describe 'unexpected)))))
     ```
 
-<a id="x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40CALLING-TEST-FUNCTIONS-20MGL-PAX-3ASECTION-29"></a>
 
 ### 7.1 Calling Test Functions
 
-Tests can be run explicitly by invoking the [`TRY`][b602] function or
-implicitly by calling a test function:
+Tests always run under [`TRY`][b602], but `TRY` may be explicit or implicit
+depending whether the outermost test was called via `TRY` or directly
+as a Lisp function.
 
-```common-lisp
-(deftest my-test ()
-  (is t))
+Nested invocations of tests, be them explicit or implicit, do not
+establish nested `TRY`s. [`EVENT`][955d] handling is performed only at the
+outermost level.
 
-(my-test)
-.. MY-TEST
-..   ⋅ (IS T)
-.. ⋅ MY-TEST ⋅1
-..
-==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.004s ⋅1>
-```
+<a id="x-28TRY-3A-40TRYVAR-20MGL-PAX-3AGLOSSARY-TERM-29"></a>
 
-The situation is similar with a [`WITH-TEST`][8f5d]:
+- [glossary-term] **Try var**
 
-```common-lisp
-(with-test (my-test)
-  (is t))
-.. MY-TEST
-..   ⋅ (IS T)
-.. ⋅ MY-TEST ⋅1
-..
-==> #<TRIAL (WITH-TEST (MY-TEST)) EXPECTED-SUCCESS 0.000s ⋅1>
-```
-
-Behind the scenes, the outermost test function calls `TRY` with
-
-```
-(try trial :debug *debug* :collect *collect* :rerun *rerun*
-     :print *print* :describe *describe*
-     :stream *stream* :printer *printer*)
-```
-
-`TRY` then calls the test function belonging to `TRIAL`.
-The rest of the behaviour is described in [Explicit `TRY`][1720].
-
-<a id="x-28TRY-3A-2ADEBUG-2A-20VARIABLE-29"></a>
-
-- [variable] **\*DEBUG\*** *(AND UNEXPECTED (NOT NLX) (NOT VERDICT))*
-
-    The default value makes [`TRY`][b602] invoke the debugger on [`UNHANDLED-ERROR`][8f78],
-    [`RESULT-ABORT*`][ffab], [`UNEXPECTED-RESULT-FAILURE`][daeb], and
-    [`UNEXPECTED-RESULT-SUCCESS`][b72c]. [`NLX`][b115] is excluded because it is caught as
-    the test function is being exited, but by that time the dynamic
-    environment of the actual cause is likely gone. [`VERDICT`][52e1] is excluded
-    because it is a consequence of its child outcomes.
-
-<a id="x-28TRY-3A-2ACOUNT-2A-20VARIABLE-29"></a>
-
-- [variable] **\*COUNT\*** *LEAF*
-
-    Although the default value of [`*CATEGORIES*`][e949] lumps [`RESULT`][231f]s and
-    [`VERDICT`][52e1]s together, with the default of [`LEAF`][f58d], `VERDICT`s are not
-    counted. See [Counting Events][886e].
-
-<a id="x-28TRY-3A-2ACOLLECT-2A-20VARIABLE-29"></a>
-
-- [variable] **\*COLLECT\*** *(OR TRIAL-EVENT UNEXPECTED)*
-
-    By default all [`TRIAL`s][99d0] and [`UNEXPECTED`][d6ad] are [collected][52e5].
-    This is sufficient for being able to [Rerunning Trials][e4ac] anything in
-    [context][38e8].
-
-<a id="x-28TRY-3A-2ARERUN-2A-20VARIABLE-29"></a>
-
-- [variable] **\*RERUN\*** *UNEXPECTED*
-
-    The default matches that of [`*COLLECT*`][307c]. See [Rerunning Trials][e4ac].
-
-<a id="x-28TRY-3A-2APRINT-2A-20VARIABLE-29"></a>
-
-- [variable] **\*PRINT\*** *(OR LEAF DISMISSAL)*
-
-    Events of this type are [printed][b3f9].
-    
-    ```common-lisp
-    (concrete-events-of-type '(or leaf dismissal))
-    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
-        EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
-        RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT* UNHANDLED-ERROR NLX)
-    ```
-
-<a id="x-28TRY-3A-2ADESCRIBE-2A-20VARIABLE-29"></a>
-
-- [variable] **\*DESCRIBE\*** *(OR UNEXPECTED FAILURE)*
-
-    By default, the context (e.g. [Captures][3d27], and the `CTX` argument
-    of is and other checks) of [`UNEXPECTED`][d6ad] events is described. See
-    [Printing Events][b3f9].
-
-<a id="x-28TRY-3A-2ASTREAM-2A-20VARIABLE-29"></a>
-
-- [variable] **\*STREAM\*** *(MAKE-SYNONYM-STREAM '\*DEBUG-IO\*)*
-
-<a id="x-28TRY-3A-2APRINTER-2A-20VARIABLE-29"></a>
-
-- [variable] **\*PRINTER\*** *TREE-PRINTER*
+    There are lots of special variables that affect [`TRY`][b602]. To avoid the
+    plight of Common Lisp [`STREAM`][d5a9]s and guarantee consistent output and
+    behaviour even if these variables are changed during a single `TRY`
+    run, the values of variables are captured when `TRY` is first invoked.
+    That is, when the outermost test function is entered. These
+    variables are called Try vars.
 
 <a id="x-28TRY-3A-40EXPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
 
-### 7.2 Explicit `TRY`
+#### 7.1.1 Explicit `TRY`
 
-Instead of invoking the test function directly, tests can also be
-run by invoking the [`TRY`][b602] function.
+We speak of an explicit [`TRY`][b602] when the outermost test function is
+called directly by `TRY`.
+
+Global test functions can be `TRY`ed explicitly by giving their name:
 
 ```common-lisp
 (deftest my-test ()
@@ -2776,9 +2697,8 @@ run by invoking the [`TRY`][b602] function.
 ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.000s ⋅1>
 ```
 
-The situation is similar with a [`WITH-TEST`][8f5d], only that `TRY` wraps an
-extra [`TRIAL`][99d0] around the execution of the `LAMBDA`([`0`][e400] [`1`][5c01]) to ensure that all
-[`EVENT`][955d]s are signalled within a trial.
+However, [`WITH-TEST`][8f5d] has no global name, so to delay its execution
+until `TRY` calls it, it needs to be wrapped in a `LAMBDA`([`0`][e400] [`1`][5c01]).
 
 ```
 (try (lambda ()
@@ -2793,11 +2713,16 @@ extra [`TRIAL`][99d0] around the execution of the `LAMBDA`([`0`][e400] [`1`][5c0
 ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) EXPECTED-SUCCESS 0.000s ⋅1>
 ```
 
-Invoking tests with an explicit `TRY` is very similar to just calling
-the test functions directly (see [Calling Test Functions][012f]). The differences
-are that `TRY`
+In the example above, `TRY` wrapped a [`TRIAL`][99d0] around the
+execution of the lambda, to ensure that the tree of `TRIAL`s has a
+single root. This `TRIAL` object also remembers the lambda function
+for [rerunning][e4ac]. This situation arises when the function to
+run is constructed from composite [Testables][cdc3].
 
-- can run [Testables][cdc3],
+Explicit and implicit `TRY`s are very similar. The differences are
+that explicit `TRY`
+
+- can run [Testables][cdc3] (it takes care of wrapping them in a function),
 
 - has a function argument for each of the [`*DEBUG*`][856d], [`*COLLECT*`][307c], etc
   variables.
@@ -2805,7 +2730,6 @@ are that `TRY`
 Those arguments default to [`*TRY-DEBUG*`][18ff], [`*TRY-COLLECT*`][0c39], etc, which
 parallel and default to `*DEBUG*`, `*COLLECT*`, etc if set to
 `:UNSPECIFIED`. `*TRY-DEBUG*` is `NIL`, the rest of them are `:UNSPECIFIED`.
-
 These defaults encourage the use of an explicit `TRY` call in the
 non-interactive case and calling the test functions directly in the
 interactive one, but this is not enforced in any way.
@@ -2814,9 +2738,10 @@ interactive one, but this is not enforced in any way.
 
 - [function] **TRY** *TESTABLE &KEY (DEBUG \*TRY-DEBUG\*) (COUNT \*TRY-COUNT\*) (COLLECT \*TRY-COLLECT\*) (RERUN \*TRY-RERUN\*) (PRINT \*TRY-PRINT\*) (DESCRIBE \*TRY-DESCRIBE\*) (STREAM \*TRY-STREAM\*) (PRINTER \*TRY-PRINTER\*)*
 
-    `TRY` runs `TESTABLE` and handles the [`EVENT`][955d]s to collect, debug, print
-    the results of checks and trials, and to decide what tests to skip
-    and what to rerun.
+    `TRY` runs [`TESTABLE`][cdc3] and handles the [`EVENT`][955d]s to
+    [count][886e], [collect][52e5], debug, [print][b3f9] the
+    results of checks and trials, and to decide what tests to [`SKIP`][69a2] and
+    what to [rerun][e4ac].
     
     `DEBUG`, `COUNT`, `COLLECT`, `RERUN`, `PRINT`, and `DESCRIBE` must all be valid
     specifiers for types that are either `NIL` (the empty type) or have a
@@ -2845,12 +2770,13 @@ interactive one, but this is not enforced in any way.
     - Finally, when rerunning a trial (i.e. when `TESTABLE` is a trial),
       on a [`TRIAL-START`][b664] event, the trial may be skipped (see [Rerunning Trials][e4ac]).
     
-    `TRY` returns the values returned by the outermost trial (see [Tests][dc28]).
+    `TRY` returns the values returned by the outermost trial. This is just
+    the [`TRIAL`][99d0] object in the absence of an explicit [`RETURN`][5b0b] or
+    [`RETURN-FROM`][3eef7] (see examples in [Tests][dc28]).
     
     If `TRY` is called within the dynamic extent of another `TRY` run, then
     it simply calls `TESTABLE`, ignores the other arguments and leaves
-    event handling to the enclosing `TRY`. In other words, it behaves as a
-    nested [implicit `TRY`][012f].
+    event handling to the enclosing `TRY`.
 
 <a id="x-28TRY-3ASET-TRY-DEBUG-20FUNCTION-29"></a>
 
@@ -2865,57 +2791,57 @@ interactive one, but this is not enforced in any way.
 
 - [variable] **\*TRY-DEBUG\*** *NIL*
 
-    The default value for [`TRY`][b602]'s `:DEBUG` argument. If
-    `:UNSPECIFIED`, then the value of [`*DEBUG*`][856d] is used instead.
+    [Try var][0d7a]. The default value for [`TRY`][b602]'s `:DEBUG` argument.
+    If `:UNSPECIFIED`, then the value of [`*DEBUG*`][856d] is used instead.
 
 <a id="x-28TRY-3A-2ATRY-COUNT-2A-20VARIABLE-29"></a>
 
 - [variable] **\*TRY-COUNT\*** *:UNSPECIFIED*
 
-    The default value for [`TRY`][b602]'s `:COUNT` argument. If
-    `:UNSPECIFIED`, then the value of [`*COUNT*`][3bb4] is used instead.
+    [Try var][0d7a]. The default value for [`TRY`][b602]'s `:COUNT` argument.
+    If `:UNSPECIFIED`, then the value of [`*COUNT*`][3bb4] is used instead.
 
 <a id="x-28TRY-3A-2ATRY-COLLECT-2A-20VARIABLE-29"></a>
 
 - [variable] **\*TRY-COLLECT\*** *:UNSPECIFIED*
 
-    The default value for [`TRY`][b602]'s `:COLLECT` argument. If
-    `:UNSPECIFIED`, then the value of [`*COLLECT*`][307c] is used instead.
+    [Try var][0d7a]. The default value for [`TRY`][b602]'s `:COLLECT` argument.
+    If `:UNSPECIFIED`, then the value of [`*COLLECT*`][307c] is used instead.
 
 <a id="x-28TRY-3A-2ATRY-RERUN-2A-20VARIABLE-29"></a>
 
 - [variable] **\*TRY-RERUN\*** *:UNSPECIFIED*
 
-    The default value for [`TRY`][b602]'s `:RERUN` argument. If
-    `:UNSPECIFIED`, then the value of [`*RERUN*`][63db] is used instead.
+    [Try var][0d7a]. The default value for [`TRY`][b602]'s `:RERUN` argument.
+    If `:UNSPECIFIED`, then the value of [`*RERUN*`][63db] is used instead.
 
 <a id="x-28TRY-3A-2ATRY-PRINT-2A-20VARIABLE-29"></a>
 
 - [variable] **\*TRY-PRINT\*** *:UNSPECIFIED*
 
-    The default value for [`TRY`][b602]'s `:PRINT` argument. If
-    `:UNSPECIFIED`, then the value of [`*PRINT*`][7ee9] is used instead.
+    [Try var][0d7a]. The default value for [`TRY`][b602]'s `:PRINT` argument.
+    If `:UNSPECIFIED`, then the value of [`*PRINT*`][7ee9] is used instead.
 
 <a id="x-28TRY-3A-2ATRY-DESCRIBE-2A-20VARIABLE-29"></a>
 
 - [variable] **\*TRY-DESCRIBE\*** *:UNSPECIFIED*
 
-    The default value for [`TRY`][b602]'s `:DESCRIBE` argument. If
-    `:UNSPECIFIED`, then the value of [`*DESCRIBE*`][aa6d] is used instead.
+    [Try var][0d7a]. The default value for [`TRY`][b602]'s `:DESCRIBE` argument.
+    If `:UNSPECIFIED`, then the value of [`*DESCRIBE*`][aa6d] is used instead.
 
 <a id="x-28TRY-3A-2ATRY-STREAM-2A-20VARIABLE-29"></a>
 
 - [variable] **\*TRY-STREAM\*** *:UNSPECIFIED*
 
-    The default value for [`TRY`][b602]'s `:STREAM` argument. If
-    `:UNSPECIFIED`, then the value of [`*STREAM*`][0126] is used instead.
+    [Try var][0d7a]. The default value for [`TRY`][b602]'s `:STREAM` argument.
+    If `:UNSPECIFIED`, then the value of [`*STREAM*`][0126] is used instead.
 
 <a id="x-28TRY-3A-2ATRY-PRINTER-2A-20VARIABLE-29"></a>
 
 - [variable] **\*TRY-PRINTER\*** *:UNSPECIFIED*
 
-    The default value for [`TRY`][b602]'s `:PRINTER` argument. If
-    `:UNSPECIFIED`, then the value of [`*PRINTER*`][7230] is used instead.
+    [Try var][0d7a]. The default value for [`TRY`][b602]'s `:PRINTER` argument.
+    If `:UNSPECIFIED`, then the value of [`*PRINTER*`][7230] is used instead.
 
 <a id="x-28TRY-3A-2AN-RECENT-TRIALS-2A-20VARIABLE-29"></a>
 
@@ -2951,7 +2877,7 @@ interactive one, but this is not enforced in any way.
 
 <a id="x-28TRY-3A-40TESTABLES-20MGL-PAX-3ASECTION-29"></a>
 
-#### 7.2.1 Testables
+##### 7.1.1.1 Testables
 
 Valid first arguments to [`TRY`][b602] are called testables. A testable may
 be:
@@ -2981,9 +2907,120 @@ When given a list of testables, `TRY` calls each testable one by one.
 Finally, a `PACKAGE` stands for the result of calling
 [`LIST-PACKAGE-TESTS`][b426] on that package.
 
+<a id="x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
+
+#### 7.1.2 Implicit `TRY`
+
+We speak of an implicit [`TRY`][b602] when the outermost test is entered
+via a Lisp function call. In this case, as the test function is
+entered, it invokes itself behind the scenes (implicitly) via `TRY`:
+
+```
+(try ... :debug *debug* :collect *collect* :rerun *rerun*
+     :print *print* :describe *describe*
+     :stream *stream* :printer *printer*)
+```
+
+As its invoked again, it sees that it is now running under `TRY` and
+proceeds to execute normally.
+
+An implicit `TRY` can only happen with the following two constructs.
+
+- Global test function
+
+    ```common-lisp
+    (deftest my-test ()
+      (is t))
+    
+    (my-test)
+    .. MY-TEST
+    ..   ⋅ (IS T)
+    .. ⋅ MY-TEST ⋅1
+    ..
+    ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.004s ⋅1>
+    ```
+
+- [`WITH-TEST`][8f5d]
+
+    ```common-lisp
+    (with-test (my-test)
+      (is t))
+    .. MY-TEST
+    ..   ⋅ (IS T)
+    .. ⋅ MY-TEST ⋅1
+    ..
+    ==> #<TRIAL (WITH-TEST (MY-TEST)) EXPECTED-SUCCESS 0.000s ⋅1>
+    ```
+
+
+<a id="x-28TRY-3A-2ADEBUG-2A-20VARIABLE-29"></a>
+
+- [variable] **\*DEBUG\*** *(AND UNEXPECTED (NOT NLX) (NOT VERDICT))*
+
+    [Try var][0d7a]. The default value makes [`TRY`][b602] invoke the debugger on [`UNHANDLED-ERROR`][8f78],
+    [`RESULT-ABORT*`][ffab], [`UNEXPECTED-RESULT-FAILURE`][daeb], and
+    [`UNEXPECTED-RESULT-SUCCESS`][b72c]. [`NLX`][b115] is excluded because it is caught as
+    the test function is being exited, but by that time the dynamic
+    environment of the actual cause is likely gone. [`VERDICT`][52e1] is excluded
+    because it is a consequence of its child outcomes.
+
+<a id="x-28TRY-3A-2ACOUNT-2A-20VARIABLE-29"></a>
+
+- [variable] **\*COUNT\*** *LEAF*
+
+    [Try var][0d7a]. Although the default value of [`*CATEGORIES*`][e949] lumps [`RESULT`][231f]s and
+    [`VERDICT`][52e1]s together, with the default of [`LEAF`][f58d], `VERDICT`s are not
+    counted. See [Counting Events][886e].
+
+<a id="x-28TRY-3A-2ACOLLECT-2A-20VARIABLE-29"></a>
+
+- [variable] **\*COLLECT\*** *(OR TRIAL-EVENT UNEXPECTED)*
+
+    [Try var][0d7a]. By default all [`TRIAL`s][99d0] and [`UNEXPECTED`][d6ad] are
+    [collected][52e5]. This is sufficient for being able to [Rerunning Trials][e4ac]
+    anything in [context][38e8].
+
+<a id="x-28TRY-3A-2ARERUN-2A-20VARIABLE-29"></a>
+
+- [variable] **\*RERUN\*** *UNEXPECTED*
+
+    [Try var][0d7a]. The default matches that of [`*COLLECT*`][307c]. See [Rerunning Trials][e4ac].
+
+<a id="x-28TRY-3A-2APRINT-2A-20VARIABLE-29"></a>
+
+- [variable] **\*PRINT\*** *(OR LEAF DISMISSAL)*
+
+    [Try var][0d7a]. Events of this type are [printed][b3f9].
+    
+    ```common-lisp
+    (concrete-events-of-type '(or leaf dismissal))
+    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+        EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
+        RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT* UNHANDLED-ERROR NLX)
+    ```
+
+<a id="x-28TRY-3A-2ADESCRIBE-2A-20VARIABLE-29"></a>
+
+- [variable] **\*DESCRIBE\*** *(OR UNEXPECTED FAILURE)*
+
+    [Try var][0d7a]. By default, the context (e.g. [Captures][3d27], and the `CTX` argument of
+    is and other checks) of [`UNEXPECTED`][d6ad] events is described. See [Printing Events][b3f9].
+
+<a id="x-28TRY-3A-2ASTREAM-2A-20VARIABLE-29"></a>
+
+- [variable] **\*STREAM\*** *(MAKE-SYNONYM-STREAM '\*DEBUG-IO\*)*
+
+    [Try var][0d7a].
+
+<a id="x-28TRY-3A-2APRINTER-2A-20VARIABLE-29"></a>
+
+- [variable] **\*PRINTER\*** *TREE-PRINTER*
+
+    [Try var][0d7a].
+
 <a id="x-28TRY-3A-40IMPLICIT-TRY-IMPLEMENTATION-20MGL-PAX-3ASECTION-29"></a>
 
-#### 7.2.2 Implementation of Implicit `TRY`
+##### 7.1.2.1 Implementation of Implicit `TRY`
 
 What's happening in the implementation is that a test function,
 when it is called, checks whether it is running under the [`TRY`][b602]
@@ -3005,7 +3042,7 @@ are infinite recursions:
 
 <a id="x-28TRY-3A-40PRINT-20MGL-PAX-3ASECTION-29"></a>
 
-### 7.3 Printing Events
+### 7.2 Printing Events
 
 [`TRY`][b602] instantiates a printer of the type given by its `PRINTER`
 argument. All [`EVENT`][955d]s recorded by `TRY` are sent to this printer. The
@@ -3086,9 +3123,9 @@ setups.
 
 - [variable] **\*PRINT-PARENT\*** *T*
 
-    When an [`EVENT`][955d] is signalled and its parent [`TRIAL`][99d0]'s type matches
+    [Try var][0d7a]. When an [`EVENT`][955d] is signalled and its parent [`TRIAL`][99d0]'s type matches
     `*PRINT-PARENT*`, the trial is printed as if its [`TRIAL-START`][b664] matched
-    the `PRINT` argument of [`TRY`][b602].
+     the `PRINT` argument of [`TRY`][b602].
     
     ```common-lisp
     (let ((*print* 'leaf)
@@ -3138,14 +3175,14 @@ setups.
 
 - [variable] **\*PRINT-INDENTATION\*** *2*
 
-    The number of spaces each printed [`TRIAL`][99d0] increases the indentation
+    [Try var][0d7a]. The number of spaces each printed [`TRIAL`][99d0] increases the indentation
     of its children.
 
 <a id="x-28TRY-3A-2APRINT-DURATION-2A-20VARIABLE-29"></a>
 
 - [variable] **\*PRINT-DURATION\*** *NIL*
 
-    If true, the number of seconds spent during execution is printed.
+    [Try var][0d7a]. If true, the number of seconds spent during execution is printed.
     
     ```common-lisp
     (let ((*print-duration* t)
@@ -3176,7 +3213,7 @@ setups.
 
 - [variable] **\*PRINT-COMPACTLY\*** *NIL*
 
-    [`EVENT`][955d]s whose type matches `*PRINT-COMPACTLY*` are printed less
+    [Try var][0d7a]. [`EVENT`][955d]s whose type matches `*PRINT-COMPACTLY*` are printed less
     verbosely. [`LEAF`][f58d] events are printed only with their marker, and
     [`VERDICT`][52e1]s of trials without printed child trials are printed with `=>
     <MARKER>` (see [`*CATEGORIES*`][e949]).
@@ -3206,13 +3243,13 @@ setups.
 
 - [variable] **\*PRINT-BACKTRACE\*** *T*
 
-    Whether to print backtraces gathered when [`*GATHER-BACKTRACE*`][a41d].
+    [Try var][0d7a]. Whether to print backtraces gathered when [`*GATHER-BACKTRACE*`][a41d].
 
 <a id="x-28TRY-3A-2ADEFER-DESCRIBE-2A-20VARIABLE-29"></a>
 
 - [variable] **\*DEFER-DESCRIBE\*** *NIL*
 
-    When an [`EVENT`][955d] is to be [`*DESCRIBE*`][aa6d]d and its type matches
+    [Try var][0d7a]. When an [`EVENT`][955d] is to be [`*DESCRIBE*`][aa6d]d and its type matches
     `*DEFER-DESCRIBE*`, then instead of printing the often longish context
     information in the tree of events, it is deferred until after [`TRY`][b602]
     has finished. The following example only prints [`LEAF`][f58d] events (due to
@@ -3242,7 +3279,7 @@ setups.
 
 <a id="x-28TRY-3A-40COUNT-20MGL-PAX-3ASECTION-29"></a>
 
-### 7.4 Counting Events
+### 7.3 Counting Events
 
 [`TRIAL`][99d0]s have a counter for each category in [`*CATEGORIES*`][e949]. When an
 [`EVENT`][955d] is recorded by [`TRY`][b602] and its type matches [`*COUNT*`][3bb4], the counters
@@ -3280,7 +3317,7 @@ As the above example shows, [`EXPECTED-VERDICT-SUCCESS`][06c2] and
 
 <a id="x-28TRY-3A-40COLLECT-20MGL-PAX-3ASECTION-29"></a>
 
-### 7.5 Collecting Events
+### 7.4 Collecting Events
 
 When an [`EVENT`][955d] is recorded and the type of the `EVENT` matches the
 `COLLECT` type argument of [`TRY`][b602], then a corresponding object is pushed
@@ -3306,7 +3343,7 @@ the enclosing trials.
 
 <a id="x-28TRY-3A-40RERUN-20MGL-PAX-3ASECTION-29"></a>
 
-### 7.6 Rerunning Trials
+### 7.5 Rerunning Trials
 
 When a [`TRIAL`][99d0] is [`FUNCALL`][03c7]ed or passed to [`TRY`][b602], the *test that
 created the trial* is invoked, and it may be run again in its
@@ -3355,7 +3392,7 @@ normally.
       on a rerun the same `TESTABLE` is run again.
 
     All three possibilities involve entering `DEFTEST` or `WITH-TEST`,
-    or invoking `TRY`: the same cases that we have with [Calling Test Functions][012f].
+    or invoking `TRY`: the same cases that we have with [Implicit `TRY`][012f].
     Thus, even if a trial is rerun with `FUNCALL`, execution is
     guaranteed to happen under `TRY`.
 
@@ -3364,7 +3401,7 @@ normally.
 
 - [variable] **\*RERUN-CONTEXT\*** *NIL*
 
-    A [`TRIAL`][99d0] or `NIL`. If it's a `TRIAL`, then [`TRY`][b602] will
+    [Try var][0d7a]. A [`TRIAL`][99d0] or `NIL`. If it's a `TRIAL`, then [`TRY`][b602] will
     [rerun][e4ac] this trial skipping everything that does not lead to
     an invocation of its `TESTABLE` argument (see [Testables][cdc3]). If no route
     to the basic testable functions can be found among the
@@ -3435,7 +3472,7 @@ normally.
 
 <a id="x-28TRY-3A-40REPLAY-20MGL-PAX-3ASECTION-29"></a>
 
-### 7.7 Reprocessing Trials
+### 7.6 Reprocessing Trials
 
 <a id="x-28TRY-3AREPLAY-EVENTS-20FUNCTION-29"></a>
 
@@ -3557,7 +3594,7 @@ SBCL.
     ```
 
   [0126]: #x-28TRY-3A-2ASTREAM-2A-20VARIABLE-29 "TRY:*STREAM* VARIABLE"
-  [012f]: #x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Calling Test Functions"
+  [012f]: #x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Implicit `TRY`"
   [01e7]: #x-28TRY-3A-2ATRY-RERUN-2A-20VARIABLE-29 "TRY:*TRY-RERUN* VARIABLE"
   [02a3]: http://www.lispworks.com/documentation/HyperSpec/Body/f_abortc.htm "CONTINUE (MGL-PAX:CLHS FUNCTION)"
   [0321]: #x-28TRY-3AERROR-2A-20CONDITION-29 "TRY:ERROR* CONDITION"
@@ -3569,6 +3606,7 @@ SBCL.
   [0992]: #x-28TRY-3ADISMISSAL-20CONDITION-29 "TRY:DISMISSAL CONDITION"
   [0c39]: #x-28TRY-3A-2ATRY-COLLECT-2A-20VARIABLE-29 "TRY:*TRY-COLLECT* VARIABLE"
   [0d57]: http://www.lispworks.com/documentation/HyperSpec/Body/t_short_.htm "DOUBLE-FLOAT (MGL-PAX:CLHS TYPE)"
+  [0d7a]: #x-28TRY-3A-40TRYVAR-20MGL-PAX-3AGLOSSARY-TERM-29 "Try var"
   [0e59]: http://www.lispworks.com/documentation/HyperSpec/Body/f_gensym.htm "GENSYM (MGL-PAX:CLHS FUNCTION)"
   [0f05]: #x-28TRY-3ATRIAL-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-EVENT-29-29 "TRY:TRIAL (MGL-PAX:READER TRY:TRIAL-EVENT)"
   [1013]: http://www.lispworks.com/documentation/HyperSpec/Body/f_not.htm "NOT (MGL-PAX:CLHS FUNCTION)"
@@ -3626,10 +3664,12 @@ SBCL.
   [52e5]: #x-28TRY-3A-40COLLECT-20MGL-PAX-3ASECTION-29 "Collecting Events"
   [5333]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq_sle.htm "> (MGL-PAX:CLHS FUNCTION)"
   [5355]: #x-28TRY-3A-40TRIAL-RESTARTS-20MGL-PAX-3ASECTION-29 "Trial Restarts"
+  [5379]: #x-28TRY-3A-40CALLING-TEST-FUNCTIONS-20MGL-PAX-3ASECTION-29 "Calling Test Functions"
   [55cd]: #x-28TRY-3AUNEXPECTED-SUCCESS-20TYPE-29 "TRY:UNEXPECTED-SUCCESS TYPE"
   [56ae]: #x-28TRY-3A-40AUTOMATIC-CAPTURES-20MGL-PAX-3ASECTION-29 "Automatic Captures"
   [5786]: #x-28TRY-3AVERDICT-SKIP-20CONDITION-29 "TRY:VERDICT-SKIP CONDITION"
   [5a82]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq.htm "EQ (MGL-PAX:CLHS FUNCTION)"
+  [5b0b]: http://www.lispworks.com/documentation/HyperSpec/Body/m_return.htm "RETURN (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [5c01]: http://www.lispworks.com/documentation/HyperSpec/Body/m_lambda.htm "LAMBDA (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [5d4a]: #x-28TRY-3ARUNNINGP-20FUNCTION-29 "TRY:RUNNINGP FUNCTION"
   [5e1a]: #x-28TRY-3A-40TRIAL-VERDICTS-20MGL-PAX-3ASECTION-29 "Trial Verdicts"
@@ -3717,6 +3757,7 @@ SBCL.
   [d2d8]: http://www.lispworks.com/documentation/HyperSpec/Body/s_block.htm "BLOCK (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [d4ce]: #x-28TRY-3A-40EVENT-RESTARTS-20MGL-PAX-3ASECTION-29 "Event Restarts"
   [d5a2]: http://www.lispworks.com/documentation/HyperSpec/Body/f_car_c.htm "CAR (MGL-PAX:CLHS FUNCTION)"
+  [d5a9]: http://www.lispworks.com/documentation/HyperSpec/Body/t_stream.htm "STREAM (MGL-PAX:CLHS CLASS)"
   [d5ea]: #x-28TRY-3AFAIL-20TYPE-29 "TRY:FAIL TYPE"
   [d619]: #x-28TRY-3AEXPECTED-RESULT-FAILURE-20CONDITION-29 "TRY:EXPECTED-RESULT-FAILURE CONDITION"
   [d6ad]: #x-28TRY-3AUNEXPECTED-20CONDITION-29 "TRY:UNEXPECTED CONDITION"

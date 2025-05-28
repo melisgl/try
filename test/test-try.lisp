@@ -20,7 +20,8 @@
   (test-try/nested)
   (test-try/compact-printing)
   (test-try/compact-and-deferred-printing)
-  (test-try/implicit))
+  (test-try/implicit)
+  (test-try/vars))
 
 (deftest test-try/empty ()
   (check-try-output (() :print 'result) "")
@@ -486,3 +487,9 @@ debug info
                                          (is (not (eq *try-collect*
                                                       t))))
                                        :print nil)))))))))
+
+(deftest test-try/vars ()
+  (with-test ()
+    (progv try::*try-vars* ()
+      (with-test ()
+        (is t)))))

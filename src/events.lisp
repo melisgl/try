@@ -283,7 +283,7 @@
 (defsection @printing-events (:title "Printing Events")
   (*event-print-bindings* variable))
 
-(defvar *event-print-bindings* '((*print-circle* t))
+(define-try-var *event-print-bindings* '((*print-circle* t))
   "EVENTs are conditions signalled in code that may change printer
   variables such as *PRINT-CIRCLE*, *PRINT-LENGTH*, etc. To control
   how events are printed, the list of variable bindings in
@@ -398,11 +398,11 @@
     (expected-success   :marker ".")))
 
 ;;; Ordered by some notion of importance.
-(defvar *categories* (fancy-std-categories)
-  "A list of of elements like `(TYPE &KEY MARKER)`.
-  When @PRINT, @CONCRETE-EVENTS are printed with the marker of the
-  first matching type. When @COUNT, the counts associated with all
-  matching types are incremented.")
+(define-try-var *categories* (fancy-std-categories)
+  "A list of of elements like `(TYPE &KEY MARKER)`. When @PRINT,
+  @CONCRETE-EVENTS are printed with the marker of the first matching
+  type. When @COUNT, the counts associated with all matching types are
+  incremented.")
 
 (defun event-category (event categories)
   (if (typep event 'event)

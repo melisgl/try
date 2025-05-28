@@ -192,7 +192,7 @@
 
 
 ;;; FIXME: What about non-global tests?
-(defvar *rerun-context* nil
+(define-try-var *rerun-context* nil
   """A [TRIAL][class] or NIL. If it's a TRIAL, then TRY will
   [rerun][@rerun] this trial skipping everything that does not lead to
   an invocation of its TESTABLE argument (see @TESTABLES). If no route

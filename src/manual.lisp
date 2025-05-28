@@ -393,9 +393,8 @@
         test function that contains the current line) in the context
         associated with the Emacs buffer, which is similar but
         distinct from *RERUN-CONTEXT*. With a prefix arg, the test is
-        called [implicitly][try::@implicit-try] with no arguments.
-        This is suitable for interactive debugging under the default
-        settings.
+        an @IMPLICIT-TRY with no arguments. This is suitable for
+        interactive debugging under the default settings.
 
       - `r` [reruns][@rerun] the most recent trial conducted by
         Emacs (this is distinct from TRY:!). With a prefix argument,

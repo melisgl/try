@@ -55,10 +55,10 @@
                      (format stream " ~A~A" marker count))))))))
 
 
-(defvar *print-parent* t
+(define-try-var *print-parent* t
   """When an EVENT is signalled and its parent TRIAL's type matches
   *PRINT-PARENT*, the trial is printed as if its TRIAL-START matched
-  the PRINT argument of TRY.
+   the PRINT argument of TRY.
 
   ```cl-transcript (:dynenv try-transcript)
   (let ((*print* 'leaf)
@@ -102,8 +102,7 @@
   .. ⋅ OUTER ⋅2
   ..
   ==> #<TRIAL (WITH-TEST (OUTER)) EXPECTED-SUCCESS 0.000s ⋅2>
-  ```
-  """)
+  ```""")
 
 (defclass printer ()
   ((stream
@@ -119,10 +118,12 @@
     :initform *print-parent* :reader print-parent
     :documentation "The value of *PRINT-PARENT* when the printer was
     instantiated.")
-   (variable-bindings :initform (append *event-print-bindings*
-                                        `((*package* ,*package*)
-                                          (*categories* ,*categories*)
-                                          (*event-print-bindings* ()))))
+   (variable-bindings
+    :initform (append *event-print-bindings*
+                      `((*package* ,*package*)
+                        (*categories* ,*categories*)
+                        (*captured-print-backtrace* ,*print-backtrace*)
+                        (*event-print-bindings* ()))))
    (trial-print-states
     :initform () :reader trial-print-states
     :documentation "A list "))
@@ -258,11 +259,11 @@
         (call-next-method)))))
 
 
-(defvar *print-indentation* 2
+(define-try-var *print-indentation* 2
   "The number of spaces each printed TRIAL increases the indentation
   of its children.")
 
-(defvar *print-duration* nil
+(define-try-var *print-duration* nil
   """If true, the number of seconds spent during execution is printed.
 
   ```cl-transcript (:dynenv try-transcript)
@@ -288,10 +289,9 @@
   the VERDICT.
 
   Timing information is not available for TRIAL-START and ERROR*
-  events.
-  """)
+  events.""")
 
-(defvar *print-compactly* nil
+(define-try-var *print-compactly* nil
   """EVENTs whose type matches *PRINT-COMPACTLY* are printed less
   verbosely. LEAF events are printed only with their marker, and
   VERDICTs of trials without printed child trials are printed with `=>
@@ -316,10 +316,9 @@
   ==> #<TRIAL (WITH-TEST (OUTER)) UNEXPECTED-FAILURE 0.000s ⊟1 ⊠1 ⋅21>
   ```
 
-  *PRINT-COMPACTLY* has no effect on events being `DESCRIBE`d.
-  """)
+  *PRINT-COMPACTLY* has no effect on events being `DESCRIBE`d.""")
 
-(defvar *defer-describe* nil
+(define-try-var *defer-describe* nil
   "When an EVENT is to be `*DESCRIBE*`d and its type matches
   *DEFER-DESCRIBE*, then instead of printing the often longish context
   information in the tree of events, it is deferred until after TRY

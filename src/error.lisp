@@ -42,11 +42,10 @@
   SKIP-TRIAL, ABORT-TRIAL). In this case, there is no CL:ERROR
   associated with the event."))
 
-;;; This is safe to change at any time. Not even `mgl-try-mode' cares.
-;;; So, this need not be captured by the PRINTER at instantiation
-;;; time.
-(defvar *print-backtrace* t
+(define-try-var *print-backtrace* t
   "Whether to print backtraces gathered when *GATHER-BACKTRACE*.")
+
+(declaim (ftype function trial-print-backtrace-p))
 
 (defmethod write-event ((unhandled-error unhandled-error) stream
                         &key terse ctx)
@@ -66,7 +65,10 @@
                          (test-name unhandled-error) (type-of c)))
              (pprint-logical-block (stream nil :per-line-prefix "  ")
                (format stream "~A" c))))
-      (when (and ctx *print-backtrace* (backtrace-of unhandled-error))
+      (when (and ctx (if *trial*
+                         (trial-print-backtrace-p *trial*)
+                         *print-backtrace*)
+                 (backtrace-of unhandled-error))
         (format stream "~:@_~A" (backtrace-of unhandled-error))))))
 
 (defun describe-condition (condition &optional stream)
@@ -127,15 +129,19 @@
               (t
                (abort-trial error*)))))))
 
-(defvar *gather-backtrace* t
+(define-try-var *gather-backtrace* t
   "Capturing the backtrace can be expensive. *GATHER-BACKTRACE*
   controls whether UNHANDLED-ERRORs shall have their BACKTRACE-OF
   populated. Also, see *PRINT-BACKTRACE*.")
 
+(declaim (ftype function trial-gather-backtrace-p))
+
 (defun maybe-backtrace (condition)
   ;; The backtrace for NLX (i.e. when CONDITION is NIL) is
   ;; uninformative as it is only signalled in the cleanup of the test.
-  (when (and condition *gather-backtrace*)
+  (when (and condition (if *trial*
+                           (trial-gather-backtrace-p *trial*)
+                           *gather-backtrace*))
     (with-output-to-string (s)
       (uiop/image:print-backtrace
        :stream s :condition condition))))
