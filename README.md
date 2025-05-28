@@ -2846,6 +2846,11 @@ interactive one, but this is not enforced in any way.
       on a [`TRIAL-START`][b664] event, the trial may be skipped (see [Rerunning Trials][e4ac]).
     
     `TRY` returns the values returned by the outermost trial (see [Tests][dc28]).
+    
+    If `TRY` is called within the dynamic extent of another `TRY` run, then
+    it simply calls `TESTABLE`, ignores the other arguments and leaves
+    event handling to the enclosing `TRY`. In other words, it behaves as a
+    nested [implicit `TRY`][012f].
 
 <a id="x-28TRY-3ASET-TRY-DEBUG-20FUNCTION-29"></a>
 

@@ -327,6 +327,8 @@
   trial)
 
 
+(defvar *allow-nested-try* nil)
+
 (defun try (testable &key (debug *try-debug*) (count *try-count*)
             (collect *try-collect*) (rerun *try-rerun*)
             (print *try-print*) (describe *try-describe*)
@@ -359,13 +361,20 @@
   - Finally, when rerunning a trial (i.e. when TESTABLE is a trial),
     on a TRIAL-START event, the trial may be skipped (see @RERUN).
 
-  TRY returns the values returned by the outermost trial (see @TESTS)."
+  TRY returns the values returned by the outermost trial (see @TESTS).
+
+  If TRY is called within the dynamic extent of another TRY run, then
+  it simply calls TESTABLE, ignores the other arguments and leaves
+  event handling to the enclosing TRY. In other words, it behaves as a
+  nested [implicit TRY][@implicit-try]."
   (try-default-unspecified-args)
   (loop for (type arg-name) in
         `((,debug :debug) (,count :count) (,collect :collect) (,rerun :rerun)
           (,print :print) (,describe :describe))
         do (check-event-type type arg-name))
   (check-printer-arg printer)
+  (when (and *try-id* (not *allow-nested-try*))
+    (return-from try (call-testable testable)))
   (multiple-value-setq (testable rerun)
     (munge-try-args-for-rerun-context testable rerun))
   (with-try-context

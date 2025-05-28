@@ -26,8 +26,9 @@
       (pax:document try::@try-manual :stream (make-broadcast-stream)))))
 
 (defun test (&key (debug nil) (print 'unexpected) (describe 'unexpected))
-  (warn-on-tests-not-run ((find-package :try-test))
-    (print (try 'test-all :debug debug :print print :describe describe))))
+  (let ((try::*allow-nested-try* t))
+    (warn-on-tests-not-run ((find-package :try-test))
+      (print (try 'test-all :debug debug :print print :describe describe)))))
 
 #+nil
 (time (test))

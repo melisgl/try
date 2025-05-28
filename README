@@ -2488,6 +2488,11 @@ interactive one, but this is not enforced in any way.
       on a TRIAL-START event, the trial may be skipped (see @RERUN).
     
     TRY returns the values returned by the outermost trial (see @TESTS).
+    
+    If TRY is called within the dynamic extent of another TRY run, then
+    it simply calls TESTABLE, ignores the other arguments and leaves
+    event handling to the enclosing TRY. In other words, it behaves as a
+    nested implicit TRY.
 
 - [function] SET-TRY-DEBUG DEBUG
 
