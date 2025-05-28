@@ -42,10 +42,7 @@
   SKIP-TRIAL, ABORT-TRIAL). In this case, there is no CL:ERROR
   associated with the event."))
 
-(define-try-var *print-backtrace* t
-  "Whether to print backtraces gathered when *GATHER-BACKTRACE*.")
-
-(declaim (ftype function trial-print-backtrace-p))
+(defvar *%print-backtrace* nil)
 
 (defmethod write-event ((unhandled-error unhandled-error) stream
                         &key terse ctx)
@@ -65,10 +62,7 @@
                          (test-name unhandled-error) (type-of c)))
              (pprint-logical-block (stream nil :per-line-prefix "  ")
                (format stream "~A" c))))
-      (when (and ctx (if *trial*
-                         (trial-print-backtrace-p *trial*)
-                         *print-backtrace*)
-                 (backtrace-of unhandled-error))
+      (when (and ctx *%print-backtrace* (backtrace-of unhandled-error))
         (format stream "~:@_~A" (backtrace-of unhandled-error))))))
 
 (defun describe-condition (condition &optional stream)

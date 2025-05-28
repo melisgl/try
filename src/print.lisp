@@ -122,7 +122,6 @@
     :initform (append *event-print-bindings*
                       `((*package* ,*package*)
                         (*categories* ,*categories*)
-                        (*captured-print-backtrace* ,*print-backtrace*)
                         (*event-print-bindings* ()))))
    (trial-print-states
     :initform () :reader trial-print-states
@@ -317,6 +316,9 @@
   ```
 
   *PRINT-COMPACTLY* has no effect on events being `DESCRIBE`d.""")
+
+(define-try-var *print-backtrace* t
+  "Whether to print backtraces gathered when *GATHER-BACKTRACE*.")
 
 (define-try-var *defer-describe* nil
   "When an EVENT is to be `*DESCRIBE*`d and its type matches
@@ -528,8 +530,10 @@
         (t
          (with-slots (stream) printer
            (print-event-header printer outcome)
-           (with-circularity-detection (stream)
-             (write-event outcome stream :terse t :ctx t))
+           (let ((*%print-backtrace* (and *trial*
+                                          (trial-print-backtrace-p *trial*))))
+             (with-circularity-detection (stream)
+               (write-event outcome stream :terse t :ctx t)))
            (terpri stream)))))
 
 (defmethod finish-printing ((printer tree-printer))
