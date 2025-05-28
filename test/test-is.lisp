@@ -160,8 +160,9 @@
                               1))))))
   ;; Evaluation rules is macros generally unknown, so we don't do
   ;; automatic captures.
-  (let ((x nil))
-    (is (not (and x (is nil :msg "Must not be evaluated."))))))
+  (try::without-compiler-notes
+    (let ((x nil))
+      (is (not (and x (is nil :msg "Must not be evaluated.")))))))
 
 (deftest test-is/capture/duplicate ()
   (with-failure-expected ((alexandria:featurep :abcl))

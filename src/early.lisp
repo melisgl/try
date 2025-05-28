@@ -4,6 +4,8 @@
 (defvar *try-id* nil)
 (defvar *record-event* nil)
 
+(declaim (special *print-backtrace*))
+
 (define-glossary-term @tryvar (:title "Try var")
   "There are lots of special variables that affect TRY. To avoid the
   plight of Common Lisp STREAMs and guarantee consistent output and

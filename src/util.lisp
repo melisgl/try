@@ -502,3 +502,12 @@
        ,@body))
   #-sbcl
   `(progn ,@body))
+
+(defmacro without-compiler-notes (&body body)
+  #+sbcl
+  `(locally
+       (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
+     (handler-bind ((sb-ext:compiler-note #'muffle-warning))
+       ,@body))
+  #-sbcl
+  `(progn ,@body))
