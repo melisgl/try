@@ -36,7 +36,9 @@
       (is (try::trialp t0))
       (is (equal (test-name t0) "name")))
     (with-test ("name")
-      (is (equal (test-name (current-trial)) "name"))))
+      (is (equal (test-name (current-trial)) "name")))
+    (signals (error :pred "mutually exclusive")
+      (macroexpand '(with-test ("name" :name "other-name")))))
   (with-test ("trial var and name in implicit TRY")
     (is (passedp (with-silent-implicit-try
                    (with-test ()

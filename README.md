@@ -2517,20 +2517,21 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
 
 <a id="x-28TRY-3AWITH-TEST-20MGL-PAX-3AMACRO-29"></a>
 
-- [macro] **WITH-TEST** *(&OPTIONAL TRIAL-VAR &KEY NAME) &BODY BODY*
+- [macro] **WITH-TEST** *(&OPTIONAL VAR-OR-NAME &KEY (NAME NIL)) &BODY BODY*
 
-    Define a so-called lambda test to group together `CHECK`s and other
-    tests it executes. `WITH-TEST` executes `BODY` in its lexical
+    Execute `BODY` in a [`TRIAL`][99d0] to group together `CHECK`s and
+    other tests in its dynamic scope. `BODY` is executed in its lexical
     environment even on a rerun (see [Rerunning Trials][e4ac]).
     
-    If `TRIAL-VAR` is a non-`NIL` symbol, bind it to the trial object.
-    `NAME` may be any type, it is purely for presentation purposes. If
-    `NAME` is `NIL`, then it defaults to `TRIAL-VAR`.
+    If `VAR-OR-NAME` is a non-`NIL` symbol, it is bound to the `TRIAL`
+    object. `NAME` may be of any type, it is purely for presentation
+    purposes. If `NAME` is not specified, then it defaults to `VAR-OR-NAME`.
     
     To facilitate returning values, a [`BLOCK`][d2d8] is wrapped around `BODY`. The
     name of the block is `TRIAL-VAR` if it is a symbol, else it's `NIL`.
     
-    When both `TRIAL-VAR` and `NAME` are specified:
+    Both `VAR-OR-NAME` and `NAME` can be specified, but in this case `VAR-OR-NAME`
+    must be a symbol:
     
     ```common-lisp
     (with-test (some-feature :name "obscure feature")
@@ -2547,7 +2548,7 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
     => 2
     ```
     
-    If only `TRIAL-VAR` is specified:
+    If only `VAR-OR-NAME` is specified:
     
     ```common-lisp
     (with-test (some-feature)
@@ -2581,8 +2582,8 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
     => 2
     ```
     
-    Finally, using that `NAME` defaults to `TRIAL-VAR` and that it is valid
-    to specify non-symbols for `TRIAL-VAR`, one can also write:
+    Finally, using that `NAME` defaults to `VAR-OR-NAME` and that it is
+    valid to specify non-symbols for `VAR-OR-NAME`, one can also write:
     
     ```common-lisp
     (with-test ("Some feature")
@@ -2599,22 +2600,21 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
     => 2
     ```
     
-    In summary and in contrast to global tests (those defined with
-    [`DEFTEST`][e7ca]), lambda tests
+    In summary and in contrast to [`DEFTEST`][e7ca], `WITH-TEST`
     
-    - have no arguments,
+    - defines and runs a test at the same time,
     
-    - are defined and called at the same time,
+    - the test function cannot have arguments,
     
     - may not bind their trial object to any variable,
     
     - may have a `BLOCK` named `NIL`,
     
-    - have a `NAME` purely for presentation purposes.
+    - has a `NAME` purely for presentation purposes.
     
-    Lambda tests can be thought of as analogous to `(FUNCALL (LAMBDA ()
+    `WITH-TEST` can be thought of as analogous to `(FUNCALL (LAMBDA ()
     BODY))`. The presence of the `LAMBDA`([`0`][e400] [`1`][5c01]) is important because it is
-    stored in the [`TRIAL`][99d0] object to support [Rerunning Trials][e4ac].
+    stored in the `TRIAL` object to support [Rerunning Trials][e4ac].
 
 <a id="x-28TRY-3ALIST-PACKAGE-TESTS-20FUNCTION-29"></a>
 

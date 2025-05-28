@@ -196,19 +196,21 @@
   nil)
 
 
-(defmacro with-test ((&optional trial-var &key name) &body body)
-  """Define a so-called lambda test to group together CHECKs and other
-  tests it executes. WITH-TEST executes BODY in its lexical
+(defmacro with-test ((&optional var-or-name &key (name nil namep))
+                     &body body)
+  """Execute BODY in a [TRIAL][class] to group together CHECKs and
+  other tests in its dynamic scope. BODY is executed in its lexical
   environment even on a rerun (see @RERUN).
 
-  If TRIAL-VAR is a non-`NIL` symbol, bind it to the trial object.
-  NAME may be any type, it is purely for presentation purposes. If
-  NAME is NIL, then it defaults to TRIAL-VAR.
+  If VAR-OR-NAME is a non-`NIL` symbol, it is bound to the TRIAL
+  object. NAME may be of any type, it is purely for presentation
+  purposes. If NAME is not specified, then it defaults to VAR-OR-NAME.
 
   To facilitate returning values, a BLOCK is wrapped around BODY. The
   name of the block is TRIAL-VAR if it is a symbol, else it's NIL.
 
-  When both TRIAL-VAR and NAME are specified:
+  Both VAR-OR-NAME and NAME can be specified, but in this case VAR-OR-NAME
+  must be a symbol:
 
   ```cl-transcript (:dynenv try-transcript)
   (with-test (some-feature :name "obscure feature")
@@ -225,7 +227,7 @@
   => 2
   ```
 
-  If only TRIAL-VAR is specified:
+  If only VAR-OR-NAME is specified:
 
   ```cl-transcript (:dynenv try-transcript)
   (with-test (some-feature)
@@ -259,8 +261,8 @@
   => 2
   ```
 
-  Finally, using that NAME defaults to TRIAL-VAR and that it is valid
-  to specify non-symbols for TRIAL-VAR, one can also write:
+  Finally, using that NAME defaults to VAR-OR-NAME and that it is
+  valid to specify non-symbols for VAR-OR-NAME, one can also write:
 
   ```cl-transcript (:dynenv try-transcript)
   (with-test ("Some feature")
@@ -277,16 +279,15 @@
   => 2
   ```
 
-  In summary and in contrast to global tests (those defined with
-  DEFTEST), lambda tests
+  In summary and in contrast to DEFTEST, WITH-TEST
 
-  - have no arguments,
-  - are defined and called at the same time,
+  - defines and runs a test at the same time,
+  - the test function cannot have arguments,
   - may not bind their trial object to any variable,
   - may have a BLOCK named NIL,
-  - have a NAME purely for presentation purposes.
+  - has a NAME purely for presentation purposes.
 
-  Lambda tests can be thought of as analogous to `(FUNCALL (LAMBDA ()
+  WITH-TEST can be thought of as analogous to `(FUNCALL (LAMBDA ()
   BODY))`. The presence of the LAMBDA is important because it is
   stored in the TRIAL object to support @RERUN.
   """
@@ -294,12 +295,16 @@
   #+sbcl
   (declare (sb-ext:muffle-conditions style-warning))
   (multiple-value-bind (var name)
-      (cond ((null trial-var)
+      (cond ((null var-or-name)
              (values (make-gensym '#:trial) name))
-            ((symbolp trial-var)
-             (values trial-var (or name `',trial-var)))
+            ((symbolp var-or-name)
+             (values var-or-name (if namep name `',var-or-name)))
             (t
-             (values (make-gensym '#:trial) trial-var)))
+             (when namep
+               (error "~@<In ~S, ~A and non-symbol ~A arguments are ~
+                      mutually exclusive.~:@>"
+                      'with-test 'name 'var-or-name))
+             (values (make-gensym '#:trial) var-or-name)))
     (let ((with-test-body (make-symbol
                            (if (symbol-package var)
                                (format nil "~S-~S" 'with-test var)
