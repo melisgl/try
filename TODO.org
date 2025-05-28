@@ -66,7 +66,6 @@ There should be a trace of what happened in the counts.
 * MAYBE improve readability of backtrace
 I don't know how. See TRY::EXPAND-WITH-TRIAL-IN-DEFTEST-P.
 * TODO mgl-try-reload
-* TODO version error can be the other way around
 * TODO rethink nesting of explicit/implicit try
 It would be nice to be able to force a configuration on nested try
 calls from the outside. TRY-FOR-EMACS would like to. We are not far
