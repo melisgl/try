@@ -87,6 +87,17 @@
 ;;; in the sources, which gets replaced by the the version in
 ;;; `version.lisp-expr` by MGL-TRY:INSTALL-TRY-ELISP.
 (setq mgl-try-version (mgl-try-read-version))
+
+(defvar mgl-try-file-name)
+(setq mgl-try-file-name load-file-name)
+
+(defun mgl-try-reload ()
+  "Reload mgl-try.el. This may be necessary after upgrading Try.
+See TRY::@EMACS-SETUP."
+  (interactive)
+  (let ((sourcefile (concat (file-name-sans-extension mgl-try-file-name)
+                            ".el")))
+    (load-file sourcefile)))
 
 
 (defun mgl-try-read-from-minibuffer (prompt &optional initial-value

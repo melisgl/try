@@ -42,6 +42,9 @@
   SKIP-TRIAL, ABORT-TRIAL). In this case, there is no CL:ERROR
   associated with the event."))
 
+;;; This is safe to change at any time. Not even `mgl-try-mode' cares.
+;;; So, this need not be captured by the PRINTER at instantiation
+;;; time.
 (defvar *print-backtrace* t
   "Whether to print backtraces gathered when *GATHER-BACKTRACE*.")
 
