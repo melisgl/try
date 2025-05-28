@@ -472,7 +472,7 @@
                 which is lower than the CL version ~S. ~
                 You may need to ~S and M-x mgl-try-reload. ~
                 See ~S for more.~:@>"
-                try-elisp-version *try-version* 'try:install-try-elisp
+                try-elisp-version *try-version* 'install-try-elisp
                 '@emacs-setup)
         (cerror "Ignore version mismatch."
                 "~@<In Emacs, mgl-try-version is ~S, ~
