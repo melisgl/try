@@ -32,7 +32,7 @@
 (defun lambda-list-to-arglist-form (lambda-list)
   (multiple-value-bind (req opt rest key aokp aux keyp)
       (alexandria:parse-ordinary-lambda-list lambda-list)
-    (cond ((and (endp opt) (null rest) (endp key))
+    (cond ((and (endp opt) (null rest) (not keyp))
            (values `(list ,@req) lambda-list))
           (t
            (when keyp (setf rest (or rest (gensym))))
