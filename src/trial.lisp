@@ -133,12 +133,6 @@
   TRIALs are not to be instantiated by client code.
   """))
 
-(defun trial-of-global-test-p (trial)
-  (let ((cform (cform trial)))
-    (and (listp cform)
-         (symbolp (first cform))
-         (not (eq (first cform) 'try)))))
-
 (declaim (ftype function call-trial))
 
 (defmethod initialize-instance :after ((trial trial) &key)

@@ -444,11 +444,11 @@
 ;;; Like *RERUN-CONTEXT*, but for Emacs.
 (defvar *emacs-rerun-context* nil)
 
-(deftype global-test-start () '(satisfies global-test-start-p))
+(deftype deftest-trial-start () '(satisfies deftest-trial-start-p))
 
-(defun global-test-start-p (event)
+(defun deftest-trial-start-p (event)
   (and (typep event 'trial-start)
-       (trial-of-global-test-p (trial event))))
+       (deftest-trial-p (trial event))))
 
 ;;; FIXME: Non-interning?
 (defun try-for-emacs (testable &key rerun implicit set-rerun-context)
@@ -479,8 +479,8 @@
              (*defer-describe* nil)
              (*categories*
                (list*
-                ;; For `mgl-try-mode-global-test-name-on-current-line'
-                '(global-test-start :marker "→")
+                ;; For `mgl-try-mode-deftest-name-on-current-line'
+                '(deftest-trial-start :marker "→")
                 ;; For `mgl-try-next-unexpected' to skip over these
                 '(unexpected-verdict-failure :marker "→⊠")
                 (fancy-std-categories)))

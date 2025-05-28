@@ -171,7 +171,7 @@ TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
     (save-excursion
       (beginning-of-line)
       (cl-loop
-       (let ((test-name (mgl-try-mode-global-test-name-on-current-line)))
+       (let ((test-name (mgl-try-mode-deftest-name-on-current-line)))
          (when test-name
            (cl-return test-name)))
        (let ((orig-point (point)))
@@ -181,7 +181,7 @@ TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
          (when (= (point) orig-point)
            (cl-return)))))))
 
-(defun mgl-try-mode-global-test-name-on-current-line ()
+(defun mgl-try-mode-deftest-name-on-current-line ()
   (when (looking-at "\\*")
     (slime-symbol-at-point)
     (search-forward " " (line-end-position))
