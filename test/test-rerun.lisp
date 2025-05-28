@@ -452,10 +452,14 @@ T0
   - %OTHER
 ✓ %CONTEXT ✓5
 "))
-        (check-try-output ('%leaf) expected)
-        (check-implicit-try-output ((funcall '%leaf)) expected)
-        (check-try-output ('%middle) expected)
-        (check-implicit-try-output ((funcall '%middle)) expected))
+        (signals-not (warning)
+          (check-try-output ('%leaf) expected))
+        (signals-not (warning)
+          (check-implicit-try-output ((funcall '%leaf)) expected))
+        (signals-not (warning)
+          (check-try-output ('%middle) expected))
+        (signals-not (warning)
+          (check-implicit-try-output ((funcall '%middle)) expected)))
       (let ((expected "%CONTEXT
   ✓ (IS T)
   - %MIDDLE
@@ -465,7 +469,23 @@ T0
   ✓ %OTHER ✓1
 ✓ %CONTEXT ✓3
 "))
-        (check-try-output ('%other) expected)
-        (check-implicit-try-output ((funcall '%other)) expected))
+        (signals-not (warning)
+          (check-try-output ('%other) expected))
+        (signals-not (warning)
+          (check-implicit-try-output ((funcall '%other)) expected)))
       (signals (warning :pred "Ignoring")
-        (try '%simple-success :print nil)))))
+        (try '%simple-success :print nil))))
+  (with-test ("anonymous function")
+    (flet ((run-some ()
+             (with-test ()
+               (is t))))
+      (let ((*rerun-context* (with-new-implicit-try
+                               (try #'run-some :print nil))))
+        (with-failure-expected ((and (alexandria:featurep :abcl)
+                                     'failure))
+          (signals-not (warning)
+            (with-new-implicit-try
+              (try #'run-some :print nil))))
+        (signals (warning :pred "Ignoring")
+          (with-new-implicit-try
+            (try (lambda () (run-some)) :print nil)))))))

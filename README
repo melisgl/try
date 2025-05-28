@@ -2370,11 +2370,12 @@ until TRY calls it, it needs to be wrapped in a LAMBDA.
 ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) EXPECTED-SUCCESS 0.000s ⋅1>
 ```
 
-In the example above, TRY wrapped a TRIAL around the
-execution of the lambda, to ensure that the tree of TRIALs has a
-single root. This TRIAL object also remembers the lambda function
-for rerunning. This situation arises when the function to
-run is constructed from composite @TESTABLES.
+In the example above, the TESTABLE argument is not the
+name of a test, so we see that TRY wraps an extra TRIAL
+around the lambda to ensure that the tree of TRIALs has a single
+root. This TRIAL object also remembers the lambda function for
+rerunning. This situation also arises when there are
+multiple basic @TESTABLES.
 
 Explicit and implicit TRYs are very similar. The differences are
 that explicit TRY
@@ -2504,33 +2505,30 @@ interactive one, but this is not enforced in any way.
 
 ##### Testables
 
-Valid first arguments to TRY are called testables. A testable may
-be:
+Valid first arguments to TRY are called testables. A basic testable
+is a function designator, which can be
 
-- a function designator
+- the name of a global function (as in DEFUN or DEFTEST), or
 
-    - the name of a global test
+- a function object (including TRIALs, which are funcallable).
 
-    - the name of a global function
+Composite testables are turned into a list of function designators
+in a recursive manner.
 
-    - a function object
+- When the testable is a list, this is trivial.
 
-    - a trial
+- When the testable is a PACKAGE, LIST-PACKAGE-TESTS is called on
+  it.
 
-- a list of testables
+With a list of function designators, TRY does the following:
 
-- a PACKAGE
+- If there is only one and it is TEST-BOUND-P, then the test
+  function is called directly.
 
-In the function designator cases, TRY calls the designated function.
-TRIALs, being @FUNCALLABLE-INSTANCEs, designate themselves.
-If the trial is not RUNNINGP, then it will be rerun (see @RERUN).
-Don't invoke TRY with RUNNINGP trials (but see
-@IMPLICIT-TRY-IMPLEMENTATION for discussion).
+- Else, TRY behaves as if its TESTABLE argument were an anonymous
+  function that calls the function designators one by one. See
+  @EXPLICIT-TRY for an example.
 
-When given a list of testables, TRY calls each testable one by one.
-
-Finally, a PACKAGE stands for the result of calling
-LIST-PACKAGE-TESTS on that package.
 
 #### Implicit TRY
 
@@ -2982,10 +2980,10 @@ normally.
 
     @TRYVAR. A TRIAL or NIL. If it's a TRIAL, then TRY will
     rerun this trial skipping everything that does not lead to
-    an invocation of its TESTABLE argument (see @TESTABLES). If no route
-    to the basic testable functions can be found among the
-    collected events of the context, then a warning is
-    signalled and the context is ignored.
+    an invocation of a basic testable in its TESTABLE argument (see
+    @TESTABLES). If no route to any basic testable function can be found
+    among the collected events of the context, then a
+    warning is signalled and the context is ignored.
     
     Consider the following code evaluated in the package TRY:
     

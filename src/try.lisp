@@ -162,11 +162,12 @@
   ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) EXPECTED-SUCCESS 0.000s ⋅1>
   ```
 
-  In the example above, TRY wrapped a [TRIAL][class] around the
-  execution of the lambda, to ensure that the tree of TRIALs has a
-  single root. This TRIAL object also remembers the lambda function
-  for [rerunning][@rerun]. This situation arises when the function to
-  run is constructed from composite @TESTABLES.
+  In the example above, the [TESTABLE][@testables] argument is not the
+  name of a test, so we see that TRY wraps an extra [TRIAL][class]
+  around the lambda to ensure that the tree of TRIALs has a single
+  root. This TRIAL object also remembers the lambda function for
+  [rerunning][@rerun]. This situation also arises when there are
+  multiple basic @TESTABLES.
 
   Explicit and implicit TRYs are very similar. The differences are
   that explicit TRY

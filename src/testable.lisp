@@ -1,28 +1,29 @@
 (in-package :try)
 
 (defsection @testables (:title "Testables")
-  "Valid first arguments to TRY are called testables. A testable may
-  be:
+  "Valid first arguments to TRY are called testables. A basic testable
+  is a [function designator][clhs], which can be
 
-  - a [function designator][clhs]
+  - the name of a global function (as in DEFUN or DEFTEST), or
 
-      - the name of a global test
-      - the name of a global function
-      - a function object
-      - a trial
-  - a list of testables
-  - a PACKAGE
+  - a function object (including [TRIAL][class]s, which are funcallable).
 
-  In the function designator cases, TRY calls the designated function.
-  [TRIAL][class]s, being @FUNCALLABLE-INSTANCEs, designate themselves.
-  If the trial is not RUNNINGP, then it will be rerun (see @RERUN).
-  Don't invoke TRY with RUNNINGP trials (but see
-  @IMPLICIT-TRY-IMPLEMENTATION for discussion).
+  Composite testables are turned into a list of function designators
+  in a recursive manner.
 
-  When given a list of testables, TRY calls each testable one by one.
+  - When the testable is a list, this is trivial.
 
-  Finally, a PACKAGE stands for the result of calling
-  LIST-PACKAGE-TESTS on that package.")
+  - When the testable is a PACKAGE, LIST-PACKAGE-TESTS is called on
+    it.
+
+  With a list of function designators, TRY does the following:
+
+  - If there is only one and it is TEST-BOUND-P, then the test
+    function is called directly.
+
+  - Else, TRY behaves as if its TESTABLE argument were an anonymous
+    function that calls the function designators one by one. See
+    @EXPLICIT-TRY for an example.")
 
 (defun call-testable (testable)
   (multiple-value-bind (function-designators wrapper-cform)

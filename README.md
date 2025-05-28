@@ -2713,11 +2713,12 @@ until `TRY` calls it, it needs to be wrapped in a `LAMBDA`([`0`][e400] [`1`][5c0
 ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) EXPECTED-SUCCESS 0.000s ⋅1>
 ```
 
-In the example above, `TRY` wrapped a [`TRIAL`][99d0] around the
-execution of the lambda, to ensure that the tree of `TRIAL`s has a
-single root. This `TRIAL` object also remembers the lambda function
-for [rerunning][e4ac]. This situation arises when the function to
-run is constructed from composite [Testables][cdc3].
+In the example above, the [`TESTABLE`][cdc3] argument is not the
+name of a test, so we see that `TRY` wraps an extra [`TRIAL`][99d0]
+around the lambda to ensure that the tree of `TRIAL`s has a single
+root. This `TRIAL` object also remembers the lambda function for
+[rerunning][e4ac]. This situation also arises when there are
+multiple basic [Testables][cdc3].
 
 Explicit and implicit `TRY`s are very similar. The differences are
 that explicit `TRY`
@@ -2879,33 +2880,30 @@ interactive one, but this is not enforced in any way.
 
 ##### 7.1.1.1 Testables
 
-Valid first arguments to [`TRY`][b602] are called testables. A testable may
-be:
+Valid first arguments to [`TRY`][b602] are called testables. A basic testable
+is a [function designator][8aea], which can be
 
-- a [function designator][8aea]
+- the name of a global function (as in [`DEFUN`][f472] or [`DEFTEST`][e7ca]), or
 
-    - the name of a global test
+- a function object (including [`TRIAL`][99d0]s, which are funcallable).
 
-    - the name of a global function
+Composite testables are turned into a list of function designators
+in a recursive manner.
 
-    - a function object
+- When the testable is a list, this is trivial.
 
-    - a trial
+- When the testable is a [`PACKAGE`][1d5a], [`LIST-PACKAGE-TESTS`][b426] is called on
+  it.
 
-- a list of testables
+With a list of function designators, `TRY` does the following:
 
-- a [`PACKAGE`][1d5a]
+- If there is only one and it is [`TEST-BOUND-P`][5065], then the test
+  function is called directly.
 
-In the function designator cases, `TRY` calls the designated function.
-[`TRIAL`][99d0]s, being [funcallable instance][2eef]s, designate themselves.
-If the trial is not [`RUNNINGP`][5d4a], then it will be rerun (see [Rerunning Trials][e4ac]).
-Don't invoke `TRY` with `RUNNINGP` trials (but see
-[Implementation of Implicit `TRY`][8b9c] for discussion).
+- Else, `TRY` behaves as if its `TESTABLE` argument were an anonymous
+  function that calls the function designators one by one. See
+  [Explicit `TRY`][1720] for an example.
 
-When given a list of testables, `TRY` calls each testable one by one.
-
-Finally, a `PACKAGE` stands for the result of calling
-[`LIST-PACKAGE-TESTS`][b426] on that package.
 
 <a id="x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29"></a>
 
@@ -3403,10 +3401,10 @@ normally.
 
     [Try var][0d7a]. A [`TRIAL`][99d0] or `NIL`. If it's a `TRIAL`, then [`TRY`][b602] will
     [rerun][e4ac] this trial skipping everything that does not lead to
-    an invocation of its `TESTABLE` argument (see [Testables][cdc3]). If no route
-    to the basic testable functions can be found among the
-    [collected][52e5] events of the context, then a warning is
-    signalled and the context is ignored.
+    an invocation of a basic testable in its `TESTABLE` argument (see
+    [Testables][cdc3]). If no route to any basic testable function can be found
+    among the [collected][52e5] events of the context, then a
+    warning is signalled and the context is ignored.
     
     Consider the following code evaluated in the package `TRY`:
     

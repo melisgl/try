@@ -191,14 +191,13 @@
                (children trial))))
 
 
-;;; FIXME: What about non-global tests?
 (define-try-var *rerun-context* nil
   """A [TRIAL][class] or NIL. If it's a TRIAL, then TRY will
   [rerun][@rerun] this trial skipping everything that does not lead to
-  an invocation of its TESTABLE argument (see @TESTABLES). If no route
-  to the basic testable functions can be found among the
-  [collected][@collect] events of the context, then a warning is
-  signalled and the context is ignored.
+  an invocation of a basic testable in its TESTABLE argument (see
+  @TESTABLES). If no route to any basic testable function can be found
+  among the [collected][@collect] events of the context, then a
+  warning is signalled and the context is ignored.
 
   Consider the following code evaluated in the package TRY:
 
@@ -264,17 +263,21 @@
 
 (declaim (ftype function replay-events))
 
-(defun filter-rerun-context-events (trial names)
+(defun filter-rerun-context-events (trial basic-testables)
   (let ((foundp nil))
     (values
-     (replay-events trial
-                    :collect (lambda (event)
-                               (when (and (typep event 'trial-start)
-                                          (find (test-name (trial event))
-                                                names :test #'equal))
-                                 (setq foundp t)
-                                 (setf (rerun-entirely-p (trial event)) t)))
-                    :print nil)
+     (replay-events
+      trial
+      :collect (lambda (event)
+                 (when (and (typep event 'trial-start)
+                            (let ((name (test-name (trial event))))
+                              (when (and (listp name)
+                                         (eq (first name) 'try))
+                                (setq name (second name)))
+                              (find name basic-testables)))
+                   (setq foundp t)
+                   (setf (rerun-entirely-p (trial event)) t)))
+      :print nil)
      foundp)))
 
 (defun munge-try-args-for-rerun-context (testable rerun)
