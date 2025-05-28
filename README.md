@@ -61,7 +61,7 @@ for the latest version.
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
 
 - [system] **"try"**
-    - _Version:_ 0.0.4
+    - _Version:_ 0.0.5
     - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
     - _Long Description:_ Try stays as close to normal Lisp evaluation
@@ -482,37 +482,50 @@ displays its output in a `lisp-mode` buffer with minor modes
 running under [Slime](https://slime.common-lisp.dev/). In the
 buffer, the following key bindings are available.
 
-- `M-.` to visit a test function.
+- Movement:
 
-- `p` and `n` to move between [`UNEXPECTED`][d6ad] events.
+    - Cursor keys move freely.
 
-- `P` and `N` to move between events which are not
-  [`EXPECTED-SUCCESS`][c96a]es.
+    - `C-p` and `C-n` move between events.
 
-- `t` runs an arbitrary test (defaults to the name of the innermost
-  global test function that contains the current line) in the
-  context associated with the Emacs buffer, which is similar but
-  distinct from [`*RERUN-CONTEXT*`][38e8]. With a prefix arg, the test is
-  called [implicitly][012f] with no arguments. This is
-  suitable for interactive debugging under the default settings.
+    - `p` and `n` to move between [`UNEXPECTED`][d6ad] events.
 
-- `r` [reruns][e4ac] the most recent trial conducted by
-  Emacs (this is distinct from [`TRY:!`][92af]). With a prefix argument, the
-  test is called implicitly.
+    - `P` and `N` move between events which are not
+      [`EXPECTED-SUCCESS`][c96a]es.
 
-- `R` is like `r`, but [`*TRY-RERUN*`][01e7] and [`TRY:*RERUN*`][63db] are set to `T`,
-  so all test are rerun. With a prefix argument, the test is called
-  implicitly.
+    - `<tab>` cycles visibility of the current heading's body.
 
-- some low-level outline mode commands are also given convenient
-  bindings:
+    - `U` moves to the parent heading.
 
-        <tab>           outline-cycle
-        C-p             outline-previous-visible-heading
-        C-n             outline-next-visible-heading
-        U               outline-up-heading
-        q               quit-window
+    - `q` is bound to `quit-window`.
 
+- Calling tests:
+
+    - `t` runs a test (defaults to the name of the innermost global
+      test function that contains the current line) in the context
+      associated with the Emacs buffer, which is similar but
+      distinct from [`*RERUN-CONTEXT*`][38e8]. With a prefix arg, the test is
+      called [implicitly][012f] with no arguments.
+      This is suitable for interactive debugging under the default
+      settings.
+
+    - `r` [reruns][e4ac] the most recent trial conducted by
+      Emacs (this is distinct from [`TRY:!`][92af]). With a prefix argument,
+      the test is called implicitly.
+
+    - `R` is like `r`, but [`*TRY-RERUN*`][01e7] and [`TRY:*RERUN*`][63db] are set to
+      `T`, so all test are rerun. With a prefix argument, the test is
+      called implicitly.
+
+- Visiting source locations:
+
+    - `v` visits the source location of the enclosing global test
+      function (see `t`).
+
+    - `M-.` visits a test function also works as usual.
+
+In general, since the major mode is `lisp-mode`, the usual key
+bindings are available.
 
 <a id="x-28TRY-3A-40EMACS-SETUP-20MGL-PAX-3ASECTION-29"></a>
 
@@ -3379,8 +3392,8 @@ normally.
     ..
     ==> #<TRIAL (TEST-TRY) EXPECTED-SUCCESS 0.500s ⋅2>
     
-    ;; This could also be an implicit try such as (TEST-PRINTING).
-    ;; This way we avoid entering the debugger.
+    ;; This could also be an implicit try such as (TEST-PRINTING),
+    ;; but this way we avoid entering the debugger.
     (try 'test-printing)
     .. TEST-PRINTING
     ..   ⊠ (IS (EQUAL #1=(PRIN1-TO-STRING 'X) "TRY::X"))

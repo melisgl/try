@@ -65,7 +65,8 @@ better to invoke the debugger on the actual ERROR.
 There should be a trace of what happened in the counts.
 * MAYBE improve readability of backtrace
 I don't know how. See TRY::EXPAND-WITH-TRIAL-IN-DEFTEST-P.
-* TODO bind v as in sldb
+* TODO mgl-try-reload
+* TODO version error can be the other way around
 * TODO rethink nesting of explicit/implicit try
 It would be nice to be able to force a configuration on nested try
 calls from the outside. TRY-FOR-EMACS would like to. We are not far
@@ -80,7 +81,5 @@ PAX has MARK-THIS-SOURCE-LOCATION.
 
 Some of this is taken care of by rerunning (e.g. (FUNCALL !)), which
 will likely land in the debugger, and that has source location info.
-
-Or/and maybe in an mgl-try buffer, make mgl-try find the innermost
-named function to call.
+* MAYBE in mgl-try-mode find the non-global test function sources too?
 * MAYBE define try:% and try:%% globally for C-x C-e?

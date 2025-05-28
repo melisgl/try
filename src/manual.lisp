@@ -370,36 +370,50 @@
   running under [Slime](https://slime.common-lisp.dev/). In the
   buffer, the following key bindings are available.
 
-  - `\\M-.` to visit a test function.
+  - Movement:
 
-  - `p` and `n` to move between UNEXPECTED events.
+      - Cursor keys move freely.
 
-  - `\\P` and `\\N` to move between events which are not
-    EXPECTED-SUCCESSes.
+      - `C-p` and `C-n` move between events.
 
-  - `t` runs an arbitrary test (defaults to the name of the innermost
-    global test function that contains the current line) in the
-    context associated with the Emacs buffer, which is similar but
-    distinct from *RERUN-CONTEXT*. With a prefix arg, the test is
-    called [implicitly][try::@implicit-try] with no arguments. This is
-    suitable for interactive debugging under the default settings.
+      - `p` and `n` to move between UNEXPECTED events.
 
-  - `r` [reruns][@rerun] the most recent trial conducted by
-    Emacs (this is distinct from TRY:!). With a prefix argument, the
-    test is called implicitly.
+      - `\\P` and `\\N` move between events which are not
+        EXPECTED-SUCCESSes.
 
-  - `\\R` is like `r`, but *TRY-RERUN* and TRY:*RERUN* are set to T,
-    so all test are rerun. With a prefix argument, the test is called
-    implicitly.
+      - `<tab>` cycles visibility of the current heading's body.
 
-  - some low-level outline mode commands are also given convenient
-    bindings:
+      - `\\U` moves to the parent heading.
 
-          <tab>           outline-cycle
-          C-p             outline-previous-visible-heading
-          C-n             outline-next-visible-heading
-          U               outline-up-heading
-          q               quit-window"""
+      - `q` is bound to `quit-window`.
+
+  - Calling tests:
+
+      - `t` runs a test (defaults to the name of the innermost global
+        test function that contains the current line) in the context
+        associated with the Emacs buffer, which is similar but
+        distinct from *RERUN-CONTEXT*. With a prefix arg, the test is
+        called [implicitly][try::@implicit-try] with no arguments.
+        This is suitable for interactive debugging under the default
+        settings.
+
+      - `r` [reruns][@rerun] the most recent trial conducted by
+        Emacs (this is distinct from TRY:!). With a prefix argument,
+        the test is called implicitly.
+
+      - `\\R` is like `r`, but *TRY-RERUN* and TRY:*RERUN* are set to
+        T, so all test are rerun. With a prefix argument, the test is
+        called implicitly.
+
+  - Visiting source locations:
+
+      - `v` visits the source location of the enclosing global test
+        function (see `t`).
+
+      - `\\M-.` visits a test function also works as usual.
+
+  In general, since the major mode is `lisp-mode`, the usual key
+  bindings are available."""
   (@emacs-setup section))
 
 (defsection @emacs-setup (:title "Emacs Setup")

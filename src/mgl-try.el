@@ -51,13 +51,14 @@
     (define-key map (kbd "C-n") 'outline-next-visible-heading)
     (define-key map (kbd "U") 'outline-up-heading)
     (define-key map (kbd "q") 'quit-window)
-    (define-key map (kbd "p") 'mgl-try-previous-unexpected)
-    (define-key map (kbd "n") 'mgl-try-next-unexpected)
-    (define-key map (kbd "P") 'mgl-try-previous-not-expected-success)
-    (define-key map (kbd "N") 'mgl-try-next-not-expected-success)
+    (define-key map (kbd "p") 'mgl-try-mode-previous-unexpected)
+    (define-key map (kbd "n") 'mgl-try-mode-next-unexpected)
+    (define-key map (kbd "P") 'mgl-try-mode-previous-not-expected-success)
+    (define-key map (kbd "N") 'mgl-try-mode-next-not-expected-success)
     (define-key map (kbd "t") 'mgl-try)
     (define-key map (kbd "r") 'mgl-try-rerun-!)
     (define-key map (kbd "R") 'mgl-try-rerun-!-all)
+    (define-key map (kbd "v") 'mgl-try-mode-show-source)
     map))
 
 (define-minor-mode mgl-try-mode
@@ -141,8 +142,8 @@ Common Lisp variables are overridden:
 - TRY:*CATEGORIES* to TRY:FANCY-STD-FAILURE (with a small
   modification to print UNEXPECTED-VERDICT-FAILUREs with the
   marker \"→⊠\". This is because their failure is a consequence
-  of other failures, and this way `mgl-try-next-unexpected' skips
-  over them.
+  of other failures, and this way `mgl-try-mode-next-unexpected'
+  skips over them.
 
 Other variables not listed here (such as TRY:*PRINT-BACKTRACE*,
 TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
@@ -248,7 +249,7 @@ TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
     (outline-hide-body)
     (mgl-try-flash-region (point-min) (point-max))
     (goto-char (point-min))
-    (mgl-try-next-not-skip)
+    (mgl-try-mode-next-not-skip)
     (ignore-errors
       (outline-hide-subtree)
       (outline-previous-visible-heading 1))))
@@ -287,15 +288,15 @@ Prefix arguments are variables overrides are as described in
           "\\)\\|\\(" mgl-try-unexpected-failure-regexp
           "\\)\\|\\(" mgl-try-unexpected-success-regexp "\\)"))
 
-(defun mgl-try-previous-unexpected ()
+(defun mgl-try-mode-previous-unexpected ()
   "Move point to the previous unexpected event, and show its subtree."
   (interactive)
-  (mgl-try-previous-regexp mgl-try-unexpected-regexp "unexpected event"))
+  (mgl-try-mode-previous-regexp mgl-try-unexpected-regexp "unexpected event"))
 
-(defun mgl-try-next-unexpected ()
+(defun mgl-try-mode-next-unexpected ()
   "Move point to the next unexpected event, and show its subtree."
   (interactive)
-  (mgl-try-next-regexp mgl-try-unexpected-regexp "unexpected event"))
+  (mgl-try-mode-next-regexp mgl-try-unexpected-regexp "unexpected event"))
 
 (defvar mgl-try-not-expected-success-regexp
   (concat "\\(" mgl-try-abort-regexp
@@ -304,18 +305,18 @@ Prefix arguments are variables overrides are as described in
           "\\)\\|\\(" mgl-try-skip-regexp
           "\\)\\|\\(" mgl-try-expected-failure-regexp "\\)"))
 
-(defun mgl-try-previous-not-expected-success ()
+(defun mgl-try-mode-previous-not-expected-success ()
   "Move point to the previous event that's not an expected success,
 and show its subtree."
   (interactive)
-  (mgl-try-previous-regexp mgl-try-not-expected-success-regexp
+  (mgl-try-mode-previous-regexp mgl-try-not-expected-success-regexp
                            "event that's not an expected success"))
 
-(defun mgl-try-next-not-expected-success ()
+(defun mgl-try-mode-next-not-expected-success ()
   "Move point to the next event that's not an expected success,
 and show its subtree."
   (interactive)
-  (mgl-try-next-regexp mgl-try-not-expected-success-regexp
+  (mgl-try-mode-next-regexp mgl-try-not-expected-success-regexp
                        "event that's not an expected success"))
 
 (defvar mgl-try-not-skip-regexp
@@ -325,27 +326,27 @@ and show its subtree."
           "\\)\\|\\(" mgl-try-expected-success-regexp
           "\\)\\|\\(" mgl-try-expected-failure-regexp "\\)"))
 
-(defun mgl-try-previous-not-skip-success ()
+(defun mgl-try-mode-previous-not-skip-success ()
   "Move point to the previous event that's not a TRY:SKIP,
 and show its subtree."
   (interactive)
-  (mgl-try-previous-regexp mgl-try-not-skip-regexp
+  (mgl-try-mode-previous-regexp mgl-try-not-skip-regexp
                            "event that's not a skip"))
 
-(defun mgl-try-next-not-skip ()
+(defun mgl-try-mode-next-not-skip ()
   "Move point to the next event that's not a TRY:SKIP,
 and show its subtree."
   (interactive)
-  (mgl-try-next-regexp mgl-try-not-skip-regexp
+  (mgl-try-mode-next-regexp mgl-try-not-skip-regexp
                        "event that's not a skip"))
 
-(defun mgl-try-previous-regexp (regexp what)
+(defun mgl-try-mode-previous-regexp (regexp what)
   (if (null (ignore-errors (search-backward-regexp regexp nil nil)))
       (message "No previous %s" what)
     (beginning-of-line)
     (outline-show-subtree)))
 
-(defun mgl-try-next-regexp (regexp what)
+(defun mgl-try-mode-next-regexp (regexp what)
   (let ((pos (save-excursion
                (ignore-errors
                  (search-forward-regexp regexp nil nil)))))
@@ -356,5 +357,12 @@ and show its subtree."
       (goto-char pos)
       (beginning-of-line)
       (outline-show-subtree))))
+
+(defun mgl-try-mode-show-source ()
+  (interactive)
+  (when mgl-try-mode
+    (let ((test-name (mgl-try-default-test-name)))
+      (when test-name
+        (slime-edit-definition test-name)))))
 
 (provide 'mgl-try)
