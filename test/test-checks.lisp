@@ -374,13 +374,14 @@
           (invoke-debugger (make-condition 'my-err)))
         (setq continued t)))
     (is continued))
-  (signals ((and expected success) :pred "No condition of type"
-                             :msg "No condition of type success.")
+  (signals ((and expected success) :msg "No condition of type success.")
     (invokes-debugger-not (my-err)))
-  (signals ((and expected success) :pred "The predicate did not match")
-    ;; This is to prevent entering the debugger on the failure of the
-    ;; INVOKES-DEBUGGER-NOT.
+  (signals (expected-success)
+    ;; This is to prevent entering the debugger on the explicit
+    ;; INVOKE-DEBUGGER inside ...
     (invokes-debugger (t)
+      ;; ... which is not handled by this because the predicate
+      ;; does not match.
       (invokes-debugger-not (my-err :pred "xxx")
         (invoke-debugger (make-condition 'my-err :msg "hhh"))))
     :msg "The predicate did not match failure.")

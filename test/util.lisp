@@ -182,7 +182,7 @@
      ,@body))
 
 (defun check-ctx-captures (c expected)
-  (and (is (endp (different-elements (try::scrub-captures (try::captures c))
+  (and (is (endp (different-elements (try::finalize-captures (try::captures c))
                                      expected
                                      :pred #'equal)))
        (check-no-% c)))

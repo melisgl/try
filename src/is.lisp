@@ -45,16 +45,20 @@
   (is macro)
   (*is-form* variable)
   (*is-captures* variable)
-  (@format-specifier-forms section)
+  (@format-specifier-form section)
   (@captures section))
 
 (defvar *is-form*)
 (setf (documentation '*is-form* 'variable)
       "IS binds this to its FORM argument for CTX and MSG.")
+;;; This is where captures are accumulated.
+(defvar *%is-captures*)
+;;; And this is (FINALIZE-CAPTURES *%IS-CAPTURES*).
 (defvar *is-captures*)
 (setf (documentation '*is-captures* 'variable)
-      "Captures made during an IS evaluation are made available for
-      CTX via *IS-CAPTURES*.")
+      "During the evaluation of its CTX argument, IS binds *IS-CAPTURES*
+      to the list of captures made. The list is ordered by the time of
+      capture.")
 
 (defmacro is (form &key msg ctx (capture t) (print-captures t) (retry t)
               &environment env)
@@ -71,10 +75,13 @@
   If IS returns normally after signalling an OUTCOME, it returns T if
   the last condition signalled was a SUCCESS, and NIL otherwise.
 
-  - MSG and CTX are @FORMAT-SPECIFIER-FORMS. MSG prints a description
-    of the check being made, which is by default the whole IS form.
-    Due to how conditions are printed, MSG says what the desired
-    outcome is, and CTX provides information about the evaluation.
+  - MSG and CTX are @FORMAT-SPECIFIER-FORMs. MSG is always
+    evaluated (as a format specifier form), and it shall print a
+    description of the check being made, stating what the desired
+    outcome is. The default MSG is the whole IS form.
+
+      CTX is only evaluated if FORM evaluates to NIL. It shall provide
+      contextual information about the failure.
 
       ```cl-transcript (:check-consistency #+sbcl t #-sbcl nil)
       (is (equal (prin1-to-string 'hello) "hello")
@@ -116,7 +123,9 @@
                 ',form
                 ,print-captures
                 ,(canonicalize-format-specifier-form msg)
-                ,(canonicalize-format-specifier-form ctx))))
+                (unless ,%succesp
+                  (let ((*is-captures* (finalize-captures *%is-captures*)))
+                    ,(canonicalize-format-specifier-form ctx))))))
         (let ((%retry-name (if retry (make-gensym '#:retry) nil)))
           `(macrolet ((% (,%form)
                         `(capture ,,%form))
@@ -124,16 +133,16 @@
                         `(capture-values ,,%form)))
              (with-retry/go (:retry ,%retry-name)
                (with-timing
-                 (let* ((*is-captures* ())
-                        ;; The above binding of *IS-CAPTURES* may be
+                 (let* ((*%is-captures* ())
+                        ;; The above binding of *%IS-CAPTURES* may be
                         ;; modified by CAPTURE during the evaluation
                         ;; these bindings.
                         ,@(%subs-to-bindings subs)
                         (*is-form* ',form)
                         ,@(when subs
-                            `((*is-captures* (nconc ,(%subs-to-captures subs)
-                                                    *is-captures*))))
-                        ;; This can change *IS-CAPTURES* via CAPTURE.
+                            `((*%is-captures* (nconc ,(%subs-to-captures subs)
+                                                     *%is-captures*))))
+                        ;; This can change also CAPTURE.
                         (,%succesp ,is-substituted-form))
                    ,(if retry
                         `(case ,signal-form
@@ -148,14 +157,13 @@
                   (list
                    :check `(is ,form)
                    :elapsed-seconds (get-elapsed-seconds)
-                   :captures (setq *is-captures*
-                                   (scrub-captures (nreverse *is-captures*)))
+                   :captures *%is-captures*
                    :print-captures print-captures
                    :msg msg
                    :ctx ctx)))
 
 
-(defsection @format-specifier-forms (:title "Format Specifier Forms")
+(defsection @format-specifier-form (:title "Format Specifier Form")
   """A format specifier form is a Lisp form, typically an argument to
   macro, standing for the FORMAT-CONTROL and FORMAT-ARGS arguments to
   the FORMAT function.
@@ -276,8 +284,8 @@
   scope as `%` is removed before printing."
   (with-gensyms (%value)
     `(let ((,%value ,form))
-       (when (boundp '*is-captures*)
-         (push (list ',form ,%value nil t) *is-captures*))
+       (when (boundp '*%is-captures*)
+         (push (list ',form ,%value nil t) *%is-captures*))
        ,%value)))
 
 (defmacro capture-values (form)
@@ -286,8 +294,8 @@
   lexical scope as `%%` is removed before printing."
   (with-gensyms (%values)
     `(let ((,%values (multiple-value-list ,form)))
-       (when (boundp '*is-captures*)
-         (push (list ',form ,%values t t) *is-captures*))
+       (when (boundp '*%is-captures*)
+         (push (list ',form ,%values t t) *%is-captures*))
        (values-list ,%values))))
 
 (dref-ext:define-symbol-locative-type macrolet ())
@@ -406,6 +414,9 @@
                                 ,(sub-var sub)
                                 ,(sub-valuesp sub)
                                 nil))))
+
+(defun finalize-captures (captures)
+  (scrub-captures (reverse captures)))
 
 ;;; Deduplicate implicit CAPTUREs with the same SUBFORM and VALUESP.
 ;;; Then remove implicit captures for which there exists a capture

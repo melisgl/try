@@ -85,7 +85,7 @@
 
 (defun %write-result-captures (result stream)
   (when (print-captures result)
-    (let ((captures (captures result)))
+    (let ((captures (finalize-captures (captures result))))
       (when captures
         (format stream "~:@_where~:@_")
         (pprint-logical-block (stream nil)
