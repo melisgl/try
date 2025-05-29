@@ -58,54 +58,54 @@
 
 (defmacro is (form &key msg ctx (capture t) (print-captures t) (retry t)
               &environment env)
-  """Evaluate FORM and signal a RESULT SUCCESS if its first return
-  value is not NIL, else signal a RESULT FAILURE (see @OUTCOMES). IS
-  returns normally if
+  """If FORM returns NIL, signal a RESULT FAILURE. Else, signal a
+  RESULT SUCCESS. IS returns normally if
 
-  - the RECORD-EVENT restart is invoked (available when running in a
-    trial), or
-  - the CONTINUE restart is invoked (available when not running in a
-    trial), or
-  - the signalled RESULT condition is not handled (possible only when
-    not running in a trial, and the result is a PASS).
+  - the RECORD-EVENT restart is invoked (available when in a trial), or
 
-  The return value of IS is T if the last condition signalled is a
-  SUCCESS, and NIL otherwise.
+  - the CONTINUE restart is invoked (available when not in a trial), or
 
-  MSG and CTX are @FORMAT-SPECIFIER-FORMS. MSG prints a description of
-  the check being made, which is by default the whole IS form. Due to
-  how conditions are printed, MSG says what the desired outcome is,
-  and CTX provides information about the evaluation.
+  - the condition signalled last (after @OUTCOME-RESTARTS) is a PASS,
+    and it is not [handle][clhs]d.
 
-  ```cl-transcript (:check-consistency #+sbcl t #-sbcl nil)
-  (is (equal (prin1-to-string 'hello) "hello")
-      :msg "Symbols are replacements for strings." 
-      :ctx ("*PACKAGE* is ~S and *PRINT-CASE* is ~S~%"
-            *package* *print-case*))
-  .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-  ..   UNEXPECTED-FAILURE in check:
-  ..     Symbols are replacements for strings.
-  ..   where
-  ..     (PRIN1-TO-STRING 'HELLO) = "HELLO"
-  ..   *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
-  ..
-  ```
+  If IS returns normally after signalling an OUTCOME, it returns T if
+  the last condition signalled was a SUCCESS, and NIL otherwise.
 
-  If CAPTURE is true, the value(s) of some subforms of FORM may be
-  automatically recorded in the condition and also made available for
-  CTX via *IS-CAPTURES*. See @CAPTURES for more.
+  - MSG and CTX are @FORMAT-SPECIFIER-FORMS. MSG prints a description
+    of the check being made, which is by default the whole IS form.
+    Due to how conditions are printed, MSG says what the desired
+    outcome is, and CTX provides information about the evaluation.
 
-  If PRINT-CAPTURES is true, the captures made are printed when the
-  RESULT condition is displayed in the debugger or `*DESCRIBE*`d (see
-  @PRINT). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
-  part above. If PRINT-CAPTURES is NIL, the captures are still
-  available in *IS-CAPTURES* for writing custom CTX messages.
+      ```cl-transcript (:check-consistency #+sbcl t #-sbcl nil)
+      (is (equal (prin1-to-string 'hello) "hello")
+          :msg "Symbols are replacements for strings."
+          :ctx ("*PACKAGE* is ~S and *PRINT-CASE* is ~S~%"
+                *package* *print-case*))
+      .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+      ..   UNEXPECTED-FAILURE in check:
+      ..     Symbols are replacements for strings.
+      ..   where
+      ..     (PRIN1-TO-STRING 'HELLO) = "HELLO"
+      ..   *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
+      ..
+      ```
 
-  If RETRY is true, then the RETRY-CHECK restart evaluates FORM again
-  and signals a new RESULT. If RETRY is NIL, then the RETRY-CHECK
-  restart returns :RETRY, which allows complex checks such as SIGNALS
-  to implement their own retry mechanism."""
-  (with-gensyms (%form)
+  - If CAPTURE is true, the value(s) of some subforms of FORM may be
+    automatically recorded in the condition and also made available
+    for CTX via *IS-CAPTURES*. See @CAPTURES for more.
+
+  - If PRINT-CAPTURES is true, the captures made are printed when the
+    RESULT condition is displayed in the debugger or
+    `*DESCRIBE*`d (see @PRINT). This is the `where (PRIN1-TO-STRING
+    'HELLO) ="HELLO"` part above. If PRINT-CAPTURES is NIL, the
+    captures are still available in *IS-CAPTURES* for writing custom
+    CTX messages.
+
+  - If RETRY is true, then the RETRY-CHECK restart evaluates FORM
+    again and signals a new RESULT. If RETRY is NIL, then the
+    RETRY-CHECK restart returns :RETRY, which allows complex checks
+    such as SIGNALS to implement their own retry mechanism."""
+  (with-gensyms (%form %succesp)
     (multiple-value-bind (is-substituted-form subs)
         (if capture
             (substitute-is-form form env)

@@ -255,30 +255,32 @@
   (force-expected-failure function)
   (force-unexpected-failure function))
 
-(defun force-expected-success (&optional condition)
-  "Change the type of the OUTCOME being signalled to EXPECTED and
-  SUCCESS. If the original condition is a RESULT, then this will be
-  EXPECTED-RESULT-SUCCESS, if it is a VERDICT, then
-  EXPECTED-VERDICT-SUCCESS."
-  (declare (ignore condition))
+(defun force-expected-success (&optional outcome)
+  "[Handle][clhs] the [OUTCOME][] being signalled, and signal an
+  EXPECTED-RESULT-SUCCESS or EXPECTED-VERDICT-SUCCESS for when the
+  OUTCOME is a RESULT or a VERDICT, respectively."
+  (declare (ignore outcome))
   (invoke-restart 'force-expected-success))
 
-(defun force-unexpected-success (&optional condition)
-  "Change the type of OUTCOME being signalled to UNEXPECTED and
-  SUCCESS."
-  (declare (ignore condition))
+(defun force-unexpected-success (&optional outcome)
+  "[Handle][clhs] the [OUTCOME][] being signalled, and signal an
+  UNEXPECTED-RESULT-SUCCESS or UNEXPECTED-VERDICT-SUCCESS for when the
+  OUTCOME is a RESULT or a VERDICT, respectively."
+  (declare (ignore outcome))
   (invoke-restart 'force-unexpected-success))
 
-(defun force-expected-failure (&optional condition)
-  "Change the type of OUTCOME being signalled to EXPECTED and
-  FAILURE."
-  (declare (ignore condition))
+(defun force-expected-failure (&optional outcome)
+  "[Handle][clhs] the [OUTCOME][] being signalled, and signal an
+  EXPECTED-RESULT-FAILURE or EXPECTED-VERDICT-FAILURE for when the
+  OUTCOME is a RESULT or a VERDICT, respectively."
+  (declare (ignore outcome))
   (invoke-restart 'force-expected-failure))
 
-(defun force-unexpected-failure (&optional condition)
-  "Change the type of OUTCOME being signalled to UNEXPECTED and
-  FAILURE."
-  (declare (ignore condition))
+(defun force-unexpected-failure (&optional outcome)
+  "[Handle][clhs] the [OUTCOME][] being signalled, and signal an
+  UNEXPECTED-RESULT-FAILURE or UNEXPECTED-VERDICT-FAILURE for when the
+  OUTCOME is a RESULT or a VERDICT, respectively."
+  (declare (ignore outcome))
   (invoke-restart 'force-unexpected-failure))
 
 
@@ -295,7 +297,7 @@
   UNEXPECTED-RESULT-FAILURE to signal. Furthermore, if WITH-SKIP is in
   effect, then RESULT-SKIP is signalled.
 
-  The result is signalled with the function `SIGNAL` if it is a PASS,
+  The result is signalled with the function SIGNAL if it is a PASS,
   else it's signalled with [ERROR][function]. This distinction matters
   only if the event is not handled, which is never the case in a
   TRIAL. Standalone checks though – those not enclosed by a trial –

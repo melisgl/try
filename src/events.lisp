@@ -259,7 +259,8 @@
 
 (deftype pass ()
   "An OUTCOME that's not an ABORT* or an UNEXPECTED-FAILURE.
-  PASS is equivalent to `(NOT FAIL)`.
+  PASS is equivalent to `(NOT FAIL)`. PASSes are signalled with
+  SIGNAL.
 
   ```cl-transcript
   (concrete-events-of-type 'pass)
@@ -270,7 +271,8 @@
   '(and outcome (not (or abort* unexpected-failure))))
 
 (deftype fail ()
-  "An ABORT* or an UNEXPECTED-FAILURE. See PASS.
+  "An ABORT* or an UNEXPECTED-FAILURE. FAIL conditions are signalled
+  with [ERROR][function]. See PASS.
 
   ```cl-transcript
   (concrete-events-of-type 'fail)

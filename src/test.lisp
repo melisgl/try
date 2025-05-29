@@ -205,7 +205,7 @@
   purposes. If NAME is not specified, then it defaults to VAR-OR-NAME.
 
   To facilitate returning values, a BLOCK is wrapped around BODY. The
-  name of the block is TRIAL-VAR if it is a symbol, else it's NIL.
+  name of the block is VAR-OR-NAME if it is a symbol, else it's NIL.
 
   Both VAR-OR-NAME and NAME can be specified, but in this case VAR-OR-NAME
   must be a symbol:

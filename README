@@ -9,7 +9,7 @@ documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
 for the latest version.
 
 - [system] "try"
-    - _Version:_ 0.0.5
+    - _Version:_ 0.0.6
     - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
     - _Long Description:_ Try stays as close to normal Lisp evaluation
@@ -730,7 +730,8 @@ PASS and FAIL partition ACT.
 - [type] PASS
 
     An OUTCOME that's not an ABORT\* or an UNEXPECTED-FAILURE.
-    PASS is equivalent to `(NOT FAIL)`.
+    PASS is equivalent to `(NOT FAIL)`. PASSes are signalled with
+    SIGNAL.
     
     ```common-lisp
     (concrete-events-of-type 'pass)
@@ -741,7 +742,8 @@ PASS and FAIL partition ACT.
 
 - [type] FAIL
 
-    An ABORT\* or an UNEXPECTED-FAILURE. See PASS.
+    An ABORT\* or an UNEXPECTED-FAILURE. FAIL conditions are signalled
+    with ERROR. See PASS.
     
     ```common-lisp
     (concrete-events-of-type 'fail)
@@ -871,27 +873,29 @@ Only RECORD-EVENT is applicable to all EVENTs. See
 
 #### Outcome Restarts
 
-- [function] FORCE-EXPECTED-SUCCESS &OPTIONAL CONDITION
+- [function] FORCE-EXPECTED-SUCCESS &OPTIONAL OUTCOME
 
-    Change the type of the OUTCOME being signalled to EXPECTED and
-    SUCCESS. If the original condition is a RESULT, then this will be
-    EXPECTED-RESULT-SUCCESS, if it is a VERDICT, then
-    EXPECTED-VERDICT-SUCCESS.
+    Handle the OUTCOME being signalled, and signal an
+    EXPECTED-RESULT-SUCCESS or EXPECTED-VERDICT-SUCCESS for when the
+    OUTCOME is a RESULT or a VERDICT, respectively.
 
-- [function] FORCE-UNEXPECTED-SUCCESS &OPTIONAL CONDITION
+- [function] FORCE-UNEXPECTED-SUCCESS &OPTIONAL OUTCOME
 
-    Change the type of OUTCOME being signalled to UNEXPECTED and
-    SUCCESS.
+    Handle the OUTCOME being signalled, and signal an
+    UNEXPECTED-RESULT-SUCCESS or UNEXPECTED-VERDICT-SUCCESS for when the
+    OUTCOME is a RESULT or a VERDICT, respectively.
 
-- [function] FORCE-EXPECTED-FAILURE &OPTIONAL CONDITION
+- [function] FORCE-EXPECTED-FAILURE &OPTIONAL OUTCOME
 
-    Change the type of OUTCOME being signalled to EXPECTED and
-    FAILURE.
+    Handle the OUTCOME being signalled, and signal an
+    EXPECTED-RESULT-FAILURE or EXPECTED-VERDICT-FAILURE for when the
+    OUTCOME is a RESULT or a VERDICT, respectively.
 
-- [function] FORCE-UNEXPECTED-FAILURE &OPTIONAL CONDITION
+- [function] FORCE-UNEXPECTED-FAILURE &OPTIONAL OUTCOME
 
-    Change the type of OUTCOME being signalled to UNEXPECTED and
-    FAILURE.
+    Handle the OUTCOME being signalled, and signal an
+    UNEXPECTED-RESULT-FAILURE or UNEXPECTED-VERDICT-FAILURE for when the
+    OUTCOME is a RESULT or a VERDICT, respectively.
 
 #### Checks
 
@@ -907,7 +911,7 @@ UNEXPECTED-RESULT-SUCCESS, EXPECTED-RESULT-FAILURE,
 UNEXPECTED-RESULT-FAILURE to signal. Furthermore, if WITH-SKIP is in
 effect, then RESULT-SKIP is signalled.
 
-The result is signalled with the function `SIGNAL` if it is a PASS,
+The result is signalled with the function SIGNAL if it is a PASS,
 else it's signalled with ERROR. This distinction matters
 only if the event is not handled, which is never the case in a
 TRIAL. Standalone checks though – those not enclosed by a trial –
@@ -1411,55 +1415,53 @@ on top of it.
 
 - [macro] IS FORM &KEY MSG CTX (CAPTURE T) (PRINT-CAPTURES T) (RETRY T)
 
-    Evaluate FORM and signal a RESULT SUCCESS if its first return
-    value is not NIL, else signal a RESULT FAILURE (see @OUTCOMES). IS
-    returns normally if
+    If FORM returns NIL, signal a RESULT FAILURE. Else, signal a
+    RESULT SUCCESS. IS returns normally if
     
-    - the RECORD-EVENT restart is invoked (available when running in a
-      trial), or
+    - the RECORD-EVENT restart is invoked (available when in a trial), or
     
-    - the CONTINUE restart is invoked (available when not running in a
-      trial), or
+    - the CONTINUE restart is invoked (available when not in a trial), or
     
-    - the signalled RESULT condition is not handled (possible only when
-      not running in a trial, and the result is a PASS).
+    - the condition signalled last (after @OUTCOME-RESTARTS) is a PASS,
+      and it is not handled.
     
-    The return value of IS is T if the last condition signalled is a
-    SUCCESS, and NIL otherwise.
+    If IS returns normally after signalling an OUTCOME, it returns T if
+    the last condition signalled was a SUCCESS, and NIL otherwise.
     
-    MSG and CTX are @FORMAT-SPECIFIER-FORMS. MSG prints a description of
-    the check being made, which is by default the whole IS form. Due to
-    how conditions are printed, MSG says what the desired outcome is,
-    and CTX provides information about the evaluation.
+    - MSG and CTX are @FORMAT-SPECIFIER-FORMS. MSG prints a description
+      of the check being made, which is by default the whole IS form.
+      Due to how conditions are printed, MSG says what the desired
+      outcome is, and CTX provides information about the evaluation.
     
-    ```common-lisp
-    (is (equal (prin1-to-string 'hello) "hello")
-        :msg "Symbols are replacements for strings." 
-        :ctx ("*PACKAGE* is ~S and *PRINT-CASE* is ~S~%"
-              *package* *print-case*))
-    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-    ..   UNEXPECTED-FAILURE in check:
-    ..     Symbols are replacements for strings.
-    ..   where
-    ..     (PRIN1-TO-STRING 'HELLO) = "HELLO"
-    ..   *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
-    ..
-    ```
+        ```common-lisp
+        (is (equal (prin1-to-string 'hello) "hello")
+            :msg "Symbols are replacements for strings."
+            :ctx ("*PACKAGE* is ~S and *PRINT-CASE* is ~S~%"
+                  *package* *print-case*))
+        .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+        ..   UNEXPECTED-FAILURE in check:
+        ..     Symbols are replacements for strings.
+        ..   where
+        ..     (PRIN1-TO-STRING 'HELLO) = "HELLO"
+        ..   *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
+        ..
+        ```
     
-    If CAPTURE is true, the value(s) of some subforms of FORM may be
-    automatically recorded in the condition and also made available for
-    CTX via *IS-CAPTURES*. See @CAPTURES for more.
+    - If CAPTURE is true, the value(s) of some subforms of FORM may be
+      automatically recorded in the condition and also made available
+      for CTX via *IS-CAPTURES*. See @CAPTURES for more.
     
-    If PRINT-CAPTURES is true, the captures made are printed when the
-    RESULT condition is displayed in the debugger or `*DESCRIBE*`d (see
-    @PRINT). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
-    part above. If PRINT-CAPTURES is NIL, the captures are still
-    available in *IS-CAPTURES* for writing custom CTX messages.
+    - If PRINT-CAPTURES is true, the captures made are printed when the
+      RESULT condition is displayed in the debugger or
+      `*DESCRIBE*`d (see @PRINT). This is the `where (PRIN1-TO-STRING
+      'HELLO) ="HELLO"` part above. If PRINT-CAPTURES is NIL, the
+      captures are still available in *IS-CAPTURES* for writing custom
+      CTX messages.
     
-    If RETRY is true, then the RETRY-CHECK restart evaluates FORM again
-    and signals a new RESULT. If RETRY is NIL, then the RETRY-CHECK
-    restart returns :RETRY, which allows complex checks such as SIGNALS
-    to implement their own retry mechanism.
+    - If RETRY is true, then the RETRY-CHECK restart evaluates FORM
+      again and signals a new RESULT. If RETRY is NIL, then the
+      RETRY-CHECK restart returns :RETRY, which allows complex checks
+      such as SIGNALS to implement their own retry mechanism.
 
 - [variable] *IS-FORM*
 
@@ -2197,7 +2199,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     purposes. If NAME is not specified, then it defaults to VAR-OR-NAME.
     
     To facilitate returning values, a BLOCK is wrapped around BODY. The
-    name of the block is TRIAL-VAR if it is a symbol, else it's NIL.
+    name of the block is VAR-OR-NAME if it is a symbol, else it's NIL.
     
     Both VAR-OR-NAME and NAME can be specified, but in this case VAR-OR-NAME
     must be a symbol:
@@ -2782,11 +2784,11 @@ setups.
           (*debug* nil)
           (*describe* nil))
       (with-test (timed)
-        (is (progn (sleep 0.3) t))
+        (is (progn (sleep 0.1) t))
         (is (progn (sleep 0.2) t))
         (error "xxx")))
     ..        TIMED
-    ..  0.100   ⋅ (IS (PROGN (SLEEP 0.3) T))
+    ..  0.100   ⋅ (IS (PROGN (SLEEP 0.1) T))
     ..  0.200   ⋅ (IS (PROGN (SLEEP 0.2) T))
     ..          ⊟ "xxx" (SIMPLE-ERROR)
     ..  0.300 ⊟ TIMED ⊟1 ⋅2
@@ -2963,8 +2965,8 @@ normally.
       current dynamic environment. Implementationally speaking,
       WITH-TEST defines a local function of no arguments (likely a
       closure) that wraps its body, stores the closure in the trial
-      object and calls it on a rerun in a WITH-TEST of the same
-      TRIAL-VAR and same NAME.
+      object and calls it on a rerun in a WITH-TEST with the same
+      VAR-OR-NAME and same NAME.
 
     - If the trial was created by TRY itself to ensure that all
       events are signalled in a trial (see @EXPLICIT-TRY), then

@@ -62,7 +62,7 @@ for the latest version.
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
 
 - [system] **"try"**
-    - _Version:_ 0.0.5
+    - _Version:_ 0.0.6
     - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
     - _Long Description:_ Try stays as close to normal Lisp evaluation
@@ -831,7 +831,8 @@ The following types are shorthands.
 - [type] **PASS**
 
     An [`OUTCOME`][2656] that's not an [`ABORT*`][8ec3] or an [`UNEXPECTED-FAILURE`][b5cb].
-    `PASS` is equivalent to `(NOT FAIL)`.
+    `PASS` is equivalent to `(NOT FAIL)`. `PASS`es are signalled with
+    [`SIGNAL`][8f49].
     
     ```common-lisp
     (concrete-events-of-type 'pass)
@@ -844,7 +845,8 @@ The following types are shorthands.
 
 - [type] **FAIL**
 
-    An [`ABORT*`][8ec3] or an [`UNEXPECTED-FAILURE`][b5cb]. See [`PASS`][21d9].
+    An [`ABORT*`][8ec3] or an [`UNEXPECTED-FAILURE`][b5cb]. `FAIL` conditions are signalled
+    with [`ERROR`][35ba]. See [`PASS`][21d9].
     
     ```common-lisp
     (concrete-events-of-type 'fail)
@@ -996,33 +998,35 @@ Only [`RECORD-EVENT`][ce49] is applicable to all [`EVENT`][955d]s. See
 
 <a id="x-28TRY-3AFORCE-EXPECTED-SUCCESS-20FUNCTION-29"></a>
 
-- [function] **FORCE-EXPECTED-SUCCESS** *&OPTIONAL CONDITION*
+- [function] **FORCE-EXPECTED-SUCCESS** *&OPTIONAL OUTCOME*
 
-    Change the type of the [`OUTCOME`][2656] being signalled to [`EXPECTED`][b194] and
-    [`SUCCESS`][269a]. If the original condition is a [`RESULT`][231f], then this will be
-    [`EXPECTED-RESULT-SUCCESS`][609c7], if it is a [`VERDICT`][52e1], then
-    [`EXPECTED-VERDICT-SUCCESS`][06c2].
+    [Handle][59c3] the [`OUTCOME`][2656] being signalled, and signal an
+    [`EXPECTED-RESULT-SUCCESS`][609c7] or [`EXPECTED-VERDICT-SUCCESS`][06c2] for when the
+    `OUTCOME` is a [`RESULT`][231f] or a [`VERDICT`][52e1], respectively.
 
 <a id="x-28TRY-3AFORCE-UNEXPECTED-SUCCESS-20FUNCTION-29"></a>
 
-- [function] **FORCE-UNEXPECTED-SUCCESS** *&OPTIONAL CONDITION*
+- [function] **FORCE-UNEXPECTED-SUCCESS** *&OPTIONAL OUTCOME*
 
-    Change the type of [`OUTCOME`][2656] being signalled to [`UNEXPECTED`][d6ad] and
-    [`SUCCESS`][269a].
+    [Handle][59c3] the [`OUTCOME`][2656] being signalled, and signal an
+    [`UNEXPECTED-RESULT-SUCCESS`][b72c] or [`UNEXPECTED-VERDICT-SUCCESS`][062e] for when the
+    `OUTCOME` is a [`RESULT`][231f] or a [`VERDICT`][52e1], respectively.
 
 <a id="x-28TRY-3AFORCE-EXPECTED-FAILURE-20FUNCTION-29"></a>
 
-- [function] **FORCE-EXPECTED-FAILURE** *&OPTIONAL CONDITION*
+- [function] **FORCE-EXPECTED-FAILURE** *&OPTIONAL OUTCOME*
 
-    Change the type of [`OUTCOME`][2656] being signalled to [`EXPECTED`][b194] and
-    [`FAILURE`][f92d].
+    [Handle][59c3] the [`OUTCOME`][2656] being signalled, and signal an
+    [`EXPECTED-RESULT-FAILURE`][d619] or [`EXPECTED-VERDICT-FAILURE`][30c9] for when the
+    `OUTCOME` is a [`RESULT`][231f] or a [`VERDICT`][52e1], respectively.
 
 <a id="x-28TRY-3AFORCE-UNEXPECTED-FAILURE-20FUNCTION-29"></a>
 
-- [function] **FORCE-UNEXPECTED-FAILURE** *&OPTIONAL CONDITION*
+- [function] **FORCE-UNEXPECTED-FAILURE** *&OPTIONAL OUTCOME*
 
-    Change the type of [`OUTCOME`][2656] being signalled to [`UNEXPECTED`][d6ad] and
-    [`FAILURE`][f92d].
+    [Handle][59c3] the [`OUTCOME`][2656] being signalled, and signal an
+    [`UNEXPECTED-RESULT-FAILURE`][daeb] or [`UNEXPECTED-VERDICT-FAILURE`][fdf4] for when the
+    `OUTCOME` is a [`RESULT`][231f] or a [`VERDICT`][52e1], respectively.
 
 <a id="x-28TRY-3A-40CHECKS-20MGL-PAX-3ASECTION-29"></a>
 
@@ -1644,55 +1648,53 @@ on top of it.
 
 - [macro] **IS** *FORM &KEY MSG CTX (CAPTURE T) (PRINT-CAPTURES T) (RETRY T)*
 
-    Evaluate `FORM` and signal a [`RESULT`][231f] [`SUCCESS`][269a] if its first return
-    value is not `NIL`, else signal a `RESULT` [`FAILURE`][f92d] (see [Outcomes][e514]). `IS`
-    returns normally if
+    If `FORM` returns `NIL`, signal a [`RESULT`][231f] [`FAILURE`][f92d]. Else, signal a
+    `RESULT` [`SUCCESS`][269a]. `IS` returns normally if
     
-    - the [`RECORD-EVENT`][ce49] restart is invoked (available when running in a
-      trial), or
+    - the [`RECORD-EVENT`][ce49] restart is invoked (available when in a trial), or
     
-    - the [`CONTINUE`][1867] restart is invoked (available when not running in a
-      trial), or
+    - the [`CONTINUE`][1867] restart is invoked (available when not in a trial), or
     
-    - the signalled [`RESULT`][231f] condition is not handled (possible only when
-      not running in a trial, and the result is a [`PASS`][21d9]).
+    - the condition signalled last (after [Outcome Restarts][7ef5]) is a [`PASS`][21d9],
+      and it is not [handle][59c3]d.
     
-    The return value of `IS` is `T` if the last condition signalled is a
-    `SUCCESS`, and `NIL` otherwise.
+    If `IS` returns normally after signalling an [`OUTCOME`][2656], it returns `T` if
+    the last condition signalled was a `SUCCESS`, and `NIL` otherwise.
     
-    `MSG` and `CTX` are [Format Specifier Forms][3233]. `MSG` prints a description of
-    the check being made, which is by default the whole `IS` form. Due to
-    how conditions are printed, `MSG` says what the desired outcome is,
-    and `CTX` provides information about the evaluation.
+    - `MSG` and `CTX` are [Format Specifier Forms][3233]. `MSG` prints a description
+      of the check being made, which is by default the whole `IS` form.
+      Due to how conditions are printed, `MSG` says what the desired
+      outcome is, and `CTX` provides information about the evaluation.
     
-    ```common-lisp
-    (is (equal (prin1-to-string 'hello) "hello")
-        :msg "Symbols are replacements for strings." 
-        :ctx ("*PACKAGE* is ~S and *PRINT-CASE* is ~S~%"
-              *package* *print-case*))
-    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-    ..   UNEXPECTED-FAILURE in check:
-    ..     Symbols are replacements for strings.
-    ..   where
-    ..     (PRIN1-TO-STRING 'HELLO) = "HELLO"
-    ..   *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
-    ..
-    ```
+        ```common-lisp
+        (is (equal (prin1-to-string 'hello) "hello")
+            :msg "Symbols are replacements for strings."
+            :ctx ("*PACKAGE* is ~S and *PRINT-CASE* is ~S~%"
+                  *package* *print-case*))
+        .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+        ..   UNEXPECTED-FAILURE in check:
+        ..     Symbols are replacements for strings.
+        ..   where
+        ..     (PRIN1-TO-STRING 'HELLO) = "HELLO"
+        ..   *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
+        ..
+        ```
     
-    If `CAPTURE` is true, the value(s) of some subforms of `FORM` may be
-    automatically recorded in the condition and also made available for
-    `CTX` via [`*IS-CAPTURES*`][fb53]. See [Captures][3d27] for more.
+    - If `CAPTURE` is true, the value(s) of some subforms of `FORM` may be
+      automatically recorded in the condition and also made available
+      for `CTX` via [`*IS-CAPTURES*`][fb53]. See [Captures][3d27] for more.
     
-    If `PRINT-CAPTURES` is true, the captures made are printed when the
-    [`RESULT`][231f] condition is displayed in the debugger or [`*DESCRIBE*`][aa6d]d (see
-    [Printing Events][b3f9]). This is the `where (PRIN1-TO-STRING 'HELLO) ="HELLO"`
-    part above. If `PRINT-CAPTURES` is `NIL`, the captures are still
-    available in `*IS-CAPTURES*` for writing custom `CTX` messages.
+    - If `PRINT-CAPTURES` is true, the captures made are printed when the
+      [`RESULT`][231f] condition is displayed in the debugger or
+      [`*DESCRIBE*`][aa6d]d (see [Printing Events][b3f9]). This is the `where (PRIN1-TO-STRING
+      'HELLO) ="HELLO"` part above. If `PRINT-CAPTURES` is `NIL`, the
+      captures are still available in `*IS-CAPTURES*` for writing custom
+      `CTX` messages.
     
-    If `RETRY` is true, then the [`RETRY-CHECK`][8cf6] restart evaluates `FORM` again
-    and signals a new `RESULT`. If `RETRY` is `NIL`, then the `RETRY-CHECK`
-    restart returns `:RETRY`, which allows complex checks such as [`SIGNALS`][6d4e]
-    to implement their own retry mechanism.
+    - If `RETRY` is true, then the [`RETRY-CHECK`][8cf6] restart evaluates `FORM`
+      again and signals a new `RESULT`. If `RETRY` is `NIL`, then the
+      `RETRY-CHECK` restart returns `:RETRY`, which allows complex checks
+      such as [`SIGNALS`][6d4e] to implement their own retry mechanism.
 
 <a id="x-28TRY-3A-2AIS-FORM-2A-20VARIABLE-29"></a>
 
@@ -2528,7 +2530,7 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
     purposes. If `NAME` is not specified, then it defaults to `VAR-OR-NAME`.
     
     To facilitate returning values, a [`BLOCK`][d2d8] is wrapped around `BODY`. The
-    name of the block is `TRIAL-VAR` if it is a symbol, else it's `NIL`.
+    name of the block is `VAR-OR-NAME` if it is a symbol, else it's `NIL`.
     
     Both `VAR-OR-NAME` and `NAME` can be specified, but in this case `VAR-OR-NAME`
     must be a symbol:
@@ -3187,11 +3189,11 @@ setups.
           (*debug* nil)
           (*describe* nil))
       (with-test (timed)
-        (is (progn (sleep 0.3) t))
+        (is (progn (sleep 0.1) t))
         (is (progn (sleep 0.2) t))
         (error "xxx")))
     ..        TIMED
-    ..  0.100   ⋅ (IS (PROGN (SLEEP 0.3) T))
+    ..  0.100   ⋅ (IS (PROGN (SLEEP 0.1) T))
     ..  0.200   ⋅ (IS (PROGN (SLEEP 0.2) T))
     ..          ⊟ "xxx" (SIMPLE-ERROR)
     ..  0.300 ⊟ TIMED ⊟1 ⋅2
@@ -3382,8 +3384,8 @@ normally.
       current dynamic environment. Implementationally speaking,
       `WITH-TEST` defines a local function of no arguments (likely a
       closure) that wraps its body, stores the closure in the trial
-      object and calls it on a rerun in a `WITH-TEST` of the same
-      `TRIAL-VAR` and same `NAME`.
+      object and calls it on a rerun in a `WITH-TEST` with the same
+      `VAR-OR-NAME` and same `NAME`.
 
     - If the trial was created by `TRY` itself to ensure that all
       events are signalled in a trial (see [Explicit `TRY`][1720]), then
@@ -3666,6 +3668,7 @@ SBCL.
   [55cd]: #x-28TRY-3AUNEXPECTED-SUCCESS-20TYPE-29 "TRY:UNEXPECTED-SUCCESS TYPE"
   [56ae]: #x-28TRY-3A-40AUTOMATIC-CAPTURES-20MGL-PAX-3ASECTION-29 "Automatic Captures"
   [5786]: #x-28TRY-3AVERDICT-SKIP-20CONDITION-29 "TRY:VERDICT-SKIP CONDITION"
+  [59c3]: http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_h.htm#handle '"handle" (MGL-PAX:CLHS MGL-PAX:GLOSSARY-TERM)'
   [5a82]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq.htm "EQ (MGL-PAX:CLHS FUNCTION)"
   [5b0b]: http://www.lispworks.com/documentation/HyperSpec/Body/m_return.htm "RETURN (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [5c01]: http://www.lispworks.com/documentation/HyperSpec/Body/m_lambda.htm "LAMBDA (MGL-PAX:CLHS MGL-PAX:MACRO)"

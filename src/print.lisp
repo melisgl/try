@@ -270,11 +270,11 @@
         (*debug* nil)
         (*describe* nil))
     (with-test (timed)
-      (is (progn (sleep 0.3) t))
+      (is (progn (sleep 0.1) t))
       (is (progn (sleep 0.2) t))
       (error "xxx")))
   ..        TIMED
-  ..  0.100   ⋅ (IS (PROGN (SLEEP 0.3) T))
+  ..  0.100   ⋅ (IS (PROGN (SLEEP 0.1) T))
   ..  0.200   ⋅ (IS (PROGN (SLEEP 0.2) T))
   ..          ⊟ "xxx" (SIMPLE-ERROR)
   ..  0.300 ⊟ TIMED ⊟1 ⋅2

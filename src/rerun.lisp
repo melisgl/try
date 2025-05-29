@@ -42,8 +42,8 @@
         current dynamic environment. Implementationally speaking,
         WITH-TEST defines a local function of no arguments (likely a
         closure) that wraps its body, stores the closure in the trial
-        object and calls it on a rerun in a WITH-TEST of the same
-        TRIAL-VAR and same NAME.
+        object and calls it on a rerun in a WITH-TEST with the same
+        VAR-OR-NAME and same NAME.
 
       - If the trial was created by TRY itself to ensure that all
         events are signalled in a trial (see @EXPLICIT-TRY), then
