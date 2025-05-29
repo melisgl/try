@@ -151,16 +151,18 @@
                         signal-form))))))))))
 
 (defun signal-is-outcome (succesp form print-captures msg ctx)
-  (signal-outcome t (cond (*skip* 'skip)
-                          (succesp 'success)
-                          (t 'failure))
-                  (list
-                   :check `(is ,form)
-                   :elapsed-seconds (get-elapsed-seconds)
-                   :captures *%is-captures*
-                   :print-captures print-captures
-                   :msg msg
-                   :ctx ctx)))
+  (let* ((check `(is ,form))
+         (initargs (list :check check
+                         :elapsed-seconds (get-elapsed-seconds)
+                         :captures *%is-captures*
+                         :print-captures print-captures
+                         :msg msg
+                         :ctx ctx)))
+    (declare (dynamic-extent initargs))
+    (signal-outcome t (cond (*skip* 'skip)
+                            (succesp 'success)
+                            (t 'failure))
+                    initargs)))
 
 
 (defsection @format-specifier-form (:title "Format Specifier Form")
