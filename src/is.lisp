@@ -112,9 +112,7 @@
             (values form ()))
       (let ((signal-form
               `(signal-is-outcome
-                ;; This can change *IS-CAPTURES* via
-                ;; CAPTURE.
-                (if ,is-substituted-form 'success 'failure)
+                ,%succesp
                 ',form
                 ,print-captures
                 ,(canonicalize-format-specifier-form msg)
@@ -134,23 +132,22 @@
                         (*is-form* ',form)
                         ,@(when subs
                             `((*is-captures* (nconc ,(%subs-to-captures subs)
-                                                    *is-captures*)))))
+                                                    *is-captures*))))
+                        ;; This can change *IS-CAPTURES* via CAPTURE.
+                        (,%succesp ,is-substituted-form))
                    ,(if retry
                         `(case ,signal-form
                            (:retry (go ,%retry-name))
                            ((t) t))
                         signal-form))))))))))
 
-(defun signal-is-outcome (basic-outcome form print-captures msg ctx)
-  (signal-outcome t
-                  (if *skip* 'skip basic-outcome)
+(defun signal-is-outcome (succesp form print-captures msg ctx)
+  (signal-outcome t (cond (*skip* 'skip)
+                          (succesp 'success)
+                          (t 'failure))
                   (list
                    :check `(is ,form)
-                   ;; Must be after the evaluation of the form.
                    :elapsed-seconds (get-elapsed-seconds)
-                   ;; Now that IS-SUBSTITUTED-FORM is evaluated,
-                   ;; change *IS-CAPTURES* to evaluation order before
-                   ;; MSG and CTX get to see it.
                    :captures (setq *is-captures*
                                    (scrub-captures (nreverse *is-captures*)))
                    :print-captures print-captures

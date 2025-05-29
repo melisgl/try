@@ -3,6 +3,8 @@
 (defvar *trial* nil)
 (defvar *try-id* nil)
 (defvar *record-event* nil)
+#+sbcl
+(declaim (sb-ext:always-bound *trial* *try-id* *record-event*))
 
 (declaim (special *print-backtrace*))
 

@@ -627,8 +627,8 @@
            (,return-from-trial-catch (make-gensym '#:return-from-trial))
            (,retry-catch (make-gensym '#:retry-catch))
            (,resignal-verdict-catch (make-gensym '#:resignal-verdict)))
-       (with-timing
-         (let ((*trial* ,trial))
+       (let ((*trial* ,trial))
+         (with-timing
            ;; This CATCH is where the ABORT-TRIAL and SKIP-TRIAL
            ;; restarts THROW to return from TRIAL normally. Throwing
            ;; starts the unwinding process from the depths of BODY

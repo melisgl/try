@@ -476,7 +476,9 @@
 
 ;;;; Time
 
-(defvar *start-time*)
+(defvar *start-time* nil)
+#+sbcl
+(declaim (sb-ext:always-bound *start-time*))
 
 (defmacro with-timing (&body body)
   `(let ((*start-time* (get-internal-real-time)))
