@@ -83,6 +83,8 @@
         (format stream "~@<~S~:@>"
                 (%frob-form-for-printing result (check result))))))
 
+(declaim (ftype function finalize-captures))
+
 (defun %write-result-captures (result stream)
   (when (print-captures result)
     (let ((captures (finalize-captures (captures result))))
