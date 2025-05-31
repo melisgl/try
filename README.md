@@ -25,7 +25,7 @@
     - [4.7 Errors][7f8e]
     - [4.8 Categories][03ec]
 - [5 The `IS` Macro][e2e0]
-    - [5.1 Format Specifier Forms][3233]
+    - [5.1 Format Specifier Form][6cfa]
     - [5.2 Captures][3d27]
         - [5.2.1 Automatic Captures][56ae]
             - [5.2.1.1 Writing Automatic Capture Rules][0743]
@@ -1661,10 +1661,13 @@ on top of it.
     If `IS` returns normally after signalling an [`OUTCOME`][2656], it returns `T` if
     the last condition signalled was a `SUCCESS`, and `NIL` otherwise.
     
-    - `MSG` and `CTX` are [Format Specifier Forms][3233]. `MSG` prints a description
-      of the check being made, which is by default the whole `IS` form.
-      Due to how conditions are printed, `MSG` says what the desired
-      outcome is, and `CTX` provides information about the evaluation.
+    - `MSG` and `CTX` are [Format Specifier Form][6cfa]s. `MSG` is always
+      evaluated (as a format specifier form), and it shall print a
+      description of the check being made, stating what the desired
+      outcome is. The default `MSG` is the whole `IS` form.
+    
+        `CTX` is only evaluated if `FORM` evaluates to `NIL`. It shall provide
+        contextual information about the failure.
     
         ```common-lisp
         (is (equal (prin1-to-string 'hello) "hello")
@@ -1706,12 +1709,13 @@ on top of it.
 
 - [variable] **\*IS-CAPTURES\***
 
-    Captures made during an [`IS`][80d6] evaluation are made available for
-    `CTX` via `*IS-CAPTURES*`.
+    During the evaluation of its `CTX` argument, `IS` binds `*IS-CAPTURES*`
+    to the list of captures made. The list is ordered by the time of
+    capture.
 
-<a id="x-28TRY-3A-40FORMAT-SPECIFIER-FORMS-20MGL-PAX-3ASECTION-29"></a>
+<a id="x-28TRY-3A-40FORMAT-SPECIFIER-FORM-20MGL-PAX-3ASECTION-29"></a>
 
-### 5.1 Format Specifier Forms
+### 5.1 Format Specifier Form
 
 A format specifier form is a Lisp form, typically an argument to
 macro, standing for the `FORMAT-CONTROL` and `FORMAT-ARGS` arguments to
@@ -1984,7 +1988,7 @@ Many of them share a number of arguments, which are described here.
 - `ON-NLX` is a boolean that determines whether the check in a macro
   that wraps `BODY` is made when `BODY` performs a [non-local exit][b815].
 
-- `MSG` and `CTX` are [Format Specifier Forms][3233] as in `IS`.
+- `MSG` and `CTX` are [Format Specifier Form][6cfa]s as in `IS`.
 
 - `NAME` may be provided so that it is printed (with [`PRIN1`][6384]) instead of
   `BODY` in `MSG`.
@@ -3635,7 +3639,6 @@ SBCL.
   [307c]: #x-28TRY-3A-2ACOLLECT-2A-20VARIABLE-29 "TRY:*COLLECT* VARIABLE"
   [30c9]: #x-28TRY-3AEXPECTED-VERDICT-FAILURE-20CONDITION-29 "TRY:EXPECTED-VERDICT-FAILURE CONDITION"
   [31a6]: http://www.lispworks.com/documentation/HyperSpec/Body/t_short_.htm "SINGLE-FLOAT (MGL-PAX:CLHS TYPE)"
-  [3233]: #x-28TRY-3A-40FORMAT-SPECIFIER-FORMS-20MGL-PAX-3ASECTION-29 "Format Specifier Forms"
   [351f]: #x-28TRY-3ACAPTURE-VALUES-20MGL-PAX-3AMACRO-29 "TRY:CAPTURE-VALUES MGL-PAX:MACRO"
   [35ba]: http://www.lispworks.com/documentation/HyperSpec/Body/f_error.htm "ERROR (MGL-PAX:CLHS FUNCTION)"
   [37c1]: #x-28TRY-3A-40MISC-CHECKS-20MGL-PAX-3ASECTION-29 "Miscellaneous Checks"
@@ -3684,6 +3687,7 @@ SBCL.
   [676d]: http://www.lispworks.com/documentation/HyperSpec/Body/f_wr_pr.htm "PRINC (MGL-PAX:CLHS FUNCTION)"
   [6910]: #x-28TRY-3AWITH-TESTS-RUN-20MGL-PAX-3AMACRO-29 "TRY:WITH-TESTS-RUN MGL-PAX:MACRO"
   [69a2]: #x-28TRY-3ASKIP-20CONDITION-29 "TRY:SKIP CONDITION"
+  [6cfa]: #x-28TRY-3A-40FORMAT-SPECIFIER-FORM-20MGL-PAX-3ASECTION-29 "Format Specifier Form"
   [6d4e]: #x-28TRY-3ASIGNALS-20MGL-PAX-3AMACRO-29 "TRY:SIGNALS MGL-PAX:MACRO"
   [7230]: #x-28TRY-3A-2APRINTER-2A-20VARIABLE-29 "TRY:*PRINTER* VARIABLE"
   [7647]: #x-28TRY-3A-2APRINT-BACKTRACE-2A-20VARIABLE-29 "TRY:*PRINT-BACKTRACE* VARIABLE"

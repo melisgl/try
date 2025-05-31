@@ -1428,10 +1428,13 @@ on top of it.
     If IS returns normally after signalling an OUTCOME, it returns T if
     the last condition signalled was a SUCCESS, and NIL otherwise.
     
-    - MSG and CTX are @FORMAT-SPECIFIER-FORMS. MSG prints a description
-      of the check being made, which is by default the whole IS form.
-      Due to how conditions are printed, MSG says what the desired
-      outcome is, and CTX provides information about the evaluation.
+    - MSG and CTX are @FORMAT-SPECIFIER-FORMs. MSG is always
+      evaluated (as a format specifier form), and it shall print a
+      description of the check being made, stating what the desired
+      outcome is. The default MSG is the whole IS form.
+    
+        CTX is only evaluated if FORM evaluates to NIL. It shall provide
+        contextual information about the failure.
     
         ```common-lisp
         (is (equal (prin1-to-string 'hello) "hello")
@@ -1469,10 +1472,11 @@ on top of it.
 
 - [variable] *IS-CAPTURES*
 
-    Captures made during an IS evaluation are made available for
-    CTX via *IS-CAPTURES*.
+    During the evaluation of its CTX argument, IS binds *IS-CAPTURES*
+    to the list of captures made. The list is ordered by the time of
+    capture.
 
-### Format Specifier Forms
+### Format Specifier Form
 
 A format specifier form is a Lisp form, typically an argument to
 macro, standing for the FORMAT-CONTROL and FORMAT-ARGS arguments to
