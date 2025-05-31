@@ -733,7 +733,9 @@
     (%with-deftest ((test-name "try::%some-test") ())
       (is (test-bound-p test-name))
       (unintern test-name (symbol-package test-name))
-      (is (not (test-bound-p test-name))))))
+      (is (not (test-bound-p test-name)))))
+  (with-test ("TEST-BOUND-P vs locked package")
+    (is (null (test-bound-p 'print)))))
 
 
 (deftest test-visible-restarts ()

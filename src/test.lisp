@@ -343,11 +343,12 @@
          ,@body)
        (values))))
 
+
 (defun deftest-registry-var-name (package)
-  (if (eq package (symbol-package :cl-user))
-      ;; So that it's not BOUNDP.
-      (gensym)
-      (intern (symbol-name '#:*deftest-registry*) package)))
+  (unless (eq package #.(find-package :keyword))
+    (let ((name (symbol-name '#:*deftest-registry*)))
+      ;; This can fail, for example, when the package is locked.
+      (ignore-errors (intern name package)))))
 
 (defun get-deftest-registry (package)
   ;; For uninterned symbols, PACKAGE is NIL.
