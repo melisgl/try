@@ -62,7 +62,7 @@ for the latest version.
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
 
 - [system] **"try"**
-    - _Version:_ 0.0.6
+    - _Version:_ 0.0.7
     - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
     - _Long Description:_ Try stays as close to normal Lisp evaluation
@@ -551,8 +551,8 @@ described in [Emacs Integration][4c86], you may want give them a global binding:
 
 ```elisp
 (global-set-key (kbd "s-t t") 'mgl-try)
-(global-set-key (kbd "s-t r") 'mgl-try-rerun-!)
-(global-set-key (kbd "s-t R") 'mgl-try-rerun-!-all)
+(global-set-key (kbd "s-t r") 'mgl-try-rerun)
+(global-set-key (kbd "s-t R") 'mgl-try-rerun-all)
 ```
 
 

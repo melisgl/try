@@ -436,8 +436,8 @@
 
   ```elisp
   (global-set-key (kbd "s-t t") 'mgl-try)
-  (global-set-key (kbd "s-t r") 'mgl-try-rerun-!)
-  (global-set-key (kbd "s-t R") 'mgl-try-rerun-!-all)
+  (global-set-key (kbd "s-t r") 'mgl-try-rerun)
+  (global-set-key (kbd "s-t R") 'mgl-try-rerun-all)
   ```"""
   (install-try-elisp function))
 
