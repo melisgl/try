@@ -97,6 +97,7 @@ See TRY::@EMACS-SETUP."
   (interactive)
   (let ((sourcefile (concat (file-name-sans-extension mgl-try-file-name)
                             ".el")))
+    (unload-feature 'mgl-try t)
     (load-file sourcefile)))
 
 
