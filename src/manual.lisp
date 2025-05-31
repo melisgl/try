@@ -364,11 +364,17 @@
 
 
 (defsection @emacs (:title "Emacs Integration")
-  """The Elisp `mgl-try` interactive command runs a Try test and
-  displays its output in a `lisp-mode` buffer with minor modes
-  `outline-mode` and `mgl-try-mode`. It is assumed that the Lisp is
-  running under [Slime](https://slime.common-lisp.dev/). In the
-  buffer, the following key bindings are available.
+  """The Elisp `mgl-try` interactive command runs TRY with some
+  testable and displays its output in a Try buffer, which has major
+  mode `lisp-mode` and minor modes `outline-mode` and `mgl-try-mode`.
+  It is assumed that the Lisp is running under
+  [Slime](https://slime.common-lisp.dev/).
+
+  Use `mgl-try-rerun` and `mgl-try-rerun-all` to rerun trials. They
+  are especially convenient to rerun TRY:!, when deciding to inspect
+  the results conveniently in a Try buffer.
+
+  In an Emacs Try buffer, the following key bindings are available.
 
   - Movement:
 
@@ -436,8 +442,8 @@
 
   ```elisp
   (global-set-key (kbd "s-t t") 'mgl-try)
-  (global-set-key (kbd "s-t r") 'mgl-try-rerun-!)
-  (global-set-key (kbd "s-t R") 'mgl-try-rerun-!-all)
+  (global-set-key (kbd "s-t r") 'mgl-try-rerun)
+  (global-set-key (kbd "s-t R") 'mgl-try-rerun-all)
   ```"""
   (install-try-elisp function))
 

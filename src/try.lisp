@@ -438,6 +438,17 @@
       (invoke-debugger outcome))))
 
 
+(defun try-for-emacs (testable-string &key rerun implicit new-context)
+  (uiop:symbol-call
+   '#:swank '#:call-with-buffer-syntax
+   nil
+   (lambda ()
+     (assert (member rerun '(nil :unspecified t)))
+     (let ((testable (try-for-emacs/find-testable testable-string rerun)))
+       (list (try-for-emacs-1 testable rerun implicit new-context)
+             (let ((*print-readably* nil))
+               (prin1-to-string testable)))))))
+
 ;;; Like !, but for Emacs.
 (defvar *emacs-!* nil)
 
@@ -450,55 +461,71 @@
   (and (typep event 'trial-start)
        (deftest-trial-p (trial event))))
 
-;;; FIXME: Non-interning?
-(defun try-for-emacs (testable &key rerun implicit set-rerun-context)
-  (uiop:symbol-call
-   '#:swank '#:call-with-buffer-syntax
-   nil
-   (lambda ()
-     (assert (member rerun '(nil :unspecified t)))
-     (when (eq rerun t)
-       (setq set-rerun-context t))
-     (with-output-to-string (out)
-       ;; Documented in the Elisp function `mgl-try'.
-       (let ((*rerun-context* (and (null rerun)
-                                   (not set-rerun-context)
-                                   *emacs-rerun-context*))
-             ;; Ensure that rerunning in context can find everything.
-             (*collect* 'trial-event)
-             (*rerun* (if (eq rerun t) t *rerun*))
-             (*stream* (make-broadcast-stream out *standard-output*))
-             (*error-output* (make-broadcast-stream out *error-output*))
-             ;; Override @PRINT settings so that Elisp can parse the
-             ;; output. *PRINT-BACKTRACE* is the only safe one.
-             (*printer* 'tree-printer)
-             (*print-parent* t)
-             (*print-indentation* :outline)
-             (*print-duration* (if *print-duration* :after-marker nil))
-             (*print-compactly* nil)
-             (*defer-describe* nil)
-             (*categories*
-               (list*
-                ;; For `mgl-try-mode-deftest-name-on-current-line'
-                '(deftest-trial-start :marker "→")
-                ;; For `mgl-try-next-unexpected' to skip over these
-                '(unexpected-verdict-failure :marker "→⊠")
-                (fancy-std-categories)))
-             (! nil)
-             (!! nil)
-             (!!! nil)
-             (*recent-trials* ())
-             (*n-recent-trials* 1))
-         (catch 'nlx-barrier
-           (unwind-protect
-                (let ((trial (if implicit
-                                 (funcall testable)
-                                 (try testable
-                                      :collect *try-print*
-                                      :rerun (if (eq rerun t) t *try-rerun*)
-                                      :stream *stream*
-                                      :printer *printer*))))
-                  (setq *emacs-!* !)
-                  (when set-rerun-context
-                    (setq *emacs-rerun-context* trial)))
-             (throw 'nlx-barrier nil))))))))
+(defun try-for-emacs-1 (testable rerun implicit new-context)
+  (with-output-to-string (out)
+    ;; Documented in the Elisp function `mgl-try'.
+    (let ((*rerun-context* (if new-context
+                               *rerun-context*
+                               *emacs-rerun-context*))
+          ;; Ensure that rerunning in context can find everything.
+          (*collect* 'trial-event)
+          (*rerun* (if (eq rerun t) t *rerun*))
+          (*stream* (make-broadcast-stream out *standard-output*))
+          (*error-output* (make-broadcast-stream out *error-output*))
+          ;; Override @PRINT settings so that Elisp can parse the
+          ;; output. *PRINT-BACKTRACE* is the only safe one.
+          (*printer* 'tree-printer)
+          (*print-parent* t)
+          (*print-indentation* :outline)
+          (*print-duration* (if *print-duration* :after-marker nil))
+          (*print-compactly* nil)
+          (*defer-describe* nil)
+          (*categories*
+            (list*
+             ;; For `mgl-try-mode-deftest-name-on-current-line'
+             '(deftest-trial-start :marker "→")
+             ;; For `mgl-try-next-unexpected' to skip over these
+             '(unexpected-verdict-failure :marker "→⊠")
+             (fancy-std-categories)))
+          (! nil)
+          (!! nil)
+          (!!! nil)
+          (*recent-trials* ())
+          (*n-recent-trials* 1))
+      (catch 'nlx-barrier
+        (unwind-protect
+             (let ((trial
+                     (if implicit
+                         ;; We need a single tree of events, but
+                         ;; TESTABLE can be e.g. a list of function
+                         ;; designators. Using TRY solves this, but
+                         ;; then we must explicitly make it use the
+                         ;; @IMPLICIT-TRY settings.
+                         (try testable
+                              :debug *debug*
+                              :count *count*
+                              :collect *collect*
+                              :rerun *rerun*
+                              :print *print*
+                              :describe *describe*
+                              :stream *stream*
+                              :printer *printer*)
+                         (try testable
+                              :collect *collect*
+                              :rerun (if (eq rerun t) t *try-rerun*)
+                              :stream *stream*
+                              :printer *printer*))))
+               (setq *emacs-!* !)
+               (when (or new-context (and (eq rerun t)
+                                          (trialp testable)))
+                 (setq *emacs-rerun-context* trial)))
+          (throw 'nlx-barrier nil))))))
+
+(defun try-for-emacs/find-testable (string rerun)
+  (let ((form (read-from-string string)))
+    ;; Interpret a single symbol as a function name for `mgl-try'.
+    (if (and (not rerun) (symbolp form))
+        (if (fboundp form)
+            form
+            (error "~@<~S is not ~S~:@>" form 'fboundp))
+        (eval form))))

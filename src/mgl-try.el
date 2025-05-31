@@ -44,6 +44,10 @@
 (defvar mgl-try-history '()
   "History list of expressions read from the minibuffer.")
 
+(defvar mgl-try-rerun-history '()
+  "History list of the expressions read from the minibuffer for
+`mgl-try-rerun' and `mgl-try-rerun-all'.")
+
 (defvar mgl-try-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<tab>") 'outline-cycle)
@@ -56,8 +60,8 @@
     (define-key map (kbd "P") 'mgl-try-mode-previous-not-expected-success)
     (define-key map (kbd "N") 'mgl-try-mode-next-not-expected-success)
     (define-key map (kbd "t") 'mgl-try)
-    (define-key map (kbd "r") 'mgl-try-rerun-!)
-    (define-key map (kbd "R") 'mgl-try-rerun-!-all)
+    (define-key map (kbd "r") 'mgl-try-rerun)
+    (define-key map (kbd "R") 'mgl-try-rerun-all)
     (define-key map (kbd "v") 'mgl-try-mode-show-source)
     map))
 
@@ -102,10 +106,14 @@ See TRY::@EMACS-SETUP."
 
 
 (defun mgl-try-read-from-minibuffer (prompt &optional initial-value
-                                            default-value history)
+                                            default-value
+                                            default-value-presentation
+                                            history)
   (let* ((minibuffer-setup-hook (slime-minibuffer-setup-hook))
          (prompt (if default-value
-                     (concat prompt " (default: " default-value "): ")
+                     (concat prompt " (default: "
+                             (or default-value-presentation default-value)
+                             "): ")
                    (concat prompt ": ")))
          (string (read-from-minibuffer prompt initial-value
                                        slime-minibuffer-map nil history)))
@@ -113,26 +121,66 @@ See TRY::@EMACS-SETUP."
         default-value
       string)))
 
-(defun mgl-try (test-name)
-  "Call the Try test TEST-NAME and display its output in a buffer
-with minor mode `mgl-try-mode'. TEST-NAME defaults to the symbol
+(defun mgl-try (testable)
+  "Try TESTABLE and display its output in a buffer
+with minor mode `mgl-try-mode'.
+
+The TESTABLE argument
+---------------------
+
+The TESTABLE argument is a string. It defaults to the symbol
 under point or, in `mgl-try-mode', to the name of the innermost
-global test that contains the current line.
+global test that contains the current line. If it's the empty
+string, then `mgl-try' switches to the buffer \"*try*\" if it
+exists. Else, TESTABLE is CL:READ and CL:EVALuated to produce a
+testable object (see TRY::@TESTABLES), which is then passed to
+TRY:TRY.
 
-- With no prefix arg, TEST-NAME is invoked by the function
-  TRY:TRY (an TRY::@EXPLICIT-TRY). With the default value of
-  TRY:*TRY-DEBUG* being NIL, this will not enter the debugger.
+To try a single function, TESTABLE may simply be its name:
 
-- With a prefix arg, TEST-NAME is FUNCALLed (an
-  TRY::@IMPLICIT-TRY). With the default value of TRY:*DEBUG*,
-  this is suitable for interactive debugging.
+  foo
 
-As long as the `mgl-try-mode' buffer exists, `mgl-try' (bound
-\"t\" in that buffer), will use the trial with which the buffer
-was created as TRY:*RECORD-CONTEXT* (without affecting it global
-binding). Thus, all invocations of `mgl-try' will go to the same
-buffer and use the dynamic environment of the first trial. If
-that's no longer desired, just kill the buffer (bound to \"q\").
+Apart from this convenience feature, TESTABLE is evaluated
+normally. Examples:
+
+  (find-package 'foo-test)
+
+  \'(foo bar)
+
+  \'foo (same as the convenicence shorthand `foo' above)
+
+Prefix arg
+----------
+
+- With no prefix arg, the parameters for an TRY::@EXPLICIT-TRY
+  are used. With the default value of TRY:*TRY-DEBUG* being NIL,
+  this will not enter the debugger.
+
+- With a prefix arg, the parameters for an TRY::@IMPLICIT-TRY are
+  used. With the  default value of TRY:*DEBUG*,  this is suitable
+  for interactive debugging.
+
+Record context
+--------------
+
+When `mgl-try' is invoked and the \"*try*\" buffer does not
+exist, TRY:*RECORD-CONTEXT* will be used, and the resulting
+TRY:TRIAL object will be the Emacs record context as long as that
+buffer exists or until being superseded by a call to
+`mgl-rerun-all'. Clarifications:
+
+- The global binding of TRY:*RECORD-CONTEXT* is inherited at the
+  first invocation, but TRY:*RECORD-CONTEXT* itself is never
+  changed.
+
+- As long as the \"*try*\" buffer exists, all invocations of
+  `mgl-try', `mgl-try-rerun' and `mgl-try-rerun-all' will use the
+  Emacs record context regardless of whether they are invoked in
+  the \"*try*\" buffer or elsewhere. If that's no longer desired,
+  just kill the buffer (bound to \"q\").
+
+CL variables
+------------
 
 To ensure that the output is parsable by Elisp, the following
 Common Lisp variables are overridden:
@@ -160,11 +208,14 @@ Common Lisp variables are overridden:
 Other variables not listed here (such as TRY:*PRINT-BACKTRACE*,
 TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
   (interactive (list (mgl-try-read-from-minibuffer
-                      "Try test"
-                      (mgl-try-default-test-name)
-                      (car mgl-try-history)
-                      'mgl-try-history)))
-  (mgl-try* test-name nil))
+                      "Try test (evaluated*)" (mgl-try-default-test-name)
+                      nil nil 'mgl-try-history)))
+  (cond (testable
+         (mgl-try* testable nil))
+        ((get-buffer mgl-try-buffer-name)
+         (pop-to-buffer (get-buffer mgl-try-buffer-name)))
+        (t
+         (message "Nothing to Try"))))
 
 (defun mgl-try-default-test-name ()
   (if (not mgl-try-mode)
@@ -193,31 +244,30 @@ TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
 
 (defvar mgl-try-buffer-name "*try*")
 
-(defun mgl-try* (test-name rerun)
+(defun mgl-try* (testable-string rerun)
   (if (slime-eval '(cl:null (cl:find-package :try)))
       (message "Try is not loaded on the Common Lisp side.")
     (slime-eval `(try::check-try-elisp-version ',mgl-try-version))
-    (let ((name (if (stringp test-name)
-                    `(cl:read-from-string
-                      ,test-name)
-                  test-name))
-          (implicit (not (null current-prefix-arg))))
+    (let ((implicit (not (null current-prefix-arg))))
       (slime-eval-async `(swank::with-buffer-syntax
                           ()
                           (try::try-for-emacs
-                           ,name :rerun ,rerun
+                           ,testable-string :rerun ,rerun
                            :implicit ,implicit
-                           :set-rerun-context ,(null (get-buffer
-                                                      mgl-try-buffer-name))))
-        (lambda (output)
-          (when (or (< 0 (length output))
-                    mgl-try-mode)
-            (mgl-try-display output))
-          (let ((action (if implicit "Called" "Tried"))
-                (rerun-msg (if (eq rerun t)
-                               " (rerun all)"
-                             "")))
-            (message "%s %S%s" action test-name rerun-msg)))))))
+                           :new-context ,(null (get-buffer
+                                                mgl-try-buffer-name))))
+        (lambda (output-and-testable)
+          (if (null output-and-testable)
+              (message "Try failed")
+            (cl-destructuring-bind (output testable) output-and-testable
+              (when (or (< 0 (length output))
+                        mgl-try-mode)
+                (mgl-try-display output))
+              (let ((action (if implicit "Called" "Tried"))
+                    (rerun-msg (if (eq rerun t)
+                                   " (rerun all)"
+                                 "")))
+                (message "%s %S%s" action testable rerun-msg)))))))))
 
 (defun mgl-try-display (output)
   (let ((package (slime-current-package)))
@@ -276,23 +326,54 @@ TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
   (put-text-property 0 (length string) 'font-lock-face face string)
   (insert string))
 
-(defun mgl-try-rerun-! ()
-  "Rerun the most recent trial conducted by Emacs (this is
-distinct from TRY:!). See TRY:*TRY-RERUN* and TRY::@RERUN.
+;;; Actually, this works with any testable just like `mgl-try'. A real
+;;; difference is that `mgl-try' would "conveniently" treat TRY:! as
+;;; the name of a function and `mgl-try-rerun' follows the normal
+;;; evaluation rules. Plus, the defaulting is different. Finally, they
+;;; differ in how they treat TRY:*RECORD-CONTEXT* (see
+;;; TRY::TRY-FOR-EMACS). So, just use them as they are documented.
+(defun mgl-try-rerun (trial-string)
+  "Rerun the TRIAL-STRING (evaluated) in CL.
+See TRY:*TRY-RERUN* and TRY::@RERUN.
+
+- In `mgl-try-mode', this reruns the most recent trial conducted
+  by Emacs (distinct from TRY:!).
+
+- In other modes, it defaults to the above Emacs trial if the
+  buffer \"*try*\" exists, else to TRY:!.
 
 Prefix arguments are variables overrides are as described in
 `mgl-try'."
-  (interactive)
-  (mgl-try* 'try::*emacs-!* :unspecified))
+  (interactive (list (mgl-pax-rerun-default-testable nil)))
+  (mgl-try* trial-string :unspecified))
 
-(defun mgl-try-rerun-!-all ()
-  "Like `mgl-try-rerun-!', but TRY:*TRY-RERUN* and
-TRY:*RERUN* are ignored, and all test are rerun.
+(defun mgl-try-rerun-all (trial-string)
+  "Like `mgl-try-rerun', but TRY:*TRY-RERUN* and TRY:*RERUN* are
+ignored, and all test are rerun.
 
 Prefix arguments are variables overrides are as described in
 `mgl-try'."
-  (interactive)
-  (mgl-try* 'try::*emacs-!* t))
+  (interactive (list (mgl-pax-rerun-default-testable t)))
+  (mgl-try* trial-string t))
+
+(defun mgl-pax-rerun-default-testable (allp)
+  (if mgl-try-mode
+      "try::*emacs-!*"
+    (mgl-try-rerun-read-from-minibuffer allp)))
+
+(defun mgl-try-rerun-read-from-minibuffer (allp)
+  (mgl-try-read-from-minibuffer (format "Rerun%s trial"
+                                        (if allp "-all" ""))
+                                nil
+                                ;; default-value
+                                (if (get-buffer mgl-try-buffer-name)
+                                    "try::*emacs-!*"
+                                  "try:!")
+                                ;; default-value-presentation
+                                (if (get-buffer mgl-try-buffer-name)
+                                    (format "buffer %s" mgl-try-buffer-name)
+                                  nil)
+                                'mgl-try-rerun-history))
 
 
 (defvar mgl-try-unexpected-regexp

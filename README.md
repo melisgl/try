@@ -62,7 +62,7 @@ for the latest version.
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
 
 - [system] **"try"**
-    - _Version:_ 0.0.6
+    - _Version:_ 0.0.7
     - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
     - _Long Description:_ Try stays as close to normal Lisp evaluation
@@ -477,11 +477,17 @@ environment necessary for lower level tests.
 
 ## 3 Emacs Integration
 
-The Elisp `mgl-try` interactive command runs a Try test and
-displays its output in a `lisp-mode` buffer with minor modes
-`outline-mode` and `mgl-try-mode`. It is assumed that the Lisp is
-running under [Slime](https://slime.common-lisp.dev/). In the
-buffer, the following key bindings are available.
+The Elisp `mgl-try` interactive command runs [`TRY`][b602] with some
+testable and displays its output in a Try buffer, which has major
+mode `lisp-mode` and minor modes `outline-mode` and `mgl-try-mode`.
+It is assumed that the Lisp is running under
+[Slime](https://slime.common-lisp.dev/).
+
+Use `mgl-try-rerun` and `mgl-try-rerun-all` to rerun trials. They
+are especially convenient to rerun [`TRY:!`][92af], when deciding to inspect
+the results conveniently in a Try buffer.
+
+In an Emacs Try buffer, the following key bindings are available.
 
 - Movement:
 
@@ -510,7 +516,7 @@ buffer, the following key bindings are available.
       interactive debugging under the default settings.
 
     - `r` [reruns][e4ac] the most recent trial conducted by
-      Emacs (this is distinct from [`TRY:!`][92af]). With a prefix argument,
+      Emacs (this is distinct from `TRY:!`). With a prefix argument,
       the test is called implicitly.
 
     - `R` is like `r`, but [`*TRY-RERUN*`][01e7] and [`TRY:*RERUN*`][63db] are set to
@@ -551,8 +557,8 @@ described in [Emacs Integration][4c86], you may want give them a global binding:
 
 ```elisp
 (global-set-key (kbd "s-t t") 'mgl-try)
-(global-set-key (kbd "s-t r") 'mgl-try-rerun-!)
-(global-set-key (kbd "s-t R") 'mgl-try-rerun-!-all)
+(global-set-key (kbd "s-t r") 'mgl-try-rerun)
+(global-set-key (kbd "s-t R") 'mgl-try-rerun-all)
 ```
 
 

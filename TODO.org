@@ -71,3 +71,4 @@ PAX has MARK-THIS-SOURCE-LOCATION.
 Some of this is taken care of by rerunning (e.g. (FUNCALL !)), which
 will likely land in the debugger, and that has source location info.
 * MAYBE in mgl-try-mode find the non-global test function sources too?
+* TODO test elisp
