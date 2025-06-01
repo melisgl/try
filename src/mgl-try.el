@@ -322,14 +322,14 @@ Prefix arguments are variables overrides are as described in
 and show its subtree."
   (interactive)
   (mgl-try-mode-previous-regexp mgl-try-not-expected-success-regexp
-                           "event that's not an expected success"))
+                                "event that's not an expected success"))
 
 (defun mgl-try-mode-next-not-expected-success ()
   "Move point to the next event that's not an expected success,
 and show its subtree."
   (interactive)
   (mgl-try-mode-next-regexp mgl-try-not-expected-success-regexp
-                       "event that's not an expected success"))
+                            "event that's not an expected success"))
 
 (defvar mgl-try-not-skip-regexp
   (concat "\\(" mgl-try-abort-regexp
@@ -343,14 +343,14 @@ and show its subtree."
 and show its subtree."
   (interactive)
   (mgl-try-mode-previous-regexp mgl-try-not-skip-regexp
-                           "event that's not a skip"))
+                                "event that's not a skip"))
 
 (defun mgl-try-mode-next-not-skip ()
   "Move point to the next event that's not a TRY:SKIP,
 and show its subtree."
   (interactive)
   (mgl-try-mode-next-regexp mgl-try-not-skip-regexp
-                       "event that's not a skip"))
+                            "event that's not a skip"))
 
 (defun mgl-try-mode-previous-regexp (regexp what)
   (if (null (ignore-errors (search-backward-regexp regexp nil nil)))
@@ -361,6 +361,7 @@ and show its subtree."
 (defun mgl-try-mode-next-regexp (regexp what)
   (let ((pos (save-excursion
                (ignore-errors
+                 (forward-char)
                  (search-forward-regexp regexp nil nil)))))
     (if (null pos)
         (when (called-interactively-p 'any)
