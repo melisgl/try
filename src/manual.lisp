@@ -466,34 +466,25 @@
     target))
 
 (defun check-try-elisp-version (try-elisp-version)
-  ;; For upgrading from versions where the version used to be a
-  ;; version list.
-  (when (listp try-elisp-version)
-    (setq try-elisp-version (uiop:unparse-version try-elisp-version)))
-  (unless (equal try-elisp-version *try-version*)
-    (if (uiop:version< try-elisp-version *try-version*)
-        (restart-case
-            (cerror "Ignore version mismatch."
-                    "~@<In Emacs, mgl-try-version is ~S, ~
-                    which is lower than the CL version ~S. ~
-                    You may need to ~S and M-x mgl-try-reload. ~
-                    See ~S for more.~:@>"
-                    try-elisp-version *try-version* 'install-try-elisp
-                    '@emacs-setup)
-          ()
-          (reload-elisp ()
-            :report "Evaluate mgl-try-reload in Emacs."
-            (uiop:symbol-call '#:swank '#:eval-in-emacs '(mgl-try-reload))))
-        (restart-case
-            (cerror "Ignore version mismatch."
-                    "~@<In Emacs, mgl-try-version is ~S, ~
-                    which is higher than the CL version ~S. ~
-                    You may need to reload Try with ~S.~:@>"
-                    try-elisp-version *try-version* '(asdf:load-system "try"))
-          ()
-          (reload-system ()
-            :report "Reload the ASDF system \"try\"."
-            (asdf:load-system "try")))))
+  (when *try-version*
+    ;; For upgrading from versions where the version was a list.
+    (when (listp try-elisp-version)
+      (setq try-elisp-version (uiop:unparse-version try-elisp-version)))
+    (unless (equal try-elisp-version *try-version*)
+      (cl:restart-case
+          (cerror "Ignore version mismatch."
+                  "~@<In Emacs, mgl-try-version is ~S, ~
+                  which is different from the CL version ~S. ~
+                  You may need to ~S if this had been done before, ~
+                  and M-x mgl-try-reload in any case. ~
+                  See ~S for more.~:@>"
+                  try-elisp-version *try-version* 'install-try-elisp
+                  '@emacs-setup)
+        (dont-check ()
+          :report (lambda (stream)
+                    (format stream "Turn off version checking."))
+          ;; ... until this file is loaded again.
+          (setq *try-version* nil)))))
   t)
 
 
