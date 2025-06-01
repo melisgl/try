@@ -467,18 +467,28 @@
 (defun check-try-elisp-version (try-elisp-version)
   (unless (equal try-elisp-version *try-version*)
     (if (uiop:lexicographic< '< try-elisp-version *try-version*)
-        (cerror "Ignore version mismatch."
-                "~@<In Emacs, mgl-try-version is ~S, ~
-                which is lower than the CL version ~S. ~
-                You may need to ~S and M-x mgl-try-reload. ~
-                See ~S for more.~:@>"
-                try-elisp-version *try-version* 'install-try-elisp
-                '@emacs-setup)
-        (cerror "Ignore version mismatch."
-                "~@<In Emacs, mgl-try-version is ~S, ~
-                which is higher than the CL version ~S. ~
-                You may need to reload Try with ~S.~:@>"
-                try-elisp-version *try-version* '(asdf:load-system "try"))))
+        (restart-case
+            (cerror "Ignore version mismatch."
+                    "~@<In Emacs, mgl-try-version is ~S, ~
+                    which is lower than the CL version ~S. ~
+                    You may need to ~S and M-x mgl-try-reload. ~
+                    See ~S for more.~:@>"
+                    try-elisp-version *try-version* 'install-try-elisp
+                    '@emacs-setup)
+          ()
+          (reload-elisp ()
+            :report "Evaluate mgl-try-reload in Emacs."
+            (swank::eval-in-emacs '(mgl-try-reload))))
+        (restart-case
+            (cerror "Ignore version mismatch."
+                    "~@<In Emacs, mgl-try-version is ~S, ~
+                    which is higher than the CL version ~S. ~
+                    You may need to reload Try with ~S.~:@>"
+                    try-elisp-version *try-version* '(asdf:load-system "try"))
+          ()
+          (reload-system ()
+            :report "Reload the ASDF system \"try\"."
+            (asdf:load-system "try")))))
   t)
 
 
