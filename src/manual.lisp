@@ -484,7 +484,7 @@
           ()
           (reload-elisp ()
             :report "Evaluate mgl-try-reload in Emacs."
-            (swank::eval-in-emacs '(mgl-try-reload))))
+            (uiop:symbol-call '#:swank '#:eval-in-emacs '(mgl-try-reload))))
         (restart-case
             (cerror "Ignore version mismatch."
                     "~@<In Emacs, mgl-try-version is ~S, ~
