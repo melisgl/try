@@ -448,15 +448,9 @@
   (install-try-elisp function))
 
 (defparameter *try-version*
-  '#.(with-open-file (s (asdf:system-relative-pathname
-                         "try" "version.lisp-expr"))
-       (read s)))
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (setf (asdf:component-version (asdf:find-system "try"))
-        (format nil "~{~A~^.~}"
-                (uiop:safe-read-file-form
-                 (asdf:system-relative-pathname "try" "version.lisp-expr")))))
+  (with-open-file (s (asdf:system-relative-pathname
+                      "try" "version.lisp-expr"))
+    (read s)))
 
 (defun install-try-elisp (target-dir)
   "Install `mgl-try.el` distributed with this package in TARGET-DIR."
@@ -468,11 +462,16 @@
       (dolist (line (uiop:read-file-lines source))
         (if (string= line "(setq mgl-try-version (mgl-try-read-version))")
             (format s "(setq mgl-try-version '~S)~%" *try-version*)
-            (write-line line s))))))
+            (write-line line s))))
+    target))
 
 (defun check-try-elisp-version (try-elisp-version)
+  ;; For upgrading from versions where the version used to be a
+  ;; version list.
+  (when (listp try-elisp-version)
+    (setq try-elisp-version (uiop:unparse-version try-elisp-version)))
   (unless (equal try-elisp-version *try-version*)
-    (if (uiop:lexicographic< '< try-elisp-version *try-version*)
+    (if (uiop:version< try-elisp-version *try-version*)
         (restart-case
             (cerror "Ignore version mismatch."
                     "~@<In Emacs, mgl-try-version is ~S, ~

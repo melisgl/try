@@ -3,7 +3,7 @@
 ;;; See TRY::@TRY-MANUAL for the user guide.
 (asdf:defsystem :try
   :licence "MIT, see COPYING."
-  ;; :VERSION is set dynamically from version.lisp-expr.
+  :version (:read-file-form "version.lisp-expr")
   :author "Gábor Melis"
   :mailto "mega@retes.hu"
   :homepage "http://github.com/melisgl/try"
@@ -25,10 +25,7 @@
   ;; get warnings about forward references from one file to a later
   ;; one.
   :around-compile "try/asdf:compile-wrapper"
-  :components (;; Recompile everything on version change so that
-               ;; TRY::*TRY-VERSION* is updated.
-               (:static-file "version.lisp-expr")
-               (:module "src/"
+  :components ((:module "src/"
                 :serial t
                 :components ((:file "package")
                              (:file "util")
