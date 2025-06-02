@@ -23,7 +23,7 @@
   #+sbcl
   (signals-not (pax:transcription-error)
     (with-new-implicit-try
-      (pax:document try::@try-manual :stream (make-broadcast-stream)))))
+      (pax:document try::@try-manual :format nil))))
 
 (defun test (&key (debug nil) (print 'unexpected) (describe 'unexpected))
   (let ((try::*allow-nested-try* t))
