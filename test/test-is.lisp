@@ -61,7 +61,9 @@
               ;; This is not quite right. *IS-CAPTURES* holds
               ;; CAPTUREs.
               (apply #'append *is-captures*))
-        :print-captures nil)))
+        :print-captures nil))
+  (let ((y 7))
+    (is ((lambda (x) x) y))))
 
 (deftest test-is/match-values ()
   ;; no values

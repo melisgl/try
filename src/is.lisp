@@ -479,7 +479,7 @@
   (if (atom form)
       form
       (on-values (substitute-is-list-form (first form) form env)
-        (or * form) *)))
+        (or * form))))
 
 (defgeneric substitute-is-list-form (first form env)
   (:documentation "In the list FORM, whose CAR is FIRST, substitute
@@ -514,10 +514,11 @@
 ;;; E.g. (= (1+ 3) 4 (1- 5)) -> (= #:G1 4 #:G2) ((#:G1 (1+ 3) nil)
 ;;;                             (#:G2 (1- 5) nil))
 (defmethod substitute-is-list-form (first form env)
-  (when (and (not (constantishp form))
-             (not (macro-function first env))
-             (not (special-operator-p first))
-             (not (member first '(% %%))))
+  (unless (or (constantishp form)
+              (and (symbolp first)
+                   (or (macro-function first env)
+                       (special-operator-p first)))
+              (member first '(% %%)))
     (substitute-args form)))
 
 ;;; Like CONSTANTP but returns NIL for lists that are not NIL, QUOTE
