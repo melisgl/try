@@ -367,7 +367,8 @@
 
 (defun register-deftest (symbol)
   (let ((registry (ensure-deftest-registry (symbol-package symbol))))
-    (setf (gethash symbol registry) (symbol-function symbol))))
+    (when registry
+      (setf (gethash symbol registry) (symbol-function symbol)))))
 
 (defun test-bound-p (symbol)
   "See if SYMBOL names a global test (i.e. a test defined with
