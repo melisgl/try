@@ -161,12 +161,13 @@
           (let ((outcome-type (determine-outcome-type checkp basic-outcome
                                                       expected-outcome)))
             (setq outcome (apply #'make-condition outcome-type initargs))
-            (setq successp
-                  ;; KLUDGE: AllegroCL and CCL seem to miscompile this.
-                  #-(or allegro ccl) (typep outcome 'success)
-                  #+(or allegro ccl) (subtypep outcome-type 'success))
+            (setq successp (typep outcome 'success))
             (dbg "signalling ~S" outcome)
-            (funcall (if (and (not successp) checkp) 'error 'signal) outcome)
+            (let ((passp
+                    ;; KLUDGE: AllegroCL and CCL seem to miscompile this.
+                    #-(or allegro ccl) (typep outcome 'pass)
+                    #+(or allegro ccl) (subtypep outcome-type 'pass)))
+              (funcall (if (and (not passp) checkp) 'error 'signal) outcome))
             successp)
         (:stream stream :condition condition)
         (continue ()

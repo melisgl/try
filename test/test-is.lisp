@@ -8,7 +8,8 @@
   (test-is/rewrite-default-behavior)
   (test-is/match-values)
   (test-is/capture)
-  (test-is/restarts))
+  (test-is/restarts)
+  (test-is/signal-vs-error))
 
 (deftest test-is/simple ()
   (is t)
@@ -267,3 +268,34 @@
                                          #'force-expected-success))
                           (is nil))))
                   '((expected-success 2))))
+
+
+(deftest test-is/signal-vs-error ()
+  ;; EXPECTED-RESULT-SUCCESS
+  (invokes-debugger-not (t)
+    (with-new-implicit-try
+      (is t)))
+  ;; UNEXPECTED-RESULT-SUCCESS
+  (invokes-debugger-not (t)
+    (with-new-implicit-try
+      (with-failure-expected ()
+        (is t))))
+  ;; EXPECTED-RESULT-FAILURE
+  (invokes-debugger-not (t)
+    (with-new-implicit-try
+      (with-failure-expected (t)
+        (is nil))))
+  ;; UNEXPECTED-RESULT-FAILURE
+  (invokes-debugger (unexpected-result-failure)
+    (with-new-implicit-try
+      (is nil)))
+  ;; RESULT-SKIP
+  (invokes-debugger-not (t)
+    (with-new-implicit-try
+      (handler-bind ((unexpected-result-failure #'skip-check))
+        (is nil))))
+  ;; RESULT-ABORT*
+  (invokes-debugger (result-abort*)
+    (with-new-implicit-try
+      (handler-bind ((expected-result-success #'abort-check))
+        (is t)))))
