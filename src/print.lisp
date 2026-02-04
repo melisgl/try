@@ -125,7 +125,7 @@
                         (*event-print-bindings* ()))))
    (trial-print-states
     :initform () :reader trial-print-states
-    :documentation "A list "))
+    :documentation "A list of PRINT-STATE objects."))
   (:documentation "PRINTER is the abstract base class for all printers."))
 
 (defmethod initialize-instance :after ((printer printer)

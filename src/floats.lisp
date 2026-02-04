@@ -2,7 +2,7 @@
 
 (defsection @comparing-floats (:title "Comparing Floats")
   "Float comparisons following
-   [https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/](https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/)."
+  [https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/](https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/)."
   (float-~= function)
   (*max-diff-in-value* variable)
   (*max-diff-in-ulp* variable)
@@ -28,11 +28,11 @@
   floats (ULP, unit in the last place) between them is less than
   MAX-DIFF-IN-ULP, then they are considered equal.
 
-  If neither X nor Y are floats, then the comparison is done with `=`.
+  If neither X nor Y is a float, then the comparison is done with `=`.
   If one of them is a DOUBLE-FLOAT, then the other is converted to a
-  double float, and the comparison takes place in double float space.
+  double float, and the comparison takes place in double-float space.
   Else, both are converted to SINGLE-FLOAT and the comparison takes
-  place in single float space."
+  place in single-float space."
   (cond ((and (not (typep x 'float))
               (not (typep y 'float)))
          (= x y))

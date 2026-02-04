@@ -215,9 +215,9 @@
   ```"))
 
 (define-condition leaf (act) ()
-  (:documentation "Event that do not mark a TRIAL's
+  (:documentation "Events that do not mark a TRIAL's
   start (TRIAL-START) or end (VERDICT) are LEAF events. These are the
-  leafs of the tree of nested trials delineated by their TRIAL-START
+  leaves of the tree of nested trials delineated by their TRIAL-START
   and VERDICT events.
 
   ```cl-transcript
@@ -401,7 +401,7 @@
 
 ;;; Ordered by some notion of importance.
 (define-try-var *categories* (fancy-std-categories)
-  "A list of of elements like `(TYPE &KEY MARKER)`. When @PRINT,
+  "A list of elements like `(TYPE &KEY MARKER)`. When @PRINT,
   @CONCRETE-EVENTS are printed with the marker of the first matching
   type. When @COUNT, the counts associated with all matching types are
   incremented.")

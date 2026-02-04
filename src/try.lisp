@@ -23,7 +23,7 @@
        :stream *stream* :printer *printer*)
   ```
 
-  As its invoked again, it sees that it is now running under TRY and
+  As it's invoked again, it sees that it is now running under TRY and
   proceeds to execute normally.
 
   An implicit TRY can only happen with the following two constructs.
@@ -177,11 +177,12 @@
     variables.
 
   Those arguments default to *TRY-DEBUG*, *TRY-COLLECT*, etc, which
-  parallel and default to *DEBUG*, *COLLECT*, etc if set to
-  :UNSPECIFIED. *TRY-DEBUG* is NIL, the rest of them are :UNSPECIFIED.
-  These defaults encourage the use of an explicit TRY call in the
-  non-interactive case and calling the test functions directly in the
-  interactive one, but this is not enforced in any way."
+  parallel and in turn default to *DEBUG*, *COLLECT*, etc when set to
+  :UNSPECIFIED, their default value. The exception is *TRY-DEBUG*,
+  which defaults to NIL. These defaults encourage the use of an
+  explicit TRY call in the non-interactive case and calling the test
+  functions directly in the interactive one, but this is not enforced
+  in any way."
   (try function)
   (set-try-debug function)
   (*try-debug* variable)
@@ -368,8 +369,8 @@
   type to the value of the DEBUG argument (in the sense of `(TYPEP
   EVENT DEBUG)`). If it matches, then the debugger is invoked with the
   event. In the debugger, the user has a number of restarts available
-  to change (see @EVENT-RESTARTS, @OUTCOME-RESTARTS,
-  @CHECK-RESTARTS, @TRIAL-RESTARTS, and SET-TRY-DEBUG.
+  to change (see @EVENT-RESTARTS, @OUTCOME-RESTARTS, @CHECK-RESTARTS,
+  @TRIAL-RESTARTS, and SET-TRY-DEBUG).
 
   If the debugger is not invoked, TRY invokes the very first restart
   available, which is always RECORD-EVENT.

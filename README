@@ -1,6 +1,7 @@
 # Try Manual
 
-###### \[in package TRY\]
+###### [in package TRY]
+
 ## Links and Systems
 
 Here is the [official repository](https://github.com/melisgl/try)
@@ -9,22 +10,33 @@ documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
 for the latest version.
 
 - [system] "try"
-    - _Version:_ 0.0.7
-    - _Description:_ Try is an extensible test framework with equal support
-        for interactive and non-interactive workflows.
-    - _Long Description:_ Try stays as close to normal Lisp evaluation
-        rules as possible. Tests are functions that record the checks they
-        perform as events. These events provide the means of customization
-        of what to debug, print, rerun. There is a single fundamental check,
-        the extensible IS macro. Everything else is built on top.
-    - _Licence:_ MIT, see COPYING.
-    - _Author:_ Gábor Melis
-    - _Mailto:_ [mega@retes.hu](mailto:mega@retes.hu)
-    - _Homepage:_ [http://github.com/melisgl/try](http://github.com/melisgl/try)
-    - _Bug tracker:_ [https://github.com/melisgl/try/issues](https://github.com/melisgl/try/issues)
-    - _Source control:_ [GIT](https://github.com/melisgl/try.git)
-    - *Depends on:* alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
-    - *Defsystem depends on:* try.asdf
+
+    - Version: 0.0.7
+
+    - Description: Try is an extensible test framework with equal support
+    for interactive and non-interactive workflows.
+
+    - Long Description: Try stays as close to normal Lisp evaluation
+    rules as possible. Tests are functions that record the checks they
+    perform as events. These events provide the means of customization
+    of what to debug, print or rerun. There is a single fundamental
+    check, the extensible IS macro. Everything else is built on top.
+
+    - Licence: MIT, see COPYING.
+
+    - Author: Gábor Melis
+
+    - Mailto: [mega@retes.hu](mailto:mega@retes.hu)
+
+    - Homepage: [http://github.com/melisgl/try](http://github.com/melisgl/try)
+
+    - Bug tracker: [https://github.com/melisgl/try/issues](https://github.com/melisgl/try/issues)
+
+    - Source control: [GIT](https://github.com/melisgl/try.git)
+
+    - Depends on: alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
+
+    - Defsystem depends on: try.asdf
 
 ## Tutorial
 
@@ -33,7 +45,7 @@ interactive and non-interactive workflows. Tests are functions, and
 almost everything else is a condition, whose types feature
 prominently in parameterization.
 
-Try is is what we get if we make tests functions and build a test
+Try is what we get if we make tests functions and build a test
 framework on top of the condition system as
 [Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
 but also address the issue of rerunning and replaying, make the IS
@@ -43,120 +55,110 @@ whole thing.
 
 ##### Looking for Truth
 
-@IS is a replacement for CL:ASSERT, that can capture values of
+The IS Macro is a replacement for CL:ASSERT that can capture values of
 subforms to provide context to failures:
 
-```common-lisp
-(is (= (1+ 5) 0))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS (= #1=(1+ 5) 0))
-..   where
-..     #1# = 6
-```
+    (is (= (1+ 5) 0))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (= #1=(1+ 5) 0))
+    ..   where
+    ..     #1# = 6
 
 This is a PAX transcript,
-output is prefixed with `..`. Readable and unreadable return values
-are prefixed with `=>` and `==>`, respectively.
+output is prefixed with ... Readable and unreadable return values
+are prefixed with => and ==>, respectively.
 
-Note the `#N#` syntax due to *PRINT-CIRCLE*.
+Note the #N# syntax due to *PRINT-CIRCLE*.
 
 ##### Checking Multiple Values
 
 IS automatically captures values of arguments
-to functions like `1+` in the above example. Values of other
+to functions like 1+ in the above example. Values of other
 interesting subforms can be explicitly captured. IS supports capturing multiple values and can
 be taught how to deal with macros. The combination of these
 features allows MATCH-VALUES to be implementable as tiny extension:
 
-```common-lisp
-(is (match-values (values (1+ 5) "sdf")
-      (= * 0)
-      (string= * "sdf")))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS
-..      (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
-..        (= * 0)
-..        (STRING= * "sdf")))
-..   where
-..     #1# == 6
-..            #2#
-```
+    (is (match-values (values (1+ 5) "sdf")
+          (= * 0)
+          (string= * "sdf")))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS
+    ..      (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
+    ..        (= * 0)
+    ..        (STRING= * "sdf")))
+    ..   where
+    ..     #1# == 6
+    ..            #2#
 
-In the body of MATCH-VALUES, `*` is bound to
-successive return values of some form, here `(VALUES (1+ 5) "sdf")`.
+In the body of MATCH-VALUES, * is bound to
+successive return values of some form, here (VALUES (1+ 5) "sdf").
 MATCH-VALUES comes with an automatic rewrite rule that captures the
-values of this form, which are printed above as `#1# == 6 #2#`. IS
+values of this form, which are printed above as #1# == 6 #2#. IS
 is flexible enough that all other checks (SIGNALS, SIGNALS-NOT,
-INVOKES-DEBUGGER, INVOKES-DEBUGGER-NOT, FAILS, and IN-TIME are built
-on top of it.
+INVOKES-DEBUGGER, INVOKES-DEBUGGER-NOT, FAILS, and IN-TIME) are
+built on top of it.
 
 ##### Writing Tests
 
-Beyond IS, a fancy ASSERT, Try provides tests, which are Lisp
+Beyond IS (a fancy ASSERT), Try provides tests, which are Lisp
 functions that record their execution in TRIAL objects. Let's define
 a test and run it:
 
-```common-lisp
-(deftest should-work ()
-  (is t))
-
-(should-work)
-.. SHOULD-WORK            ; TRIAL-START
-..   ⋅ (IS T)             ; EXPECTED-RESULT-SUCCESS
-.. ⋅ SHOULD-WORK ⋅1       ; EXPECTED-VERDICT-SUCCESS
-..
-==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
-```
+    (deftest should-work ()
+      (is t))
+    
+    (should-work)
+    .. SHOULD-WORK            ; TRIAL-START
+    ..   ⋅ (IS T)             ; EXPECTED-RESULT-SUCCESS
+    .. ⋅ SHOULD-WORK ⋅1       ; EXPECTED-VERDICT-SUCCESS
+    ..
+    ==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
 
 Try is driven by conditions, and the comments to the right give the
-type of the condition that is printed on that line. The `⋅`
+type of the condition that is printed on that line. The ⋅
 character marks successes.
 
-We could have run our test with `(TRY 'SHOULD-WORK)` as well, which
-does pretty much the same thing except it defaults to never entering
-the debugger, whereas calling a test function directly enters the
-debugger on events whose type matches the type in the variable
-*DEBUG*.
+We could have run our test with (TRY 'SHOULD-WORK) as well, which
+does pretty much the same thing except that it defaults to never
+entering the debugger, whereas calling a test function directly
+enters the debugger on events whose type matches the type in the
+variable *DEBUG*.
 
-```common-lisp
-(try 'should-work)
-.. SHOULD-WORK
-..   ⋅ (IS T)
-.. ⋅ SHOULD-WORK ⋅1
-..
-==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
-```
+    (try 'should-work)
+    .. SHOULD-WORK
+    ..   ⋅ (IS T)
+    .. ⋅ SHOULD-WORK ⋅1
+    ..
+    ==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
 
 ##### Test Suites
 
 Test suites are just tests that call other tests.
 
-```common-lisp
-(deftest my-suite ()
-  (should-work)
-  (is (= (foo) 5)))
+    (deftest my-suite ()
+      (should-work)
+      (is (= (foo) 5)))
+    
+    (defun foo ()
+      4)
+    
+    (try 'my-suite)
+    .. MY-SUITE                 ; TRIAL-START
+    ..   SHOULD-WORK            ; TRIAL-START
+    ..     ⋅ (IS T)             ; EXPECTED-RESULT-SUCCESS
+    ..   ⋅ SHOULD-WORK ⋅1       ; EXPECTED-VERDICT-SUCCESS
+    ..   ⊠ (IS (= #1=(FOO) 5))  ; UNEXPECTED-RESULT-FAILURE
+    ..     where
+    ..       #1# = 4
+    .. ⊠ MY-SUITE ⊠1 ⋅1         ; UNEXPECTED-VERDICT-FAILURE
+    ..
+    ==> #<TRIAL (MY-SUITE) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅1>
 
-(defun foo ()
-  4)
-
-(try 'my-suite)
-.. MY-SUITE                 ; TRIAL-START
-..   SHOULD-WORK            ; TRIAL-START
-..     ⋅ (IS T)             ; EXPECTED-RESULT-SUCCESS
-..   ⋅ SHOULD-WORK ⋅1       ; EXPECTED-VERDICT-SUCCESS
-..   ⊠ (IS (= #1=(FOO) 5))  ; UNEXPECTED-RESULT-FAILURE
-..     where
-..       #1# = 4
-.. ⊠ MY-SUITE ⊠1 ⋅1         ; UNEXPECTED-VERDICT-FAILURE
-..
-==> #<TRIAL (MY-SUITE) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅1>
-```
-
-`⊠` marks UNEXPECTED-FAILUREs. Note how the failure of `(IS (= (FOO)
-5))` caused `MY-SUITE` to fail as well. Finally, the `⊠1` and the
-`⋅1` in the TRIAL's printed representation are the event
+⊠ marks UNEXPECTED-FAILUREs. Note how the failure of (IS (= (FOO)
+5)) caused MY-SUITE to fail as well. Finally, the ⊠1 and the
+⋅1 in the TRIAL's printed representation are the event
 counts.
 
 ##### Filtering Output
@@ -164,129 +166,117 @@ counts.
 To focus on the important bits, we can print only the UNEXPECTED
 events:
 
-```common-lisp
-(try 'my-suite :print 'unexpected)
-.. MY-SUITE
-..   ⊠ (IS (= #1=(FOO) 5))
-..     where
-..       #1# = 4
-.. ⊠ MY-SUITE ⊠1 ⋅1
-..
-==> #<TRIAL (MY-SUITE) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅1>
-```
+    (try 'my-suite :print 'unexpected)
+    .. MY-SUITE
+    ..   ⊠ (IS (= #1=(FOO) 5))
+    ..     where
+    ..       #1# = 4
+    .. ⊠ MY-SUITE ⊠1 ⋅1
+    ..
+    ==> #<TRIAL (MY-SUITE) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅1>
 
-Note that `SHOULD-WORK` is still run, and its check's success is
-counted as evidenced by`⋅1`. The above effect can also be achieved
+Note that SHOULD-WORK is still run, and its check's success is
+counted as evidenced by ⋅1. The above effect can also be achieved
 without running the tests again with REPLAY-EVENTS.
 
 ##### Debugging
 
 Let's figure out what went wrong:
 
-```
-(my-suite)
-
-;;; Here the debugger is invoked:
-UNEXPECTED-FAILURE in check:
-  (IS (= #1=(FOO) 5))
-where
-  #1# = 4
-Restarts:
- 0: [RECORD-EVENT] Record the event and continue.
- 1: [FORCE-EXPECTED-SUCCESS] Change outcome to TRY:EXPECTED-RESULT-SUCCESS.
- 2: [FORCE-UNEXPECTED-SUCCESS] Change outcome to TRY:UNEXPECTED-RESULT-SUCCESS.
- 3: [FORCE-EXPECTED-FAILURE] Change outcome to TRY:EXPECTED-RESULT-FAILURE.
- 4: [ABORT-CHECK] Change outcome to TRY:RESULT-ABORT*.
- 5: [SKIP-CHECK] Change outcome to TRY:RESULT-SKIP.
- 6: [RETRY-CHECK] Retry check.
- 7: [ABORT-TRIAL] Record the event and abort trial TRY::MY-SUITE.
- 8: [SKIP-TRIAL] Record the event and skip trial TRY::MY-SUITE.
- 9: [RETRY-TRIAL] Record the event and retry trial TRY::MY-SUITE.
- 10: [SET-TRY-DEBUG] Supply a new value for :DEBUG of TRY:TRY.
- 11: [RETRY] Retry SLIME interactive evaluation request.
-```
-
-In the [SLIME](https://common-lisp.net/project/slime/doc/html/)
-debugger, we press `v` on the frame of the call to `MY-SUITE` to
-navigate to its definition, realize what the problem is and fix
-`FOO`:
-
-```common-lisp
-(defun foo ()
-  5)
-```
-
-Now, we select the `RETRY-TRIAL` restart, and on the retry
-`MY-SUITE` passes. The full output is:
-
-```
-MY-SUITE
-  SHOULD-WORK
-    ⋅ (IS T)
-  ⋅ SHOULD-WORK ⋅1
-WARNING: redefining TRY::FOO in DEFUN
-  ⊠ (IS (= #1=(FOO) 5))
+    (my-suite)
+    
+    ;;; Here the debugger is invoked:
+    UNEXPECTED-FAILURE in check:
+      (IS (= #1=(FOO) 5))
     where
       #1# = 4
-MY-SUITE retry #1
-  SHOULD-WORK
-    ⋅ (IS T)
-  ⋅ SHOULD-WORK ⋅1
-  ⋅ (IS (= (FOO) 5))
-⋅ MY-SUITE ⋅2
-```
+    Restarts:
+     0: [RECORD-EVENT] Record the event and continue.
+     1: [FORCE-EXPECTED-SUCCESS] Change outcome to TRY:EXPECTED-RESULT-SUCCESS.
+     2: [FORCE-UNEXPECTED-SUCCESS] Change outcome to TRY:UNEXPECTED-RESULT-SUCCESS.
+     3: [FORCE-EXPECTED-FAILURE] Change outcome to TRY:EXPECTED-RESULT-FAILURE.
+     4: [ABORT-CHECK] Change outcome to TRY:RESULT-ABORT*.
+     5: [SKIP-CHECK] Change outcome to TRY:RESULT-SKIP.
+     6: [RETRY-CHECK] Retry check.
+     7: [ABORT-TRIAL] Record the event and abort trial TRY::MY-SUITE.
+     8: [SKIP-TRIAL] Record the event and skip trial TRY::MY-SUITE.
+     9: [RETRY-TRIAL] Record the event and retry trial TRY::MY-SUITE.
+     10: [SET-TRY-DEBUG] Supply a new value for :DEBUG of TRY:TRY.
+     11: [RETRY] Retry SLIME interactive evaluation request.
+
+In the [SLIME](https://common-lisp.net/project/slime/doc/html/)
+debugger, we press v on the frame of the call to MY-SUITE to
+navigate to its definition, realize what the problem is and fix
+FOO:
+
+    (defun foo ()
+      5)
+
+Now, we select the RETRY-TRIAL restart, and on the retry
+MY-SUITE passes. The full output is:
+
+    MY-SUITE
+      SHOULD-WORK
+        ⋅ (IS T)
+      ⋅ SHOULD-WORK ⋅1
+    WARNING: redefining TRY::FOO in DEFUN
+      ⊠ (IS (= #1=(FOO) 5))
+        where
+          #1# = 4
+    MY-SUITE retry #1
+      SHOULD-WORK
+        ⋅ (IS T)
+      ⋅ SHOULD-WORK ⋅1
+      ⋅ (IS (= (FOO) 5))
+    ⋅ MY-SUITE ⋅2
 
 ##### Rerunning Stuff
 
 Instead of working interactively, one can fix the failing test and
-rerun it. Now, let's fix `MY-SUITE` and rerun it:
+rerun it. Now, let's fix MY-SUITE and rerun it:
 
-```common-lisp
-(deftest my-suite ()
-  (should-work)
-  (is nil))
+    (deftest my-suite ()
+      (should-work)
+      (is nil))
+    
+    (try 'my-suite)
+    .. MY-SUITE
+    ..   SHOULD-WORK
+    ..     ⋅ (IS T)
+    ..   ⋅ SHOULD-WORK ⋅1
+    ..   ⊠ (IS NIL)
+    .. ⊠ MY-SUITE ⊠1 ⋅1
+    ..
+    ==> #<TRIAL (MY-SUITE) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅1>
+    
+    (deftest my-suite ()
+      (should-work)
+      (is t))
+    
+    (try !)
+    .. MY-SUITE
+    ..   - SHOULD-WORK
+    ..   ⋅ (IS T)
+    .. ⋅ MY-SUITE ⋅1
+    ..
+    ==> #<TRIAL (MY-SUITE) EXPECTED-SUCCESS 0.004s ⋅1>
 
-(try 'my-suite)
-.. MY-SUITE
-..   SHOULD-WORK
-..     ⋅ (IS T)
-..   ⋅ SHOULD-WORK ⋅1
-..   ⊠ (IS NIL)
-.. ⊠ MY-SUITE ⊠1 ⋅1
-..
-==> #<TRIAL (MY-SUITE) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅1>
-
-(deftest my-suite ()
-  (should-work)
-  (is t))
-
-(try !)
-.. MY-SUITE
-..   - SHOULD-WORK
-..   ⋅ (IS T)
-.. ⋅ MY-SUITE ⋅1
-..
-==> #<TRIAL (MY-SUITE) EXPECTED-SUCCESS 0.004s ⋅1>
-```
-
-Here, `!` refers to the most recent TRIAL returned by TRY. When a
-trial is passed to TRY or is `FUNCALL`ed, trials in it that match
+Here, ! refers to the most recent TRIAL returned by TRY. When a
+trial is passed to TRY or is FUNCALLed, trials in it that match
 the type in TRY's RERUN argument are rerun (here, UNEXPECTED by
-default). `SHOULD-WORK` and its check are `EXPECTED-SUCCESS`es,
+default). SHOULD-WORK and its check are EXPECTED-SUCCESSes,
 hence they don't match UNEXPECTED and are not rerun.
 
 ##### Conditional Execution
 
-Conditional execution can be achieved simply testing the TRIAL
-object returned by @TESTS.
+Conditional execution can be achieved simply by testing the TRIAL
+object returned by Tests.
 
-```
-(deftest my-suite ()
-  (when (passedp (should-work))
-    (is t :msg "a test that depends on SHOULD-WORK")
-    (when (is nil)
-      (is nil :msg "never run"))))
-```
+    (deftest my-suite ()
+      (when (passedp (should-work))
+        (is t :msg "a test that depends on SHOULD-WORK")
+        (when (is nil)
+          (is nil :msg "never run"))))
 
 ##### Skipping
 
@@ -294,123 +284,114 @@ Sometimes, we do not know up front that a test should not be
 executed. Calling SKIP-TRIAL unwinds from the CURRENT-TRIAL and
 marks it skipped.
 
-```common-lisp
-(deftest my-suite ()
-  (is t)
-  (skip-trial)
-  (is nil))
+    (deftest my-suite ()
+      (is t)
+      (skip-trial)
+      (is nil))
+    
+    (my-suite)
+    ==> #<TRIAL (MY-SUITE) SKIP 0.000s ⋅1>
 
-(my-suite)
-==> #<TRIAL (MY-SUITE) SKIP 0.000s ⋅1>
-```
-
-In the above, `(IS T)` was executed, but `(IS NIL)` was not.
+In the above, (IS T) was executed, but (IS NIL) was not.
 
 ##### Expecting Outcomes
 
-```common-lisp
-(deftest known-broken ()
-  (with-failure-expected (t)
-    (is nil)))
+    (deftest known-broken ()
+      (with-failure-expected (t)
+        (is nil)))
+    
+    (known-broken)
+    .. KNOWN-BROKEN
+    ..   × (IS NIL)
+    .. ⋅ KNOWN-BROKEN ×1
+    ..
+    ==> #<TRIAL (KNOWN-BROKEN) EXPECTED-SUCCESS 0.000s ×1>
 
-(known-broken)
-.. KNOWN-BROKEN
-..   × (IS NIL)
-.. ⋅ KNOWN-BROKEN ×1
-..
-==> #<TRIAL (KNOWN-BROKEN) EXPECTED-SUCCESS 0.000s ×1>
-```
-
-`×` marks EXPECTED-FAILUREs. `(WITH-SKIP (T) ...)` makes all checks
+× marks EXPECTED-FAILUREs. (WITH-SKIP (T) ...) makes all checks
 successes and failures EXPECTED, which are counted in their own
-*CATEGORIES* by default but don't make the enclosing tests to fail.
+*CATEGORIES* by default but don't make the enclosing tests fail.
 Also see WITH-EXPECTED-OUTCOME.
 
 ##### Running Tests on Definition
 
-With *RUN-DEFTEST-WHEN*, tests on in various EVAL-WHEN situations.
-To run tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
+With *RUN-DEFTEST-WHEN*, tests can be run in various EVAL-WHEN
+situations. To run tests on evaluation, as in SLIME C-M-x,
+slime-eval-defun:
 
-```common-lisp
-(setq *run-deftest-when* :execute)
-
-(deftest some-test ()
-  (is t))
-.. SOME-TEST
-..   ⋅ (IS T)
-.. ⋅ SOME-TEST ⋅1
-..
-=> SOME-TEST
-
-(setq *run-deftest-when* nil)
-```
+    (setq *run-deftest-when* :execute)
+    
+    (deftest some-test ()
+      (is t))
+    .. SOME-TEST
+    ..   ⋅ (IS T)
+    .. ⋅ SOME-TEST ⋅1
+    ..
+    => SOME-TEST
+    
+    (setq *run-deftest-when* nil)
 
 ##### Fixtures
 
 There is no direct support for fixtures in Try because they are not
-needed with the ability of @RERUN in context.
+needed with the ability of Rerunning Trials in context.
 
 If one insists, macros like the following are easy to write.
 
-```
-(defvar *server* nil)
-
-(defmacro with-xxx (&body body)
-  `(flet ((,with-xxx-body ()
-            ,@body))
-     (if *server*
-         (with-xxx-body)
-         (with-server (make-expensive-server)
-           (with-xxx-body)))))
-```
+    (defvar *server* nil)
+    
+    (defmacro with-xxx (&body body)
+      `(flet ((,with-xxx-body ()
+                ,@body))
+         (if *server*
+             (with-xxx-body)
+             (with-server (make-expensive-server)
+               (with-xxx-body)))))
 
 ##### Packages
 
 The suggested way of writing tests is to call test functions
 explicitly:
 
-```
-(defpackage :some-test-package
-  (:use #:common-lisp #:try))
-(in-package :some-test-package)
-
-(deftest test-all ()
-  (test-this)
-  (test-that))
-
-(deftest test-this ()
-  (test-this/more))
-
-(deftest test-this/more ()
-  (is t))
-
-(deftest test-that ()
-  (is t))
-
-(deftest not-called ()
-  (is t))
-
-(defun test ()
-  (warn-on-tests-not-run ((find-package :some-test-package))
-    (try 'test-all)))
-
-(test)
-.. TEST-ALL
-..   TEST-THIS
-..     TEST-THIS/MORE
-..       ⋅ (IS T)
-..     ⋅ TEST-THIS/MORE ⋅1
-..   ⋅ TEST-THIS ⋅1
-..   TEST-THAT
-..     ⋅ (IS T)
-..   ⋅ TEST-THAT ⋅1
-.. ⋅ TEST-ALL ⋅2
-.. WARNING: Test NOT-CALLED not run.
-==> #<TRIAL (TEST-ALL) EXPECTED-SUCCESS 0.012s ⋅2>
-```
+    (defpackage :some-test-package
+      (:use #:common-lisp #:try))
+    (in-package :some-test-package)
+    
+    (deftest test-all ()
+      (test-this)
+      (test-that))
+    
+    (deftest test-this ()
+      (test-this/more))
+    
+    (deftest test-this/more ()
+      (is t))
+    
+    (deftest test-that ()
+      (is t))
+    
+    (deftest not-called ()
+      (is t))
+    
+    (defun test ()
+      (warn-on-tests-not-run ((find-package :some-test-package))
+        (try 'test-all)))
+    
+    (test)
+    .. TEST-ALL
+    ..   TEST-THIS
+    ..     TEST-THIS/MORE
+    ..       ⋅ (IS T)
+    ..     ⋅ TEST-THIS/MORE ⋅1
+    ..   ⋅ TEST-THIS ⋅1
+    ..   TEST-THAT
+    ..     ⋅ (IS T)
+    ..   ⋅ TEST-THAT ⋅1
+    .. ⋅ TEST-ALL ⋅2
+    .. WARNING: Test NOT-CALLED not run.
+    ==> #<TRIAL (TEST-ALL) EXPECTED-SUCCESS 0.012s ⋅2>
 
 Note how the TEST function uses WARN-ON-TESTS-NOT-RUN to catch any
-tests defined in `SOME-TEST-PACKAGE` that were not run. Tests can be
+tests defined in SOME-TEST-PACKAGE that were not run. Tests can be
 deleted by FMAKUNBOUND, UNINTERN, or by redefining the function with
 DEFUN. Tests defined in a given package can be listed with
 LIST-PACKAGE-TESTS.
@@ -420,15 +401,16 @@ environment necessary for lower level tests.
 
 ## Emacs Integration
 
-The Elisp `mgl-try` interactive command runs TRY with some
+The Elisp mgl-try interactive command runs TRY with some
 testable and displays its output in a Try buffer, which has major
-mode `lisp-mode` and minor modes `outline-mode` and `mgl-try-mode`.
+mode lisp-mode and minor modes outline-mode and mgl-try-mode.
 It is assumed that the Lisp is running under
 [Slime](https://slime.common-lisp.dev/).
 
-Use `mgl-try-rerun` and `mgl-try-rerun-all` to rerun trials. They
+Use mgl-try-rerun and mgl-try-rerun-all to rerun trials. They
 are especially convenient to rerun TRY:!, when deciding to inspect
-the results conveniently in a Try buffer.
+the results in a Try buffer for trial that may not have been run via
+Emacs.
 
 In an Emacs Try buffer, the following key bindings are available.
 
@@ -436,76 +418,71 @@ In an Emacs Try buffer, the following key bindings are available.
 
     - Cursor keys move freely.
 
-    - `C-p` and `C-n` move between events.
+    - C-p and C-n move between events.
 
-    - `p` and `n` to move between UNEXPECTED events.
+    - p and n to move between UNEXPECTED events.
 
-    - `P` and `N` move between events which are not
+    - P and N move between events which are not
       EXPECTED-SUCCESSes.
 
-    - `<tab>` cycles visibility of the current heading's body.
+    - <tab> cycles visibility of the current heading's body.
 
-    - `U` moves to the parent heading.
+    - U moves to the parent heading.
 
-    - `q` is bound to `quit-window`.
+    - q is bound to quit-window.
 
 - Calling tests:
 
-    - `t` runs a test (defaults to the name of the innermost global
+    - t runs a test (defaults to the name of the innermost global
       test function that contains the current line) in the context
-      associated with the Emacs buffer, which is similar but
+      associated with the Emacs buffer, which is similar to but
       distinct from *RERUN-CONTEXT*. With a prefix arg, the test is
-      an @IMPLICIT-TRY with no arguments. This is suitable for
+      an Implicit TRY with no arguments. This is suitable for
       interactive debugging under the default settings.
 
-    - `r` reruns the most recent trial conducted by
+    - r reruns the most recent trial conducted by
       Emacs (this is distinct from TRY:!). With a prefix argument,
       the test is called implicitly.
 
-    - `R` is like `r`, but *TRY-RERUN* and TRY:\*RERUN\* are set to
-      T, so all test are rerun. With a prefix argument, the test is
+    - R is like r, but *TRY-RERUN* and TRY:*RERUN* are set to
+      T, so all tests are rerun. With a prefix argument, the test is
       called implicitly.
 
 - Visiting source locations:
 
-    - `v` visits the source location of the enclosing global test
-      function (see `t`).
+    - v visits the source location of the enclosing global test
+      function (see t).
 
-    - `M-.` visits a test function also works as usual.
+    - M-. visits a test function as usual.
 
-In general, since the major mode is `lisp-mode`, the usual key
+In general, since the major mode is lisp-mode, the usual key
 bindings are available.
 
 ### Emacs Setup
 
-Load `src/mgl-try.el` in Emacs.
+Load src/mgl-try.el in Emacs.
 
-If you installed Try with Quicklisp, the location of `mgl-try.el`
+If you installed Try with Quicklisp, the location of mgl-try.el
 may change with updates, and you may want to copy the current
-version of `mgl-try.el` to a stable location:
+version of mgl-try.el to a stable location:
 
     (try:install-try-elisp "~/quicklisp/")
 
 Then, assuming the Elisp file is in the quicklisp directory, add
-something like this to your `.emacs`:
+something like this to your .emacs:
 
-```elisp
-(load "~/quicklisp/mgl-try.el")
-```
+    (load "~/quicklisp/mgl-try.el")
 
-For easy access to the functionality of the keys `t`, `r` and `R`
-described in @EMACS, you may want give them a global binding:
+For easy access to the functionality of the keys t, r and R
+described in Emacs Integration, you may want to give them a global binding:
 
-```elisp
-(global-set-key (kbd "s-t t") 'mgl-try)
-(global-set-key (kbd "s-t r") 'mgl-try-rerun)
-(global-set-key (kbd "s-t R") 'mgl-try-rerun-all)
-```
-
+    (global-set-key (kbd "s-t t") 'mgl-try)
+    (global-set-key (kbd "s-t r") 'mgl-try-rerun)
+    (global-set-key (kbd "s-t R") 'mgl-try-rerun-all)
 
 - [function] INSTALL-TRY-ELISP TARGET-DIR
 
-    Install `mgl-try.el` distributed with this package in TARGET-DIR.
+    Install mgl-try.el distributed with this package in TARGET-DIR.
 
 ## Events
 
@@ -525,47 +502,44 @@ subclasses:
 
 - RESULT, the OUTCOME of a check, and
 
-- ERROR\*, an unexpected CL:ERROR or unadorned non-local exit.
+- ERROR*, an unexpected CL:ERROR or unadorned non-local exit.
 
-```common-lisp
-(let (;; We don't want to debug nor print a backtrace for the error below.
-      (*debug* nil)
-      (*describe* nil))
-  ;; signals TRIAL-START / VERDICT-ABORT* on entry / exit
-  (with-test (demo)
-    ;; signals EXPECTED-RESULT-SUCCESS
-    (is t)
-    ;; signals UNHANDLED-ERROR with a nested CL:ERROR
-    (error "xxx")))
-.. DEMO                       ; TRIAL-START
-..   ⋅ (IS T)                 ; EXPECTED-RESULT-SUCCESS (⋅)
-..   ⊟ "xxx" (SIMPLE-ERROR)   ; UNHANDLED-ERROR (⊟)
-.. ⊟ DEMO ⊟1 ⋅1               ; VERDICT-ABORT* (⊟)
-..
-==> #<TRIAL (WITH-TEST (DEMO)) ABORT* 0.004s ⊟1 ⋅1>
-```
-
+    (let (;; We don't want to debug nor print a backtrace for the error below.
+          (*debug* nil)
+          (*describe* nil))
+      ;; signals TRIAL-START / VERDICT-ABORT* on entry / exit
+      (with-test (demo)
+        ;; signals EXPECTED-RESULT-SUCCESS
+        (is t)
+        ;; signals UNHANDLED-ERROR with a nested CL:ERROR
+        (error "xxx")))
+    .. DEMO                       ; TRIAL-START
+    ..   ⋅ (IS T)                 ; EXPECTED-RESULT-SUCCESS (⋅)
+    ..   ⊟ "xxx" (SIMPLE-ERROR)   ; UNHANDLED-ERROR (⊟)
+    .. ⊟ DEMO ⊟1 ⋅1               ; VERDICT-ABORT* (⊟)
+    ..
+    ==> #<TRIAL (WITH-TEST (DEMO)) ABORT* 0.004s ⊟1 ⋅1>
 
 ### Concrete Events
 
 The non-abstract condition classes of events that are actually
  signalled are called concrete.
 
-@CHECKS' RESULTs and @TRIALS' VERDICTs have six concrete subclasses
+Checks' RESULTs and Trials' VERDICTs have six concrete subclasses
  each:
 
 - EXPECTED-RESULT-SUCCESS, UNEXPECTED-RESULT-SUCCESS,
    EXPECTED-RESULT-FAILURE, UNEXPECTED-RESULT-FAILURE,
-   RESULT-SKIP, RESULT-ABORT\*
+   RESULT-SKIP, RESULT-ABORT*
 
 - EXPECTED-VERDICT-SUCCESS, UNEXPECTED-VERDICT-SUCCESS,
    EXPECTED-VERDICT-FAILURE, UNEXPECTED-VERDICT-FAILURE,
-   VERDICT-SKIP, VERDICT-ABORT\*
+   VERDICT-SKIP, VERDICT-ABORT*
 
-Breaking the symmetry between @CHECKS and @TRIALS, TRIAL-START is a
+Breaking the symmetry between Checks and Trials, TRIAL-START is a
  concrete event class, that marks the start of a TRIAL.
 
-ERROR\* is an abstract class with two concrete subclasses:
+ERROR* is an abstract class with two concrete subclasses:
 
 - UNHANDLED-ERROR, signalled when a CL:ERROR reaches the handler set
    up by DEFTEST or WITH-TEST, or when the debugger is invoked.
@@ -577,20 +551,20 @@ These are the 15 concrete event classes.
 
 - [function] CONCRETE-EVENTS-OF-TYPE TYPE
 
-    The hierarchy of @EVENTS is hairy. Sometimes it's handy to list the
-    @CONCRETE-EVENTS that match a given type. We use this below in the
+    The hierarchy of Events is hairy. Sometimes it's handy to list the
+    Concrete Events that match a given type. We use this below in the
     documentation.
 
 ### Event Glue
 
-These condition classes group various bits of the @CONCRETE-EVENTS
- and the @MIDDLE-LAYER-OF-EVENTS for ease of reference.
+These condition classes group various bits of the Concrete Events
+ and the Middle Layer of Events for ease of reference.
 
 Concrete event classes except TRIAL-START and NLX are subclasses of
 the hyphen-separated words constituting their name. For example,
 UNEXPECTED-RESULT-FAILURE inherits from UNEXPECTED, RESULT, and
-FAILURE, so it matches types such as UNEXPECTED or `(AND UNEXPECTED
-RESULT)`.
+FAILURE, so it matches types such as UNEXPECTED or (AND UNEXPECTED
+RESULT).
 
 - [condition] EVENT
 
@@ -600,11 +574,9 @@ RESULT)`.
 
     EVENTs that produce evidence or determine the
     course of a TRIAL are ACTs. All events are ACTs except TRIAL-START.
-    
-    ```common-lisp
-    (concrete-events-of-type '(not act))
-    => (TRIAL-START)
-    ```
+
+        (concrete-events-of-type '(not act))
+        => (TRIAL-START)
 
 EXPECTED and UNEXPECTED partition ACT.
 
@@ -613,174 +585,148 @@ EXPECTED and UNEXPECTED partition ACT.
     Concrete condition classes with EXPECTED in their
     name are subclasses of EXPECTED. SKIP is also a subclass of
     EXPECTED.
-    
-    ```common-lisp
-    (concrete-events-of-type 'expected)
-    => (EXPECTED-RESULT-SUCCESS EXPECTED-RESULT-FAILURE RESULT-SKIP
-        EXPECTED-VERDICT-SUCCESS EXPECTED-VERDICT-FAILURE VERDICT-SKIP)
-    ```
+
+        (concrete-events-of-type 'expected)
+        => (EXPECTED-RESULT-SUCCESS EXPECTED-RESULT-FAILURE RESULT-SKIP
+            EXPECTED-VERDICT-SUCCESS EXPECTED-VERDICT-FAILURE VERDICT-SKIP)
 
 - [condition] UNEXPECTED ACT
 
     Concrete condition classes with UNEXPECTED in their
-    name are subclasses of UNEXPECTED. ABORT\* is also a subclass of
+    name are subclasses of UNEXPECTED. ABORT* is also a subclass of
     UNEXPECTED.
-    
-    ```common-lisp
-    (concrete-events-of-type 'unexpected)
-    => (UNEXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-FAILURE RESULT-ABORT*
-        UNEXPECTED-VERDICT-SUCCESS UNEXPECTED-VERDICT-FAILURE
-        VERDICT-ABORT* UNHANDLED-ERROR NLX)
-    ```
+
+        (concrete-events-of-type 'unexpected)
+        => (UNEXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-FAILURE RESULT-ABORT*
+            UNEXPECTED-VERDICT-SUCCESS UNEXPECTED-VERDICT-FAILURE
+            VERDICT-ABORT* UNHANDLED-ERROR NLX)
 
 SUCCESS, FAILURE and DISMISSAL partition ACT.
 
 - [condition] SUCCESS ACT
 
-    See @CHECKS and @TRIAL-VERDICTS for how
+    See Checks and Trial Verdicts for how
     SUCCESS or FAILURE is decided.
-    
-    ```common-lisp
-    (concrete-events-of-type 'success)
-    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
-        EXPECTED-VERDICT-SUCCESS UNEXPECTED-VERDICT-SUCCESS)
-    ```
+
+        (concrete-events-of-type 'success)
+        => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+            EXPECTED-VERDICT-SUCCESS UNEXPECTED-VERDICT-SUCCESS)
 
 - [condition] FAILURE ACT
 
     See SUCCESS.
-    
-    ```common-lisp
-    (concrete-events-of-type 'failure)
-    => (EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE
-        EXPECTED-VERDICT-FAILURE UNEXPECTED-VERDICT-FAILURE)
-    ```
+
+        (concrete-events-of-type 'failure)
+        => (EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE
+            EXPECTED-VERDICT-FAILURE UNEXPECTED-VERDICT-FAILURE)
 
 - [condition] DISMISSAL ACT
 
     The third possibility after SUCCESS and FAILURE.
-    Either SKIP or ABORT\*.
-    
-    ```common-lisp
-    (concrete-events-of-type 'dismissal)
-    => (RESULT-SKIP RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT*
-        UNHANDLED-ERROR NLX)
-    ```
+    Either SKIP or ABORT*.
 
-ABORT\* and SKIP partition DISMISSAL.
+        (concrete-events-of-type 'dismissal)
+        => (RESULT-SKIP RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT*
+            UNHANDLED-ERROR NLX)
+
+ABORT* and SKIP partition DISMISSAL.
 
 - [condition] ABORT* UNEXPECTED DISMISSAL
 
-    ```common-lisp
-    (concrete-events-of-type 'abort*)
-    => (RESULT-ABORT* VERDICT-ABORT* UNHANDLED-ERROR NLX)
-    ```
+        (concrete-events-of-type 'abort*)
+        => (RESULT-ABORT* VERDICT-ABORT* UNHANDLED-ERROR NLX)
 
 - [condition] SKIP EXPECTED DISMISSAL
 
-    ```common-lisp
-    (concrete-events-of-type 'skip)
-    => (RESULT-SKIP VERDICT-SKIP)
-    ```
+        (concrete-events-of-type 'skip)
+        => (RESULT-SKIP VERDICT-SKIP)
 
 - [condition] LEAF ACT
 
-    Event that do not mark a TRIAL's
+    Events that do not mark a TRIAL's
     start (TRIAL-START) or end (VERDICT) are LEAF events. These are the
-    leafs of the tree of nested trials delineated by their TRIAL-START
+    leaves of the tree of nested trials delineated by their TRIAL-START
     and VERDICT events.
-    
-    ```common-lisp
-    (concrete-events-of-type 'leaf)
-    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
-        EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
-        RESULT-ABORT* UNHANDLED-ERROR NLX)
-    ```
-    
-    LEAF EVENTs are RESULTs of @CHECKS and also ERROR\*s.
-    
-    ```common-lisp
-    (equal (concrete-events-of-type 'leaf)
-           (concrete-events-of-type '(or result error*)))
-    => T
-    ```
-    
+
+        (concrete-events-of-type 'leaf)
+        => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+            EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
+            RESULT-ABORT* UNHANDLED-ERROR NLX)
+
+    LEAF EVENTs are RESULTs of Checks and also ERROR*s.
+
+        (equal (concrete-events-of-type 'leaf)
+               (concrete-events-of-type '(or result error*)))
+        => T
+
     Equivalently, LEAF is the complement of TRIAL-EVENT.
-    
-    ```common-lisp
-    (equal (concrete-events-of-type 'leaf)
-           (concrete-events-of-type '(not trial-event)))
-    => T
-    ```
+
+        (equal (concrete-events-of-type 'leaf)
+               (concrete-events-of-type '(not trial-event)))
+        => T
 
 The following types are shorthands.
 
 - [type] EXPECTED-SUCCESS
 
-    A shorthand for `(AND EXPECTED SUCCESS)`.
+    A shorthand for (AND EXPECTED SUCCESS).
 
 - [type] UNEXPECTED-SUCCESS
 
-    A shorthand for `(AND UNEXPECTED SUCCESS)`.
+    A shorthand for (AND UNEXPECTED SUCCESS).
 
 - [type] EXPECTED-FAILURE
 
-    A shorthand for `(AND EXPECTED FAILURE)`.
+    A shorthand for (AND EXPECTED FAILURE).
 
 - [type] UNEXPECTED-FAILURE
 
-    A shorthand for `(AND UNEXPECTED FAILURE)`.
+    A shorthand for (AND UNEXPECTED FAILURE).
 
 PASS and FAIL partition ACT.
 
 - [type] PASS
 
-    An OUTCOME that's not an ABORT\* or an UNEXPECTED-FAILURE.
-    PASS is equivalent to `(NOT FAIL)`. PASSes are signalled with
+    An OUTCOME that's not an ABORT* or an UNEXPECTED-FAILURE.
+    PASS is equivalent to (NOT FAIL). PASSes are signalled with
     SIGNAL.
-    
-    ```common-lisp
-    (concrete-events-of-type 'pass)
-    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
-        EXPECTED-RESULT-FAILURE RESULT-SKIP EXPECTED-VERDICT-SUCCESS
-        UNEXPECTED-VERDICT-SUCCESS EXPECTED-VERDICT-FAILURE VERDICT-SKIP)
-    ```
+
+        (concrete-events-of-type 'pass)
+        => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+            EXPECTED-RESULT-FAILURE RESULT-SKIP EXPECTED-VERDICT-SUCCESS
+            UNEXPECTED-VERDICT-SUCCESS EXPECTED-VERDICT-FAILURE VERDICT-SKIP)
 
 - [type] FAIL
 
-    An ABORT\* or an UNEXPECTED-FAILURE. FAIL conditions are signalled
+    An ABORT* or an UNEXPECTED-FAILURE. FAIL conditions are signalled
     with ERROR. See PASS.
-    
-    ```common-lisp
-    (concrete-events-of-type 'fail)
-    => (UNEXPECTED-RESULT-FAILURE RESULT-ABORT* UNEXPECTED-VERDICT-FAILURE
-        VERDICT-ABORT* UNHANDLED-ERROR NLX)
-    ```
+
+        (concrete-events-of-type 'fail)
+        => (UNEXPECTED-RESULT-FAILURE RESULT-ABORT* UNEXPECTED-VERDICT-FAILURE
+            VERDICT-ABORT* UNHANDLED-ERROR NLX)
 
 ### Printing Events
 
-- [variable] *EVENT-PRINT-BINDINGS* ((\*PRINT-CIRCLE\* T))
+- [variable] *EVENT-PRINT-BINDINGS* ((*PRINT-CIRCLE* T))
 
-    @TRYVAR. EVENTs are conditions signalled in code that may change printer
+    Try var. EVENTs are conditions signalled in code that may change printer
     variables such as *PRINT-CIRCLE*, *PRINT-LENGTH*, etc. To control
     how events are printed, the list of variable bindings in
     *EVENT-PRINT-BINDINGS* is established whenever an EVENT is printed
     as if with:
-    
-    ```
-    (progv (mapcar #'first *event-print-bindings*)
-           (mapcar #'second *event-print-bindings*)
-      ...)
-    ```
-    
+
+        (progv (mapcar #'first *event-print-bindings*)
+               (mapcar #'second *event-print-bindings*)
+          ...)
+
     The default value ensures that shared structure is recognized (see
-    @CAPTURES). If the `#N#` syntax feels cumbersome, then change this
+    Captures). If the #N# syntax feels cumbersome, then change this
     variable.
 
 ### Event Restarts
 
 Only RECORD-EVENT is applicable to all EVENTs. See
-@CHECK-RESTARTS, @TRIAL-RESTARTS for more.
+Check Restarts, Trial Restarts for more.
 
 - [function] RECORD-EVENT &OPTIONAL CONDITION
 
@@ -794,79 +740,71 @@ Only RECORD-EVENT is applicable to all EVENTs. See
 
     An OUTCOME is the resolution of either a TRIAL or a
     check, corresponding to subclasses VERDICT and RESULT.
-    
-    ```common-lisp
-    (concrete-events-of-type '(not outcome))
-    => (TRIAL-START UNHANDLED-ERROR NLX)
-    ```
+
+        (concrete-events-of-type '(not outcome))
+        => (TRIAL-START UNHANDLED-ERROR NLX)
 
 - [macro] WITH-EXPECTED-OUTCOME (EXPECTED-TYPE) &BODY BODY
 
     When an OUTCOME is to be signalled, EXPECTED-TYPE determines
     whether it's going to be EXPECTED. The concrete OUTCOME classes are
-    `{EXPECTED,UNEXPECTED}-{RESULT,VERDICT}-{SUCCESS,FAILURE}` (see
-    @EVENTS), of which RESULT or VERDICT and SUCCESS or FAILURE are
+    {EXPECTED,UNEXPECTED}-{RESULT,VERDICT}-{SUCCESS,FAILURE} (see
+    Events), of which RESULT or VERDICT and SUCCESS or FAILURE are
     already known. If a RESULT FAILURE is to be signalled, then the
-    moral equivalent of `(SUBTYPEP '(AND RESULT FAILURE) EXPECTED-TYPE)`
+    moral equivalent of (SUBTYPEP '(AND RESULT FAILURE) EXPECTED-TYPE)
     is evaluated and depending on whether it's true,
     EXPECTED-RESULT-FAILURE or UNEXPECTED-RESULT-FAILURE is signalled.
-    
+
     By default, SUCCESS is expected. The following example shows how to
     expect both SUCCESS and FAILURE for RESULTs, while requiring
     VERDICTs to succeed:
-    
-    ```common-lisp
-    (let ((*debug* nil))
-      (with-expected-outcome ('(or result (and verdict success)))
-        (with-test (t1)
-          (is nil))))
-    .. T1
-    ..   × (IS NIL)
-    .. ⋅ T1 ×1
-    ..
-    ==> #<TRIAL (WITH-TEST (T1)) EXPECTED-SUCCESS 0.000s ×1>
-    ```
-    
-    This is equivalent to `(WITH-FAILURE-EXPECTED () ...)`. To make
+
+        (let ((*debug* nil))
+          (with-expected-outcome ('(or result (and verdict success)))
+            (with-test (t1)
+              (is nil))))
+        .. T1
+        ..   × (IS NIL)
+        .. ⋅ T1 ×1
+        ..
+        ==> #<TRIAL (WITH-TEST (T1)) EXPECTED-SUCCESS 0.000s ×1>
+
+    This is equivalent to (WITH-FAILURE-EXPECTED () ...). To make
     result failures expected but result successes unexpected:
-    
-    ```common-lisp
-    (let ((*debug* nil))
-      (with-expected-outcome ('(or (and result failure) (and verdict success)))
-        (with-test (t1)
-          (is t)
-          (is nil))))
-    .. T1
-    ..   ⊡ (IS T)
-    ..   × (IS NIL)
-    .. ⋅ T1 ⊡1 ×1
-    ..
-    ==> #<TRIAL (WITH-TEST (T1)) EXPECTED-SUCCESS 0.000s ⊡1 ×1>
-    ```
-    
-    This is equivalent to `(WITH-FAILURE-EXPECTED ('FAILURE) ...)`. The
+
+        (let ((*debug* nil))
+          (with-expected-outcome ('(or (and result failure) (and verdict success)))
+            (with-test (t1)
+              (is t)
+              (is nil))))
+        .. T1
+        ..   ⊡ (IS T)
+        ..   × (IS NIL)
+        .. ⋅ T1 ⊡1 ×1
+        ..
+        ==> #<TRIAL (WITH-TEST (T1)) EXPECTED-SUCCESS 0.000s ⊡1 ×1>
+
+    This is equivalent to (WITH-FAILURE-EXPECTED ('FAILURE) ...). The
     final example leaves result failures unexpected but makes both
     verdict successes and failures expected:
-    
-    ```common-lisp
-    (let ((*debug* nil))
-      (with-expected-outcome ('(or (and result success) verdict))
-        (with-test (t1)
-          (is nil))))
-    .. T1
-    ..   ⊠ (IS NIL)
-    .. × T1 ⊠1
-    ..
-    ==> #<TRIAL (WITH-TEST (T1)) EXPECTED-FAILURE 0.004s ⊠1>
-    ```
+
+        (let ((*debug* nil))
+          (with-expected-outcome ('(or (and result success) verdict))
+            (with-test (t1)
+              (is nil))))
+        .. T1
+        ..   ⊠ (IS NIL)
+        .. × T1 ⊠1
+        ..
+        ==> #<TRIAL (WITH-TEST (T1)) EXPECTED-FAILURE 0.004s ⊠1>
 
 - [macro] WITH-FAILURE-EXPECTED (&OPTIONAL (RESULT-EXPECTED-TYPE T) (VERDICT-EXPECTED-TYPE ''SUCCESS)) &BODY BODY
 
     A convenience macro on top of WITH-EXPECTED-OUTCOME,
     WITH-FAILURE-EXPECTED expects VERDICTs to have VERDICT-EXPECTED-TYPE
     and RESULTs to have RESULT-EXPECTED-TYPE. A simple
-    `(WITH-FAILURE-EXPECTED () ...)` makes all RESULT SUCCESSes and
-    FAILUREs EXPECTED. `(WITH-FAILURE-EXPECTED ('FAILURE) ..)` expects
+    (WITH-FAILURE-EXPECTED () ...) makes all RESULT SUCCESSes and
+    FAILUREs EXPECTED. (WITH-FAILURE-EXPECTED ('FAILURE) ..) expects
     FAILUREs only, and any SUCCESSes will be UNEXPECTED.
 
 - [macro] WITH-SKIP (&OPTIONAL (SKIP T)) &BODY BODY
@@ -874,7 +812,7 @@ Only RECORD-EVENT is applicable to all EVENTs. See
     WITH-SKIP skips checks and trials. It forces an immediate
     SKIP-TRIAL whenever a trial is started (which turns into a
     VERDICT-SKIP) and makes checks (without intervening trials, of
-    course) evaluate normally but signal RESULT-SKIP. SKIP is NIL
+    course) evaluate normally but signal RESULT-SKIP. SKIP being NIL
     cancels the effect of any enclosing WITH-SKIP with SKIP true.
 
 #### Outcome Restarts
@@ -909,7 +847,7 @@ Checks are like CL:ASSERTs, they check whether some condition holds
 and signal an OUTCOME. The outcome signalled for checks is a
 subclass of RESULT.
 
-Take, for example, `(IS (= X 5))`. Depending on whether `X` is
+Take, for example, (IS (= X 5)). Depending on whether X is
 indeed 5, some kind of RESULT SUCCESS or FAILURE will be signalled.
 WITH-EXPECTED-OUTCOME determines whether it's EXPECTED or
 UNEXPECTED, and we have one of EXPECTED-RESULT-SUCCESS,
@@ -924,8 +862,8 @@ TRIAL. Standalone checks though – those not enclosed by a trial –
 invoke the debugger on RESULTs which are not of type PASS.
 
 The signalled RESULT is not final until RECORD-EVENT is invoked on
-it, and it can be changed with the @OUTCOME-RESTARTS and the
-@CHECK-RESTARTS.
+it, and it can be changed with the Outcome Restarts and the
+Check Restarts.
 
 - [condition] RESULT LEAF OUTCOME
 
@@ -939,14 +877,14 @@ it, and it can be changed with the @OUTCOME-RESTARTS and the
 
 - [condition] RESULT-SKIP RESULT SKIP
 
-- [condition] RESULT-ABORT* RESULT ABORT\* DISMISSAL
+- [condition] RESULT-ABORT* RESULT ABORT* DISMISSAL
 
 ##### Check Restarts
 
 - [function] ABORT-CHECK &OPTIONAL CONDITION
 
-    Change the OUTCOME of the check being signalled to `RESULT-ABORT*`.
-    `RESULT-ABORT*`, being a FAIL, will cause the check to return NIL if
+    Change the OUTCOME of the check being signalled to RESULT-ABORT*.
+    RESULT-ABORT*, being a FAIL, will cause the check to return NIL if
     RECORD-EVENT is invoked on it.
 
 - [function] SKIP-CHECK &OPTIONAL CONDITION
@@ -965,31 +903,27 @@ it, and it can be changed with the @OUTCOME-RESTARTS and the
 - [class] TRIAL FUNCALLABLE-STANDARD-OBJECT
 
     Trials are records of calls to tests (see
-    @COUNT, @COLLECT). Their behaviour as @FUNCALLABLE-INSTANCEs
-    is explained in @RERUN.
-    
+    Counting Events, Collecting Events). Their behaviour as funcallable instances
+    is explained in Rerunning Trials.
+
     There are three ways to acquire a TRIAL object: by calling
     CURRENT-TRIAL, through the lexical binding of the symbol that names
-    the test or through the return value of a test:
-    
-    ```common-lisp
-    (deftest xxx ()
-      (prin1 xxx))
-    
-    (xxx)
-    .. #<TRIAL (XXX) RUNNING>
-    ==> #<TRIAL (XXX) EXPECTED-SUCCESS 0.000s>
-    ```
-    
+    the test, or through the return value of a test:
+
+        (deftest xxx ()
+          (prin1 xxx))
+        
+        (xxx)
+        .. #<TRIAL (XXX) RUNNING>
+        ==> #<TRIAL (XXX) EXPECTED-SUCCESS 0.000s>
+
     WITH-TRIAL can also provide access to its TRIAL:
-    
-    ```common-lisp
-    (with-test (t0)
-      (prin1 t0))
-    .. #<TRIAL (WITH-TEST (T0)) RUNNING>
-    ==> #<TRIAL (WITH-TEST (T0)) EXPECTED-SUCCESS 0.000s>
-    ```
-    
+
+        (with-test (t0)
+          (prin1 t0))
+        .. #<TRIAL (WITH-TEST (T0)) RUNNING>
+        ==> #<TRIAL (WITH-TEST (T0)) EXPECTED-SUCCESS 0.000s>
+
     TRIALs are not to be instantiated by client code.
 
 - [function] CURRENT-TRIAL
@@ -1005,79 +939,75 @@ it, and it can be changed with the @OUTCOME-RESTARTS and the
     A TRIAL-EVENT is either a TRIAL-START or a
     VERDICT.
 
-- [reader] TRIAL [TRIAL-EVENT][b36a] (:TRIAL)
+- [reader] TRIAL TRIAL-EVENT (:TRIAL)
 
 - [condition] TRIAL-START TRIAL-EVENT
 
     TRIAL-START is signalled when a test function
-    (see @TESTS) is entered and a TRIAL is started, it is already the
-    CURRENT-TRIAL, and the @TRIAL-RESTARTS are available. It is also
-    signalled when a trial is retried:
-    
-    ```common-lisp
-    (let ((*print* nil)
-          (n 0))
-      (with-test ()
-        (handler-bind ((trial-start
-                         (lambda (c)
-                           (format t "TRIAL-START for ~S retry#~S~%"
-                                   (test-name (trial c))
-                                   (n-retries (trial c))))))
-          (with-test (this)
-            (incf n)
-            (when (< n 3)
-              (retry-trial))))))
-    .. TRIAL-START for THIS retry#0
-    .. TRIAL-START for THIS retry#1
-    .. TRIAL-START for THIS retry#2
-    ..
-    ```
-    
+    (see Tests) is entered and a TRIAL is started. When this happens
+    that trial is already the CURRENT-TRIAL, and the Trial Restarts are
+    available. It is also signalled when a trial is retried:
+
+        (let ((*print* nil)
+              (n 0))
+          (with-test ()
+            (handler-bind ((trial-start
+                             (lambda (c)
+                               (format t "TRIAL-START for ~S retry#~S~%"
+                                       (test-name (trial c))
+                                       (n-retries (trial c))))))
+              (with-test (this)
+                (incf n)
+                (when (< n 3)
+                  (retry-trial))))))
+        .. TRIAL-START for THIS retry#0
+        .. TRIAL-START for THIS retry#1
+        .. TRIAL-START for THIS retry#2
+        ..
+
     The matching of TRIAL-START events is less straightforward than that
     of other EVENTs.
-    
-    - When a TRIAL-START event matches the `COLLECT` type (see
-      @COLLECT), its TRIAL is collected.
-    
+
+    - When a TRIAL-START event matches the COLLECT type (see
+      Collecting Events), its TRIAL is collected.
+
     - Similarly, when a TRIAL-START matches the PRINT
-      type (see @PRINT), it is printed immediately, and its trial's
+      type (see Printing Events), it is printed immediately, and its trial's
       VERDICT will be printed too regardless of whether it matches
       PRINT. If TRIAL-START does not match
       PRINT, it may still be printed if for example
       *PRINT-PARENT* requires it.
-    
-    - When a TRIAL-START matches the `RERUN` type (see @RERUN), its
+
+    - When a TRIAL-START matches the RERUN type (see Rerunning Trials), its
       TRIAL may be rerun.
-    
+
     - Also, see WITH-SKIP.
 
 - [condition] VERDICT TRIAL-EVENT OUTCOME
 
     A VERDICT is the OUTCOME of a TRIAL. It is one of
-    `{EXPECTED,UNEXPECTED}-VERDICT-{SUCCESS,FAILURE}`, VERDICT-SKIP and
-    VERDICT-ABORT\*. Regarding how the verdict type is determined, see
-    @TRIAL-VERDICTS.
-    
+    {EXPECTED,UNEXPECTED}-VERDICT-{SUCCESS,FAILURE}, VERDICT-SKIP and
+    VERDICT-ABORT*. Regarding how the verdict type is determined, see
+    Trial Verdicts.
+
     Verdicts are signalled while their TRIAL is
-    still the CURRENT-TRIAL, and @TRIAL-RESTARTS are still available.
-    
-    ```common-lisp
-    (try (lambda ()
-           (handler-bind (((and verdict failure) #'retry-trial))
-             (with-test (this)
-               (is (zerop (random 2)))))))
-    .. (TRY #<FUNCTION (LAMBDA ()) {53038ADB}>)
-    ..   THIS
-    ..     ⊠ (IS (ZEROP #1=(RANDOM 2)))
-    ..       where
-    ..         #1# = 1
-    ..   THIS retry #1
-    ..     ⋅ (IS (ZEROP (RANDOM 2)))
-    ..   ⋅ THIS ⋅1
-    .. ⋅ (TRY #<FUNCTION (LAMBDA ()) {53038ADB}>) ⋅1
-    ..
-    ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {53038ADB}>) EXPECTED-SUCCESS 0.000s ⋅1>
-    ```
+    still the CURRENT-TRIAL, and Trial Restarts are still available.
+
+        (try (lambda ()
+               (handler-bind (((and verdict failure) #'retry-trial))
+                 (with-test (this)
+                   (is (zerop (random 2)))))))
+        .. (TRY #<FUNCTION (LAMBDA ()) {53038ADB}>)
+        ..   THIS
+        ..     ⊠ (IS (ZEROP #1=(RANDOM 2)))
+        ..       where
+        ..         #1# = 1
+        ..   THIS retry #1
+        ..     ⋅ (IS (ZEROP (RANDOM 2)))
+        ..   ⋅ THIS ⋅1
+        .. ⋅ (TRY #<FUNCTION (LAMBDA ()) {53038ADB}>) ⋅1
+        ..
+        ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {53038ADB}>) EXPECTED-SUCCESS 0.000s ⋅1>
 
 - [condition] EXPECTED-VERDICT-SUCCESS EXPECTED VERDICT SUCCESS
 
@@ -1089,12 +1019,12 @@ it, and it can be changed with the @OUTCOME-RESTARTS and the
 
 - [condition] VERDICT-SKIP VERDICT SKIP
 
-- [condition] VERDICT-ABORT* VERDICT ABORT\* DISMISSAL
+- [condition] VERDICT-ABORT* VERDICT ABORT* DISMISSAL
 
 ##### Trial Verdicts
 
-When a trial finished, a VERDICT is signalled. The verdict's type
-is determined as follows.
+When a trial has finished, a VERDICT is signalled. The verdict's
+type is determined as follows.
 
 - It is a VERDICT-SKIP if
 
@@ -1104,7 +1034,7 @@ is determined as follows.
       enclosing trial, and these were not overruled by a later
       ABORT-TRIAL or RETRY-TRIAL on the trial.
 
-- It is a VERDICT-ABORT\* if ABORT-TRIAL was called on the trial, and
+- It is a VERDICT-ABORT* if ABORT-TRIAL was called on the trial, and
   it wasn't overruled by a later SKIP-TRIAL or RETRY-TRIAL.
 
 - If all children (including those not collected in CHILDREN) of the
@@ -1112,14 +1042,14 @@ is determined as follows.
   FAILURE.
 
 - Subject to the WITH-EXPECTED-OUTCOME in effect,
-  `{EXPECTED,UNEXPECTED}-VERDICT-{SUCCESS,FAILURE}` is the type of
+  {EXPECTED,UNEXPECTED}-VERDICT-{SUCCESS,FAILURE} is the type of
   the verdict which will be signalled.
 
 The verdict of this type is signalled, but its type can be changed
-by the @OUTCOME-RESTARTS or the @TRIAL-RESTARTS before RECORD-EVENT
+by the Outcome Restarts or the Trial Restarts before RECORD-EVENT
 is invoked on it.
 
-- [reader] VERDICT [TRIAL][99d0] (= NIL)
+- [reader] VERDICT TRIAL (= NIL)
 
     The VERDICT EVENT signalled when this
     TRIAL finished or NIL if it has not finished yet.
@@ -1152,58 +1082,52 @@ TRIAL. It is an error to call them on trials that are not RUNNINGP,
 but they may be called on trials other than the CURRENT-TRIAL. In
 that case, any intervening trials are skipped.
 
-```common-lisp
-;; Skipped trials are marked with '-' in the output.
-(with-test (outer)
-  (with-test (inner)
-    (is t)
-    (skip-trial nil outer)))
-.. OUTER
-..   INNER
-..     ⋅ (IS T)
-..   - INNER ⋅1
-.. - OUTER ⋅1
-..
-==> #<TRIAL (WITH-TEST (OUTER)) SKIP 0.000s ⋅1>
-```
+    ;; Skipped trials are marked with '-' in the output.
+    (with-test (outer)
+      (with-test (inner)
+        (is t)
+        (skip-trial nil outer)))
+    .. OUTER
+    ..   INNER
+    ..     ⋅ (IS T)
+    ..   - INNER ⋅1
+    .. - OUTER ⋅1
+    ..
+    ==> #<TRIAL (WITH-TEST (OUTER)) SKIP 0.000s ⋅1>
 
 Furthermore, all three restarts initiate a non-local exit to
 return from the trial. If during the unwinding of the stack, the
-non-local-exit is cancelled (see @CANCELLED-NLX), the appropriate
+non-local-exit is cancelled (see cancelled non-local exit), the appropriate
 restart will be invoked upon returning from the trial. In the
 following example, the non-local exit from a skip is cancelled by a
 THROW.
 
-```common-lisp
-(with-test (some-test)
-  (catch 'foo
-    (unwind-protect
-         (skip-trial)
-      (throw 'foo nil)))
-  (is t :msg "check after skip"))
-.. SOME-TEST
-..   ⋅ check after skip
-.. - SOME-TEST ⋅1
-..
-==> #<TRIAL (WITH-TEST (SOME-TEST)) SKIP 0.000s ⋅1>
-```
+    (with-test (some-test)
+      (catch 'foo
+        (unwind-protect
+             (skip-trial)
+          (throw 'foo nil)))
+      (is t :msg "check after skip"))
+    .. SOME-TEST
+    ..   ⋅ check after skip
+    .. - SOME-TEST ⋅1
+    ..
+    ==> #<TRIAL (WITH-TEST (SOME-TEST)) SKIP 0.000s ⋅1>
 
 In the next example, the non-local exit from a skip is cancelled by
 an ERROR, which triggers an ABORT-TRIAL.
 
-```common-lisp
-(let ((*debug* nil)
-      (*describe* nil))
-  (with-test (foo)
-    (unwind-protect
-         (skip-trial)
-      (error "xxx"))))
-.. FOO
-..   ⊟ "xxx" (SIMPLE-ERROR)
-.. ⊟ FOO ⊟1
-..
-==> #<TRIAL (WITH-TEST (FOO)) ABORT* 0.000s ⊟1>
-```
+    (let ((*debug* nil)
+          (*describe* nil))
+      (with-test (foo)
+        (unwind-protect
+             (skip-trial)
+          (error "xxx"))))
+    .. FOO
+    ..   ⊟ "xxx" (SIMPLE-ERROR)
+    .. ⊟ FOO ⊟1
+    ..
+    ==> #<TRIAL (WITH-TEST (FOO)) ABORT* 0.000s ⊟1>
 
 All three restarts may be invoked on any EVENT, including the
 trial's own TRIAL-START and VERDICT. If their CONDITION
@@ -1215,15 +1139,15 @@ dropped.
 - [function] ABORT-TRIAL &OPTIONAL CONDITION (TRIAL (CURRENT-TRIAL))
 
     Invoke the ABORT-TRIAL restart of a RUNNINGP TRIAL.
-    
+
     When CONDITION is a VERDICT for TRIAL, ABORT-TRIAL signals a new
-    verdict of type VERDICT-ABORT\*. This behaviour is similar to that
+    verdict of type VERDICT-ABORT*. This behaviour is similar to that
     of ABORT-CHECK. Else, the ABORT-TRIAL restart may record CONDITION,
     then it initiates a non-local exit to return from the test
-    function with VERDICT-ABORT\*. If during the unwinding SKIP-TRIAL
+    function with VERDICT-ABORT*. If during the unwinding SKIP-TRIAL
     or RETRY-TRIAL is called, then the abort is cancelled.
-    
-    Since ABORT\* is an UNEXPECTED EVENT, ABORT-TRIAL is rarely used
+
+    Since ABORT* is an UNEXPECTED EVENT, ABORT-TRIAL is rarely used
     programmatically. Signalling any error in a trial that's not caught
     before the trial's handler catches it will get turned into an
     UNHANDLED-ERROR, and TRY will invoke ABORT-TRIAL with it. Thus,
@@ -1233,39 +1157,35 @@ dropped.
 - [function] SKIP-TRIAL &OPTIONAL CONDITION (TRIAL (CURRENT-TRIAL))
 
     Invoke the SKIP-TRIAL restart of a RUNNINGP TRIAL.
-    
+
     When CONDITION is a VERDICT for TRIAL, SKIP-TRIAL signals a new
     verdict of type VERDICT-SKIP. This behaviour is similar to that of
     SKIP-CHECK. Else, the SKIP-TRIAL restart may record CONDITION, then
     it initiates a non-local exit to return from the test
     function with VERDICT-SKIP. If during the unwinding ABORT-TRIAL or
     RETRY-TRIAL is called, then the skip is cancelled.
-    
-    ```common-lisp
-    (with-test (skipped)
-      (handler-bind ((unexpected-result-failure #'skip-trial))
-        (is nil)))
-    .. SKIPPED
-    ..   ⊠ (IS NIL)
-    .. - SKIPPED ⊠1
-    ..
-    ==> #<TRIAL (WITH-TEST (SKIPPED)) SKIP 0.000s ⊠1>
-    ```
-    
+
+        (with-test (skipped)
+          (handler-bind ((unexpected-result-failure #'skip-trial))
+            (is nil)))
+        .. SKIPPED
+        ..   ⊠ (IS NIL)
+        .. - SKIPPED ⊠1
+        ..
+        ==> #<TRIAL (WITH-TEST (SKIPPED)) SKIP 0.000s ⊠1>
+
     Invoking SKIP-TRIAL on the TRIAL's own TRIAL-START skips the trial
     being started.
-    
-    ```common-lisp
-    (let ((*print* '(or outcome leaf)))
-      (with-test (parent)
-        (handler-bind ((trial-start #'skip-trial))
-          (with-test (child)
-            (is nil)))))
-    .. PARENT
-    ..   - CHILD
-    .. ⋅ PARENT
-    ..
-    ```
+
+        (let ((*print* '(or outcome leaf)))
+          (with-test (parent)
+            (handler-bind ((trial-start #'skip-trial))
+              (with-test (child)
+                (is nil)))))
+        .. PARENT
+        ..   - CHILD
+        .. ⋅ PARENT
+        ..
 
 - [function] RETRY-TRIAL &OPTIONAL CONDITION (TRIAL (CURRENT-TRIAL))
 
@@ -1273,56 +1193,56 @@ dropped.
     restart may record CONDITION, then it initiates a non-local
     exit to go back to the beginning of the test function. If the
     non-local exit completes, then
-    
+
     - (N-RETRIES TRIAL) is incremented,
-    
-    - collected results and trials are cleared (see @COLLECT),
-    
-    - counts are zeroed (see @COUNT), and
-    
+
+    - collected results and trials are cleared (see Collecting Events),
+
+    - counts are zeroed (see Counting Events), and
+
     - TRIAL-START is signalled again.
-    
+
     If during the unwinding ABORT-TRIAL or SKIP-TRIAL is called, then
     the retry is cancelled.
-    
+
     CONDITION (which may be NIL) is recorded if it is an EVENT but not
     the VERDICT of TRIAL, and the RECORD-EVENT restart is available.
 
-- [reader] N-RETRIES [TRIAL][99d0] (:N-RETRIES = 0)
+- [reader] N-RETRIES TRIAL (:N-RETRIES = 0)
 
     The number of times this TRIAL has
     been retried. See RETRY-TRIAL.
 
 ### Errors
 
-- [condition] ERROR* ABORT\* LEAF
+- [condition] ERROR* ABORT* LEAF
 
-    Either UNHANDLED-ERROR or NLX, ERROR\* causes or
+    Either UNHANDLED-ERROR or NLX, ERROR* causes or
     represents abnormal termination of a TRIAL. ABORT-TRIAL can be
-    called with ERROR\*s, but there is little need for explicitly doing
+    called with ERROR*s, but there is little need for explicitly doing
     so as RECORD-EVENT, which TRY invokes, takes care of this.
 
-- [reader] TEST-NAME [ERROR\*][0321] (:TEST-NAME)
+- [reader] TEST-NAME ERROR* (:TEST-NAME)
 
-- [condition] UNHANDLED-ERROR ERROR\*
+- [condition] UNHANDLED-ERROR ERROR*
 
-    Signalled when an CL:ERROR condition reaches the
+    Signalled when a CL:ERROR condition reaches the
     handlers set up by DEFTEST or WITH-TEST, or when their
     *DEBUGGER-HOOK* is invoked with a condition that's not an EVENT.
 
-- [reader] NESTED-CONDITION [UNHANDLED-ERROR][8f78] (:CONDITION = 'NIL)
+- [reader] NESTED-CONDITION UNHANDLED-ERROR (:CONDITION = 'NIL)
 
-- [reader] BACKTRACE-OF [UNHANDLED-ERROR][8f78] (:BACKTRACE = 'NIL)
+- [reader] BACKTRACE-OF UNHANDLED-ERROR (:BACKTRACE = 'NIL)
 
-- [reader] DEBUGGER-INVOKED-P [UNHANDLED-ERROR][8f78] (:DEBUGGER-INVOKED-P = 'NIL)
+- [reader] DEBUGGER-INVOKED-P UNHANDLED-ERROR (:DEBUGGER-INVOKED-P = 'NIL)
 
 - [variable] *GATHER-BACKTRACE* T
 
-    @TRYVAR. Capturing the backtrace can be expensive. *GATHER-BACKTRACE*
+    Try var. Capturing the backtrace can be expensive. *GATHER-BACKTRACE*
     controls whether UNHANDLED-ERRORs shall have their BACKTRACE-OF
     populated. Also, see *PRINT-BACKTRACE*.
 
-- [condition] NLX ERROR\*
+- [condition] NLX ERROR*
 
     Representing a non-local exit of unknown
     origin, this is signalled if a TRIAL does not return normally
@@ -1337,136 +1257,126 @@ what types are counted together.
 
 The default value of *CATEGORIES* is
 
-```
-((abort*             :marker "⊟")
- (unexpected-failure :marker "⊠")
- (unexpected-success :marker "⊡")
- (skip               :marker "-")
- (expected-failure   :marker "×")
- (expected-success   :marker "⋅"))
-```
+    ((abort*             :marker "⊟")
+     (unexpected-failure :marker "⊠")
+     (unexpected-success :marker "⊡")
+     (skip               :marker "-")
+     (expected-failure   :marker "×")
+     (expected-success   :marker "⋅"))
 
-which says that all concrete EVENTs that are of type ABORT\* (i.e.
-`RESULT-ABORT*`, `VERDICT-ABORT*`, UNHANDLED-ERROR, and NLX) are to
-be marked with `"⊟"` when printed (see @PRINT). Also, the six
-types define six counters for @COUNT. Note that UNEXPECTED events
+which says that all concrete EVENTs that are of type ABORT* (i.e.
+RESULT-ABORT*, VERDICT-ABORT*, UNHANDLED-ERROR, and NLX) are to
+be marked with "⊟" when printed (see Printing Events). Also, the six
+types define six counters for Counting Events. Note that UNEXPECTED events
 have the same marker as their EXPECTED counterpart but squared.
 
 - [variable] *CATEGORIES* "- see above -"
 
-    @TRYVAR. A list of of elements like `(TYPE &KEY MARKER)`. When @PRINT,
-    @CONCRETE-EVENTS are printed with the marker of the first matching
-    type. When @COUNT, the counts associated with all matching types are
+    Try var. A list of elements like (TYPE &KEY MARKER). When Printing Events,
+    Concrete Events are printed with the marker of the first matching
+    type. When Counting Events, the counts associated with all matching types are
     incremented.
 
 - [function] FANCY-STD-CATEGORIES
 
-    Returns the default value of *CATEGORIES* (see @CATEGORIES),
+    Returns the default value of *CATEGORIES* (see Categories),
     which contains some fancy Unicode characters.
 
 - [function] ASCII-STD-CATEGORIES
 
     Returns a value suitable for *CATEGORIES*, which uses only ASCII
     characters for the markers.
-    
-    ```
-    '((abort*             :marker "!")
-      (unexpected-failure :marker "F")
-      (unexpected-success :marker ":")
-      (skip               :marker "-")
-      (expected-failure   :marker "f")
-      (expected-success   :marker "."))
-    ```
+
+        '((abort*             :marker "!")
+          (unexpected-failure :marker "F")
+          (unexpected-success :marker ":")
+          (skip               :marker "-")
+          (expected-failure   :marker "f")
+          (expected-success   :marker "."))
 
 ## The IS Macro
 
-IS is the fundamental one among @CHECKS, on which all
+IS is the fundamental one among Checks, on which all
 the others are built, and it is a replacement for CL:ASSERT that can
 capture values of subforms to provide context to failures:
 
-```common-lisp
-(is (= (1+ 5) 0))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS (= #1=(1+ 5) 0))
-..   where
-..     #1# = 6
-```
+    (is (= (1+ 5) 0))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (= #1=(1+ 5) 0))
+    ..   where
+    ..     #1# = 6
 
-IS automatically captures values of arguments to functions like `1+`
+IS automatically captures values of arguments to functions like 1+
 in the above example. Values of other interesting subforms can be
 explicitly requested to be captured. IS supports capturing multiple
 values and can be taught how to deal with macros. The combination of
-these features allows MATCH-VALUES to be implementable as tiny
+these features allows MATCH-VALUES to be implementable as a tiny
 extension:
 
-```common-lisp
-(is (match-values (values (1+ 5) "sdf")
-      (= * 0)
-      (string= * "sdf")))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS
-..      (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
-..        (= * 0)
-..        (STRING= * "sdf")))
-..   where
-..     #1# == 6
-..            #2#
-```
+    (is (match-values (values (1+ 5) "sdf")
+          (= * 0)
+          (string= * "sdf")))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS
+    ..      (MATCH-VALUES #1=(VALUES (1+ 5) #2="sdf")
+    ..        (= * 0)
+    ..        (STRING= * "sdf")))
+    ..   where
+    ..     #1# == 6
+    ..            #2#
 
 IS is flexible enough that all other checks (SIGNALS, SIGNALS-NOT,
-INVOKES-DEBUGGER, INVOKES-DEBUGGER-NOT, FAILS, and IN-TIME are built
-on top of it.
+INVOKES-DEBUGGER, INVOKES-DEBUGGER-NOT, FAILS, and IN-TIME) are
+built on top of it.
 
 - [macro] IS FORM &KEY MSG CTX (CAPTURE T) (PRINT-CAPTURES T) (RETRY T)
 
     If FORM returns NIL, signal a RESULT FAILURE. Else, signal a
     RESULT SUCCESS. IS returns normally if
-    
+
     - the RECORD-EVENT restart is invoked (available when in a trial), or
-    
+
     - the CONTINUE restart is invoked (available when not in a trial), or
-    
-    - the condition signalled last (after @OUTCOME-RESTARTS) is a PASS,
+
+    - the condition signalled last (after Outcome Restarts) is a PASS,
       and it is not handled.
-    
+
     If IS returns normally after signalling an OUTCOME, it returns T if
     the last condition signalled was a SUCCESS, and NIL otherwise.
-    
-    - MSG and CTX are @FORMAT-SPECIFIER-FORMs. MSG is always
+
+    - MSG and CTX are Format Specifier Forms. MSG is always
       evaluated (as a format specifier form), and it shall print a
       description of the check being made, stating what the desired
       outcome is. The default MSG is the whole IS form.
-    
+
         CTX is only evaluated if FORM evaluates to NIL. It shall provide
         contextual information about the failure.
-    
-        ```common-lisp
-        (is (equal (prin1-to-string 'hello) "hello")
-            :msg "Symbols are replacements for strings."
-            :ctx ("*PACKAGE* is ~S and *PRINT-CASE* is ~S~%"
-                  *package* *print-case*))
-        .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-        ..   UNEXPECTED-FAILURE in check:
-        ..     Symbols are replacements for strings.
-        ..   where
-        ..     (PRIN1-TO-STRING 'HELLO) = "HELLO"
-        ..   *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
-        ..
-        ```
-    
+
+            (is (equal (prin1-to-string 'hello) "hello")
+                :msg "Symbols are replacements for strings."
+                :ctx ("*PACKAGE* is ~S and *PRINT-CASE* is ~S~%"
+                      *package* *print-case*))
+            .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+            ..   UNEXPECTED-FAILURE in check:
+            ..     Symbols are replacements for strings.
+            ..   where
+            ..     (PRIN1-TO-STRING 'HELLO) = "HELLO"
+            ..   *PACKAGE* is #<PACKAGE "TRY"> and *PRINT-CASE* is :UPCASE
+            ..
+
     - If CAPTURE is true, the value(s) of some subforms of FORM may be
       automatically recorded in the condition and also made available
-      for CTX via *IS-CAPTURES*. See @CAPTURES for more.
-    
+      for CTX via *IS-CAPTURES*. See Captures for more.
+
     - If PRINT-CAPTURES is true, the captures made are printed when the
       RESULT condition is displayed in the debugger or
-      `*DESCRIBE*`d (see @PRINT). This is the `where (PRIN1-TO-STRING
-      'HELLO) ="HELLO"` part above. If PRINT-CAPTURES is NIL, the
+      *DESCRIBE*d (see Printing Events). This is the where (PRIN1-TO-STRING
+      'HELLO) ="HELLO" part above. If PRINT-CAPTURES is NIL, the
       captures are still available in *IS-CAPTURES* for writing custom
       CTX messages.
-    
+
     - If RETRY is true, then the RETRY-CHECK restart evaluates FORM
       again and signals a new RESULT. If RETRY is NIL, then the
       RETRY-CHECK restart returns :RETRY, which allows complex checks
@@ -1485,38 +1395,32 @@ on top of it.
 ### Format Specifier Form
 
 A format specifier form is a Lisp form, typically an argument to
-macro, standing for the FORMAT-CONTROL and FORMAT-ARGS arguments to
-the FORMAT function.
+a macro, standing for the FORMAT-CONTROL and FORMAT-ARGS arguments
+to the FORMAT function.
 
 It may be a constant string:
 
-```common-lisp
-(is nil :msg "FORMAT-CONTROL~%with no args.")
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     FORMAT-CONTROL
-..     with no args.
-```
+    (is nil :msg "FORMAT-CONTROL~%with no args.")
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     FORMAT-CONTROL
+    ..     with no args.
 
 It may be a list whose first element is a constant string, and the
 rest are the format arguments to be evaluated:
 
-```common-lisp
-(is nil :msg ("Implicit LIST ~A." "form"))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     Implicit LIST form.
-```
+    (is nil :msg ("Implicit LIST ~A." "form"))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     Implicit LIST form.
 
-Or it may be a form that evaluates to a list like `(FORMAT-CONTROL
-&REST FORMAT-ARGS)`:
+Or it may be a form that evaluates to a list like (FORMAT-CONTROL
+&REST FORMAT-ARGS):
 
-```common-lisp
-(is nil :msg (list "Full ~A." "form"))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     Full form.
-```
+    (is nil :msg (list "Full ~A." "form"))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     Full form.
 
 Finally, it may evaluate to NIL, in which case some context specific
 default is implied.
@@ -1537,51 +1441,43 @@ IS automatically captures some subforms of FORM that are likely
 to be informative. In particular, if FORM is a function call, then
 non-constant arguments are automatically captured:
 
-```common-lisp
-(is (= 3 (1+ 2) (- 4 3)))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS (= 3 #1=(1+ 2) #2=(- 4 3)))
-..   where
-..     #1# = 3
-..     #2# = 1
-```
+    (is (= 3 (1+ 2) (- 4 3)))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (= 3 #1=(1+ 2) #2=(- 4 3)))
+    ..   where
+    ..     #1# = 3
+    ..     #2# = 1
 
 By default, automatic captures are not made for subforms deeper in
 FORM, except for when FORM is a call to NULL,
 ENDP and NOT:
 
-```common-lisp
-(is (null (find (1+ 1) '(1 2 3))))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS (NULL #1=(FIND #2=(1+ 1) '(1 2 3))))
-..   where
-..     #2# = 2
-..     #1# = 2
-```
+    (is (null (find (1+ 1) '(1 2 3))))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (NULL #1=(FIND #2=(1+ 1) '(1 2 3))))
+    ..   where
+    ..     #2# = 2
+    ..     #1# = 2
 
-```common-lisp
-(is (endp (member (1+ 1) '(1 2 3))))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS (ENDP #1=(MEMBER #2=(1+ 1) '(1 2 3))))
-..   where
-..     #2# = 2
-..     #1# = (2 3)
-```
+    (is (endp (member (1+ 1) '(1 2 3))))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (ENDP #1=(MEMBER #2=(1+ 1) '(1 2 3))))
+    ..   where
+    ..     #2# = 2
+    ..     #1# = (2 3)
 
 Note that the argument of NOT is not captured as it is
 assumed to be NIL or T. If that's not true, use NULL.
 
-```common-lisp
-(is (not (equal (1+ 5) 6)))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS (NOT (EQUAL #1=(1+ 5) 6)))
-..   where
-..     #1# = 6
-```
+    (is (not (equal (1+ 5) 6)))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (NOT (EQUAL #1=(1+ 5) 6)))
+    ..   where
+    ..     #1# = 6
 
 Other automatic captures are discussed with the relevant
 functionality such as MATCH-VALUES.
@@ -1594,8 +1490,8 @@ functionality such as MATCH-VALUES.
     checking, a SUBFORM was substituted (by SUBSTITUTE-IS-FORM) with
     VAR (if VALUESP is NIL) or with (VALUES-LIST VAR) if VALUESP is
     true. Conversely, VAR is to be bound to the evaluated NEW-FORM if
-    VALUESP is NIL, and to (MULTIPLE-VALUE-LIST FORM) if VALUESP.
-    NEW-FORM is often `EQ` to SUBFORM, but it may be different, which is
+    VALUESP is NIL, and to (MULTIPLE-VALUE-LIST NEW-FORM) if VALUESP.
+    NEW-FORM is often EQ to SUBFORM, but it may be different, which is
     the case when further substitutions are made within a substitution.
 
 - [function] MAKE-SUB VAR SUBFORM NEW-FORM VALUESP
@@ -1613,23 +1509,21 @@ functionality such as MATCH-VALUES.
     In the list FORM, whose CAR is FIRST, substitute
     subexpressions of interest with a GENSYM and return the new form. As
     the second value, return a list of SUBs.
-    
-    For example, consider `(IS (FIND (FOO) LIST))`. When
-    SUBSTITUTE-IS-LIST-FORM is invoked on `(FIND (FOO) LIST)`, it
+
+    For example, consider (IS (FIND (FOO) LIST)). When
+    SUBSTITUTE-IS-LIST-FORM is invoked on (FIND (FOO) LIST), it
     substitutes each argument of FIND with a variable, returning the new
-    form `(FIND TEMP1 TEMP2)` and the list of two
-    substitutions `((TEMP2 (FOO) (FOO) NIL) (TEMP3 LIST LIST NIL))`.
+    form (FIND TEMP1 TEMP2) and the list of two
+    substitutions ((TEMP2 (FOO) (FOO) NIL) (TEMP3 LIST LIST NIL)).
     This allows the original form to be rewritten as
-    
-    ```
-    (let* ((temp1 (foo))
-           (temp2 list))
-      (find temp1 temp2))
-    ```
-    
-    `TEMP1` and `TEMP2` may then be reported in the OUTCOME condition
+
+        (let* ((temp1 (foo))
+               (temp2 list))
+          (find temp1 temp2))
+
+    TEMP1 and TEMP2 may then be reported in the OUTCOME condition
     signalled by IS like this:
-    
+
         The following check failed:
           (is (find #1=(foo) #2=list))
         where
@@ -1639,50 +1533,44 @@ functionality such as MATCH-VALUES.
 #### Explicit Captures
 
 In addition to automatic captures, which are prescribed by
-rewriting rules (see @WRITING-AUTOMATIC-CAPTURE-RULES), explicit,
+rewriting rules (see Writing Automatic Capture Rules), explicit,
 ad-hoc captures can also be made.
 
-```common-lisp
-(is (let ((x 1))
-      (= (capture x) 2)))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS
-..      (LET ((X 1))
-..        (= (CAPTURE X) 2)))
-..   where
-..     X = 1
-```
+    (is (let ((x 1))
+          (= (capture x) 2)))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS
+    ..      (LET ((X 1))
+    ..        (= (CAPTURE X) 2)))
+    ..   where
+    ..     X = 1
 
 If CAPTURE showing up in the form that IS prints is undesirable,
-then `%` may be used instead:
+then % may be used instead:
 
-```common-lisp
-(is (let ((x 1))
-      (= (% x) 2)))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS
-..      (LET ((X 1))
-..        (= X 2)))
-..   where
-..     X = 1
-```
+    (is (let ((x 1))
+          (= (% x) 2)))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS
+    ..      (LET ((X 1))
+    ..        (= X 2)))
+    ..   where
+    ..     X = 1
 
 Multiple values may be captured with CAPTURE-VALUES and its
-secretive counterpart `%%`:
+secretive counterpart %%:
 
-```common-lisp
-(is (= (%% (values 1 2)) 2))
-.. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-..   UNEXPECTED-FAILURE in check:
-..     (IS (= #1=(VALUES 1 2) 2))
-..   where
-..     #1# == 1
-..            2
-```
+    (is (= (%% (values 1 2)) 2))
+    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+    ..   UNEXPECTED-FAILURE in check:
+    ..     (IS (= #1=(VALUES 1 2) 2))
+    ..   where
+    ..     #1# == 1
+    ..            2
 
-where printing `==` instead of = indicates that this
+where printing == instead of = indicates that this
 is a multiple value capture.
 
 - [macro] CAPTURE FORM
@@ -1691,14 +1579,14 @@ is a multiple value capture.
     dynamic extent of an IS evaluation, and finally return that value.
     If CAPTURE is used within the lexical scope of IS, then CAPTURE
     itself will show up in the form that the default MSG prints. Thus it
-    is recommended to use the equivalent MACROLET `%` in the lexical
-    scope as `%` is removed before printing.
+    is recommended to use the equivalent MACROLET % in the lexical
+    scope as % is removed before printing.
 
 - [macro] CAPTURE-VALUES FORM
 
-    Like CAPTURE-VALUES, but record and return all values returned by
-    FORM. It is recommended to use the equivalent MACROLET `%%` in the
-    lexical scope as `%%` is removed before printing.
+    Like CAPTURE-VALUES, but records and return all values returned by
+    FORM. It is recommended to use the equivalent MACROLET %% in the
+    lexical scope as %% is removed before printing.
 
 - [macrolet] % FORM
 
@@ -1721,18 +1609,17 @@ Many of them share a number of arguments, which are described here.
 - ON-NLX is a boolean that determines whether the check in a macro
   that wraps BODY is made when BODY performs a non-local exit.
 
-- MSG and CTX are @FORMAT-SPECIFIER-FORMS as in IS.
+- MSG and CTX are Format Specifier Forms as in IS.
 
 - NAME may be provided so that it is printed (with PRIN1) instead of
   BODY in MSG.
-
 
 ### Checking Conditions
 
 The macros SIGNALS, SIGNALS-NOT, INVOKES-DEBUGGER, and
 INVOKES-DEBUGGER-NOT all check whether a condition of a given type,
 possibly also matching a predicate, was signalled. In addition to
-those already described in @CHECK-LIBRARY, these macros share a
+those already described in Check Library, these macros share a
 number of arguments.
 
 Matching conditions are those that are of type CONDITION-TYPE (not
@@ -1756,22 +1643,22 @@ condition. HANDLER may perform a non-local exit. When
 HANDLER is T, the matching condition is handled by performing a
 non-local exit to just outside BODY. If the exit completes, BODY is
 treated as if it had returned normally, and ON-RETURN is consulted.
-When HANDLER is NIL, no addition action is performed when a matching
-condition is found.
+When HANDLER is NIL, no additional action is performed when a
+matching condition is found.
 
 The default CTX describes the result of the matching process in
 terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
 
 - [variable] *CONDITION-MATCHED-P*
 
-    When a check described in @CHECKING-CONDITIONS signals its
+    When a check described in Checking Conditions signals its
     OUTCOME, this variable is bound to a boolean value to indicate
     whether a condition that matched CONDITION-TYPE and PRED was
     found.
 
 - [variable] *BEST-MATCHING-CONDITION*
 
-    Bound when a check described in @CHECKING-CONDITIONS
+    Bound when a check described in Checking Conditions
     signals its OUTCOME. If *CONDITION-MATCHED-P*, then it is the
     most recent condition that matched both CONDITION-TYPE and PRED.
     Else, it is the most recent condition that matched
@@ -1782,26 +1669,22 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     Check that BODY signals a CONDITION of CONDITION-TYPE (not
     evaluated) that matches PRED. To detect matching conditions, SIGNALS
     sets up a HANDLER-BIND. Thus it can only see what BODY does not
-    handle. The arguments are described in @CHECKING-CONDITIONS.
-    
-    ```common-lisp
-    (signals (error)
-      (error "xxx"))
-    => NIL
-    ```
-    
+    handle. The arguments are described in Checking Conditions.
+
+        (signals (error)
+          (error "xxx"))
+        => NIL
+
     The following example shows a failure where CONDITION-TYPE matches
     but PRED does not.
-    
-    ```common-lisp
-    (signals (error :pred "non-matching")
-      (error "xxx"))
-    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-    ..   UNEXPECTED-FAILURE in check:
-    ..     (ERROR "xxx") signals a condition of type ERROR that matches
-    ..     "non-matching".
-    ..   The predicate did not match "xxx".
-    ```
+
+        (signals (error :pred "non-matching")
+          (error "xxx"))
+        .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+        ..   UNEXPECTED-FAILURE in check:
+        ..     (ERROR "xxx") signals a condition of type ERROR that matches
+        ..     "non-matching".
+        ..   The predicate did not match "xxx".
 
 - [macro] SIGNALS-NOT (CONDITION-TYPE &KEY PRED (HANDLER T) (ON-RETURN T) (ON-NLX T) NAME MSG CTX) &BODY BODY
 
@@ -1809,7 +1692,7 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     evaluated) that matches PRED. To detect matching conditions,
     SIGNALS-NOT sets up a HANDLER-BIND. Thus, it can only see what BODY
     does not handle. The arguments are described in
-    @CHECKING-CONDITIONS.
+    Checking Conditions.
 
 - [macro] INVOKES-DEBUGGER (CONDITION-TYPE &KEY PRED (HANDLER T) (ON-RETURN T) (ON-NLX T) NAME MSG CTX) &BODY BODY
 
@@ -1817,18 +1700,16 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     CONDITION-TYPE (not evaluated) that matches PRED. To detect matching
     conditions, INVOKES-DEBUGGER sets up a *DEBUGGER-HOOK*. Thus, if
     *DEBUGGER-HOOK* is changed by BODY, it may not detect the condition.
-    The arguments are described in @CHECKING-CONDITIONS.
-    
+    The arguments are described in Checking Conditions.
+
     Note that in a trial (see CURRENT-TRIAL), all ERRORs are handled,
     and a *DEBUGGER-HOOK* is set up (see UNHANDLED-ERROR). Thus,
-    invoking debugger would normally cause the trial to abort.
-    
-    ```common-lisp
-    (invokes-debugger (error :pred "xxx")
-      (handler-bind ((error #'invoke-debugger))
-        (error "xxx")))
-    => NIL
-    ```
+    invoking the debugger would normally cause the trial to abort.
+
+        (invokes-debugger (error :pred "xxx")
+          (handler-bind ((error #'invoke-debugger))
+            (error "xxx")))
+        => NIL
 
 - [macro] INVOKES-DEBUGGER-NOT (CONDITION-TYPE &KEY PRED (HANDLER T) (ON-RETURN T) (ON-NLX T) NAME MSG CTX) &BODY BODY
 
@@ -1836,54 +1717,48 @@ terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
     CONDITION-TYPE (not evaluated) that matches PRED. To detect matching
     conditions, INVOKES-DEBUGGER-NOT sets up a *DEBUGGER-HOOK*. Thus, if
     *DEBUGGER-HOOK* is changed by BODY, it may not detect the condition.
-    The arguments are described in @CHECKING-CONDITIONS.
+    The arguments are described in Checking Conditions.
 
 ### Miscellaneous Checks
 
 - [macro] FAILS (&KEY NAME MSG CTX) &BODY BODY
 
     Check that BODY performs a non-local exit but do not
-    cancel it (see @CANCELLED-NLX). See @CHECK-LIBRARY for the
+    cancel it (see cancelled non-local exit). See Check Library for the
     descriptions of the other arguments.
-    
+
     In the following example, FAILS signals a SUCCESS.
-    
-    ```common-lisp
-    (catch 'foo
-      (fails ()
-        (throw 'foo 7)))
-    => 7
-    ```
-    
+
+        (catch 'foo
+          (fails ()
+            (throw 'foo 7)))
+        => 7
+
     Next, FAILS signals an UNEXPECTED-FAILURE because BODY returns
     normally.
-    
-    ```common-lisp
-    (fails ()
-      (print 'hey))
-    ..
-    .. HEY 
-    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-    ..   UNEXPECTED-FAILURE in check:
-    ..     (PRINT 'HEY) does not return normally.
-    ```
-    
-    Note that there is no `FAILS-NOT` as WITH-TEST fills that role.
+
+        (fails ()
+          (print 'hey))
+        ..
+        .. HEY 
+        .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+        ..   UNEXPECTED-FAILURE in check:
+        ..     (PRINT 'HEY) does not return normally.
+
+    Note that there is no FAILS-NOT as WITH-TEST fills that role.
 
 - [macro] IN-TIME (SECONDS &KEY (ON-RETURN T) (ON-NLX T) NAME MSG CTX) &BODY BODY
 
-    Check that BODY finishes in SECONDS. See @CHECK-LIBRARY for
+    Check that BODY finishes in SECONDS. See Check Library for
     the descriptions of the other arguments.
-    
-    ```
-    (in-time (1)
-      (sleep 2))
-    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-    ..   UNEXPECTED-FAILURE in check:
-    ..     (SLEEP 2) finishes within 1s.
-    ..   Took 2.000s.
-    ```
-    
+
+        (in-time (1)
+          (sleep 2))
+        .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+        ..   UNEXPECTED-FAILURE in check:
+        ..     (SLEEP 2) finishes within 1s.
+        ..   Took 2.000s.
+
     RETRY-CHECK restarts timing.
 
 - [variable] *IN-TIME-ELAPSED-SECONDS*
@@ -1900,62 +1775,54 @@ functions and macros that may be useful for writing IS checks.
 
     ON-VALUES evaluates FORM and transforms its return values one by
     one based on forms in BODY. The Nth value is replaced by the return
-    value of the Nth form of BODY evaluated with `*` bound
+    value of the Nth form of BODY evaluated with * bound
     to the Nth value. If the number of values exceeds the number of
     transformation forms in BODY then the excess values are returned as
     is.
-    
-    ```common-lisp
-    (on-values (values 1 "abc" 7)
-      (1+ *)
-      (length *))
-    => 2
-    => 3
-    => 7
-    ```
-    
+
+        (on-values (values 1 "abc" 7)
+          (1+ *)
+          (length *))
+        => 2
+        => 3
+        => 7
+
     If the number of values is less than the number of transformation
-    forms, then in later transformation forms `*` is bound
+    forms, then in later transformation forms * is bound
     to NIL.
-    
-    ```common-lisp
-    (on-values (values)
-      *
-      *)
-    => NIL
-    => NIL
-    ```
-    
+
+        (on-values (values)
+          *
+          *)
+        => NIL
+        => NIL
+
     The first forms in BODY may be options. Options must precede
     transformation forms. With :TRUNCATE T, the excess values are
     discarded.
-    
-    ```common-lisp
-    (on-values (values 1 "abc" 7)
-      (:truncate t)
-      (1+ *)
-      (length *))
-    => 2
-    => 3
-    ```
-    
+
+        (on-values (values 1 "abc" 7)
+          (:truncate t)
+          (1+ *)
+          (length *))
+        => 2
+        => 3
+
     The :ON-LENGTH-MISMATCH option may be NIL or a function of a single
     argument. If the number of values and the number of transformation
     forms are different, then this function is called to transform the
     list of values. :TRUNCATE is handled before :ON-LENGTH-MISMATCH.
-    
-    ```common-lisp
-    (on-values 1
-      (:on-length-mismatch (lambda (values)
-                             (if (= (length values) 1)
-                                 (append values '("abc"))
-                                 values)))
-      (1+ *)
-      *)
-    => 2
-    => "abc"
-    ```
-    
+
+        (on-values 1
+          (:on-length-mismatch (lambda (values)
+                                 (if (= (length values) 1)
+                                     (append values '("abc"))
+                                     values)))
+          (1+ *)
+          *)
+        => 2
+        => "abc"
+
     If the same option is specified multiple times, the first one is in
     effect.
 
@@ -1966,134 +1833,122 @@ functions and macros that may be useful for writing IS checks.
     :ON-LENGTH-MISMATCH and :TRUNCATE options of ON-VALUES are
     supported. If no :ON-LENGTH-MISMATCH option is specified, then
     MATCH-VALUES returns NIL on length mismatch.
-    
-    ```common-lisp
-    ;; no values
-    (is (match-values (values)))
-    ;; single value success
-    (is (match-values 1
-          (= * 1)))
-    ;; success with different types
-    (is (match-values (values 1 "sdf")
-          (= * 1)
-          (string= * "sdf")))
-    ;; too few values
-    (is (not (match-values 1
-               (= * 1)
-               (string= * "sdf"))))
-    ;; too many values
-    (is (not (match-values (values 1 "sdf" 3)
-               (= * 1)
-               (string= * "sdf"))))
-    ;; too many values, but truncated
-    (is (match-values (values 1 "sdf" 3)
-          (:truncate t)
-          (= * 1)
-          (string= * "sdf")))
-    ```
 
-- [function] MISMATCH% SEQUENCE1 SEQUENCE2 &KEY FROM-END (TEST \#'EQL) (START1 0) END1 (START2 0) END2 KEY MAX-PREFIX-LENGTH MAX-SUFFIX-LENGTH
+        ;; no values
+        (is (match-values (values)))
+        ;; single value success
+        (is (match-values 1
+              (= * 1)))
+        ;; success with different types
+        (is (match-values (values 1 "sdf")
+              (= * 1)
+              (string= * "sdf")))
+        ;; too few values
+        (is (not (match-values 1
+                   (= * 1)
+                   (string= * "sdf"))))
+        ;; too many values
+        (is (not (match-values (values 1 "sdf" 3)
+                   (= * 1)
+                   (string= * "sdf"))))
+        ;; too many values, but truncated
+        (is (match-values (values 1 "sdf" 3)
+              (:truncate t)
+              (= * 1)
+              (string= * "sdf")))
+
+- [function] MISMATCH% SEQUENCE1 SEQUENCE2 &KEY FROM-END (TEST #'EQL) (START1 0) END1 (START2 0) END2 KEY MAX-PREFIX-LENGTH MAX-SUFFIX-LENGTH
 
     Like CL:MISMATCH but CAPTUREs and returns the common prefix and
-    the mismatched suffixes. The `TEST-NOT` argument is deprecated by
+    the mismatched suffixes. The TEST-NOT argument is deprecated by
     the CLHS and is not supported. In addition, if MAX-PREFIX-LENGTH and
-    MAX-SUFFIX-LENGTH are non-`NIL`, they must be non-negative integers,
+    MAX-SUFFIX-LENGTH are non-NIL, they must be non-negative integers,
     and they limit the number of elements in the prefix and the
     suffixes.
-    
-    ```common-lisp
-    (is (null (mismatch% '(1 2 3) '(1 2 4 5))))
-    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-    ..   UNEXPECTED-FAILURE in check:
-    ..     (IS (NULL #1=(MISMATCH% '(1 2 3) '(1 2 4 5))))
-    ..   where
-    ..     COMMON-PREFIX = (1 2)
-    ..     MISMATCHED-SUFFIX-1 = (3)
-    ..     MISMATCHED-SUFFIX-2 = (4 5)
-    ..     #1# = 2
-    ```
-    
-    ```common-lisp
-    (is (null (mismatch% "Hello, World!"
-                         "Hello, world!")))
-    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-    ..   UNEXPECTED-FAILURE in check:
-    ..     (IS (NULL #1=(MISMATCH% "Hello, World!" "Hello, world!")))
-    ..   where
-    ..     COMMON-PREFIX = "Hello, "
-    ..     MISMATCHED-SUFFIX-1 = "World!"
-    ..     MISMATCHED-SUFFIX-2 = "world!"
-    ..     #1# = 7
-    ```
 
-- [function] DIFFERENT-ELEMENTS SEQUENCE1 SEQUENCE2 &KEY (PRED \#'EQL) (MISSING :MISSING)
+        (is (null (mismatch% '(1 2 3) '(1 2 4 5))))
+        .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+        ..   UNEXPECTED-FAILURE in check:
+        ..     (IS (NULL #1=(MISMATCH% '(1 2 3) '(1 2 4 5))))
+        ..   where
+        ..     COMMON-PREFIX = (1 2)
+        ..     MISMATCHED-SUFFIX-1 = (3)
+        ..     MISMATCHED-SUFFIX-2 = (4 5)
+        ..     #1# = 2
+
+        (is (null (mismatch% "Hello, World!"
+                             "Hello, world!")))
+        .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+        ..   UNEXPECTED-FAILURE in check:
+        ..     (IS (NULL #1=(MISMATCH% "Hello, World!" "Hello, world!")))
+        ..   where
+        ..     COMMON-PREFIX = "Hello, "
+        ..     MISMATCHED-SUFFIX-1 = "World!"
+        ..     MISMATCHED-SUFFIX-2 = "world!"
+        ..     #1# = 7
+
+- [function] DIFFERENT-ELEMENTS SEQUENCE1 SEQUENCE2 &KEY (PRED #'EQL) (MISSING :MISSING)
 
     Return the different elements under PRED in the given sequences as
-    a list of `(:INDEX <INDEX> <E1> <E2>)` elements, where `E1` and `E2`
-    are elements of SEQUENCE1 and SEQUENCE2 at `<INDEX>`, respectively,
+    a list of (:INDEX <INDEX> <E1> <E2>) elements, where E1 and E2
+    are elements of SEQUENCE1 and SEQUENCE2 at <INDEX>, respectively,
     and they may be MISSING if the corresponding sequence is too short.
-    
-    ```common-lisp
-    (is (endp (different-elements '(1 2 3) '(1 b 3 d))))
-    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-    ..   UNEXPECTED-FAILURE in check:
-    ..     (IS (ENDP #1=(DIFFERENT-ELEMENTS '(1 2 3) '(1 B 3 D))))
-    ..   where
-    ..     #1# = ((:INDEX 1 2 B) (:INDEX 3 :MISSING D))
-    ```
 
-- [function] SAME-SET-P LIST1 LIST2 &KEY KEY (TEST \#'EQL)
+        (is (endp (different-elements '(1 2 3) '(1 b 3 d))))
+        .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+        ..   UNEXPECTED-FAILURE in check:
+        ..     (IS (ENDP #1=(DIFFERENT-ELEMENTS '(1 2 3) '(1 B 3 D))))
+        ..   where
+        ..     #1# = ((:INDEX 1 2 B) (:INDEX 3 :MISSING D))
+
+- [function] SAME-SET-P LIST1 LIST2 &KEY KEY (TEST #'EQL)
 
     See if LIST1 and LIST2 represent the same set.
     See CL:SET-DIFFERENCE for a description of the KEY and TEST arguments.
-    
-    ```common-lisp
-    (try:is (try:same-set-p '(1) '(2)))
-    .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
-    ..   UNEXPECTED-FAILURE in check:
-    ..     (IS (SAME-SET-P '(1) '(2)))
-    ..   where
-    ..     ONLY-IN-1 = (1)
-    ..     ONLY-IN-2 = (2)
-    ```
+
+        (try:is (try:same-set-p '(1) '(2)))
+        .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
+        ..   UNEXPECTED-FAILURE in check:
+        ..     (IS (SAME-SET-P '(1) '(2)))
+        ..   where
+        ..     ONLY-IN-1 = (1)
+        ..     ONLY-IN-2 = (2)
 
 - [macro] WITH-SHUFFLING NIL &BODY BODY
 
     Execute the forms that make up the list of forms BODY in random
     order and return NIL. This may be useful to prevent writing tests
     that accidentally depend on the order in which subtests are called.
-    
-    ```common-lisp
-    (loop repeat 3 do
-      (with-shuffling ()
-        (prin1 1)
-        (prin1 2)))
-    .. 122112
-    => NIL
-    ```
+
+        (loop repeat 3 do
+          (with-shuffling ()
+            (prin1 1)
+            (prin1 2)))
+        .. 122112
+        => NIL
 
 #### Comparing Floats
 
 Float comparisons following
 [https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/](https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/).
 
-- [function] FLOAT-~= X Y &KEY (MAX-DIFF-IN-VALUE \*MAX-DIFF-IN-VALUE\*) (MAX-DIFF-IN-ULP \*MAX-DIFF-IN-ULP\*)
+- [function] FLOAT-~= X Y &KEY (MAX-DIFF-IN-VALUE *MAX-DIFF-IN-VALUE*) (MAX-DIFF-IN-ULP *MAX-DIFF-IN-ULP*)
 
     Return whether two numbers, X and Y, are approximately equal either
     according to MAX-DIFF-IN-VALUE or MAX-DIFF-IN-ULP.
-    
+
     If the absolute value of the difference of two floats is not greater
     than MAX-DIFF-IN-VALUE, then they are considered equal.
-    
+
     If two floats are of the same sign and the number of representable
     floats (ULP, unit in the last place) between them is less than
     MAX-DIFF-IN-ULP, then they are considered equal.
-    
-    If neither X nor Y are floats, then the comparison is done with `=`.
+
+    If neither X nor Y is a float, then the comparison is done with =.
     If one of them is a DOUBLE-FLOAT, then the other is converted to a
-    double float, and the comparison takes place in double float space.
+    double float, and the comparison takes place in double-float space.
     Else, both are converted to SINGLE-FLOAT and the comparison takes
-    place in single float space.
+    place in single-float space.
 
 - [variable] *MAX-DIFF-IN-VALUE* 1.0e-16
 
@@ -2103,14 +1958,14 @@ Float comparisons following
 
     The default value of the MAX-DIFF-IN-ULP argument of FLOAT-~=.
 
-- [function] FLOAT-~< X Y &KEY (MAX-DIFF-IN-VALUE \*MAX-DIFF-IN-VALUE\*) (MAX-DIFF-IN-ULP \*MAX-DIFF-IN-ULP\*)
+- [function] FLOAT-~< X Y &KEY (MAX-DIFF-IN-VALUE *MAX-DIFF-IN-VALUE*) (MAX-DIFF-IN-ULP *MAX-DIFF-IN-ULP*)
 
-    Return whether X is approximately less than Y. Equivalent to `<`,
+    Return whether X is approximately less than Y. Equivalent to <,
     but it also allows for approximate equality according to FLOAT-~=.
 
-- [function] FLOAT-~> X Y &KEY (MAX-DIFF-IN-VALUE \*MAX-DIFF-IN-VALUE\*) (MAX-DIFF-IN-ULP \*MAX-DIFF-IN-ULP\*)
+- [function] FLOAT-~> X Y &KEY (MAX-DIFF-IN-VALUE *MAX-DIFF-IN-VALUE*) (MAX-DIFF-IN-ULP *MAX-DIFF-IN-ULP*)
 
-    Return whether X is approximately greater than Y. Equivalent to `>`,
+    Return whether X is approximately greater than Y. Equivalent to >,
     but it also allows for approximate equality according to FLOAT-~=.
 
 ## Tests
@@ -2136,44 +1991,40 @@ See DEFTEST and WITH-TEST for more precise descriptions.
 
     DEFTEST is a wrapper around DEFUN to define global test functions.
     See DEFUN for a description of NAME, LAMBDA-LIST, and BODY. The
-    behaviour common with WITH-TEST is described in @TESTS.
-    
-    ```common-lisp
-    (deftest my-test ()
-      (write-string "hey"))
-    => MY-TEST
-    
-    (test-bound-p 'my-test)
-    => T
-    
-    (my-test)
-    .. hey
-    ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.000s>
-    ```
-    
+    behaviour common with WITH-TEST is described in Tests.
+
+        (deftest my-test ()
+          (write-string "hey"))
+        => MY-TEST
+        
+        (test-bound-p 'my-test)
+        => T
+        
+        (my-test)
+        .. hey
+        ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.000s>
+
     Although the common case is for tests to have no arguments, DEFTEST
     supports general function lambda lists. Within a global test,
-    
+
     - NAME is bound to the TRIAL object
-    
+
     - the first return value is the trial
-    
+
     - values are not returned implicitly
-    
+
     - values returned with an explicit RETURN-FROM are returned as
       values after the trial
-    
-    ```common-lisp
-    (deftest my-test ()
-      (prin1 my-test)
-      (return-from my-test (values 2 3)))
-    
-    (my-test)
-    .. #<TRIAL (MY-TEST) RUNNING>
-    ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.000s>
-    => 2
-    => 3
-    ```
+
+        (deftest my-test ()
+          (prin1 my-test)
+          (return-from my-test (values 2 3)))
+        
+        (my-test)
+        .. #<TRIAL (MY-TEST) RUNNING>
+        ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.000s>
+        => 2
+        => 3
 
 - [variable] *RUN-DEFTEST-WHEN* NIL
 
@@ -2181,13 +2032,13 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     a list thereof. The value of *RUN-DEFTEST-WHEN* determines in what
     EVAL-WHEN situation to call the test function immediately after it
     has been defined with DEFTEST.
-    
+
     For interactive development, it may be convenient to set it to
     :EXECUTE and have the test run when the DEFTEST is evaluated (maybe
-    with Slime `C-M-x`, `slime-eval-defun`). Or set it to
-    :COMPILE-TOPLEVEL, and have it rerun on Slime `C-c C-c`,
-    `slime-compile-defun`.
-    
+    with Slime C-M-x, slime-eval-defun). Or set it to
+    :COMPILE-TOPLEVEL, and have it rerun on Slime C-c C-c,
+    slime-compile-defun.
+
     If the test has required arguments, an argument list is prompted for
     and read from *QUERY-IO*.
 
@@ -2202,131 +2053,121 @@ See DEFTEST and WITH-TEST for more precise descriptions.
 
     Execute BODY in a TRIAL to group together CHECKs and
     other tests in its dynamic scope. BODY is executed in its lexical
-    environment even on a rerun (see @RERUN).
-    
-    If VAR-OR-NAME is a non-`NIL` symbol, it is bound to the TRIAL
+    environment even on a rerun (see Rerunning Trials).
+
+    If VAR-OR-NAME is a non-NIL symbol, it is bound to the TRIAL
     object. NAME may be of any type, it is purely for presentation
     purposes. If NAME is not specified, then it defaults to VAR-OR-NAME.
-    
+
     To facilitate returning values, a BLOCK is wrapped around BODY. The
     name of the block is VAR-OR-NAME if it is a symbol, else it's NIL.
-    
+
     Both VAR-OR-NAME and NAME can be specified, but in this case VAR-OR-NAME
     must be a symbol:
-    
-    ```common-lisp
-    (with-test (some-feature :name "obscure feature")
-      (prin1 some-feature)
-      (is t)
-      (return-from some-feature (values 1 2)))
-    .. #<TRIAL (WITH-TEST ("obscure feature")) RUNNING>
-    .. "obscure feature"
-    ..   ⋅ (IS T)
-    .. ⋅ "obscure feature" ⋅1
-    ..
-    ==> #<TRIAL (WITH-TEST ("obscure feature")) EXPECTED-SUCCESS 0.200s ⋅1>
-    => 1
-    => 2
-    ```
-    
+
+        (with-test (some-feature :name "obscure feature")
+          (prin1 some-feature)
+          (is t)
+          (return-from some-feature (values 1 2)))
+        .. #<TRIAL (WITH-TEST ("obscure feature")) RUNNING>
+        .. "obscure feature"
+        ..   ⋅ (IS T)
+        .. ⋅ "obscure feature" ⋅1
+        ..
+        ==> #<TRIAL (WITH-TEST ("obscure feature")) EXPECTED-SUCCESS 0.200s ⋅1>
+        => 1
+        => 2
+
     If only VAR-OR-NAME is specified:
-    
-    ```common-lisp
-    (with-test (some-feature)
-      (prin1 some-feature)
-      (is t)
-      (return-from some-feature (values 1 2)))
-    .. #<TRIAL (WITH-TEST (SOME-FEATURE)) RUNNING>
-    .. SOME-FEATURE
-    ..   ⋅ (IS T)
-    .. ⋅ SOME-FEATURE ⋅1
-    ..
-    ==> #<TRIAL (WITH-TEST (SOME-FEATURE)) EXPECTED-SUCCESS 0.000s ⋅1>
-    => 1
-    => 2
-    ```
-    
+
+        (with-test (some-feature)
+          (prin1 some-feature)
+          (is t)
+          (return-from some-feature (values 1 2)))
+        .. #<TRIAL (WITH-TEST (SOME-FEATURE)) RUNNING>
+        .. SOME-FEATURE
+        ..   ⋅ (IS T)
+        .. ⋅ SOME-FEATURE ⋅1
+        ..
+        ==> #<TRIAL (WITH-TEST (SOME-FEATURE)) EXPECTED-SUCCESS 0.000s ⋅1>
+        => 1
+        => 2
+
     If neither is specified:
-    
-    ```common-lisp
-    (with-test ()
-      (prin1 (current-trial))
-      (is t)
-      (return (values 1 2)))
-    .. #<TRIAL (WITH-TEST (NIL)) RUNNING>
-    .. NIL
-    ..   ⋅ (IS T)
-    .. ⋅ NIL ⋅1
-    ..
-    ==> #<TRIAL (WITH-TEST (NIL)) EXPECTED-SUCCESS 0.000s ⋅1>
-    => 1
-    => 2
-    ```
-    
+
+        (with-test ()
+          (prin1 (current-trial))
+          (is t)
+          (return (values 1 2)))
+        .. #<TRIAL (WITH-TEST (NIL)) RUNNING>
+        .. NIL
+        ..   ⋅ (IS T)
+        .. ⋅ NIL ⋅1
+        ..
+        ==> #<TRIAL (WITH-TEST (NIL)) EXPECTED-SUCCESS 0.000s ⋅1>
+        => 1
+        => 2
+
     Finally, using that NAME defaults to VAR-OR-NAME and that it is
     valid to specify non-symbols for VAR-OR-NAME, one can also write:
-    
-    ```common-lisp
-    (with-test ("Some feature")
-      (prin1 (current-trial))
-      (is t)
-      (return (values 1 2)))
-    .. #<TRIAL (WITH-TEST ("Some feature")) RUNNING>
-    .. "Some feature"
-    ..   ⋅ (IS T)
-    .. ⋅ "Some feature" ⋅1
-    ..
-    ==> #<TRIAL (WITH-TEST ("Some feature")) EXPECTED-SUCCESS 0.200s ⋅1>
-    => 1
-    => 2
-    ```
-    
-    In summary and in contrast to DEFTEST, WITH-TEST
-    
-    - defines and runs a test at the same time,
-    
-    - the test function cannot have arguments,
-    
-    - may not bind their trial object to any variable,
-    
-    - may have a BLOCK named NIL,
-    
-    - has a NAME purely for presentation purposes.
-    
-    WITH-TEST can be thought of as analogous to `(FUNCALL (LAMBDA ()
-    BODY))`. The presence of the LAMBDA is important because it is
-    stored in the TRIAL object to support @RERUN.
 
-- [function] LIST-PACKAGE-TESTS &OPTIONAL (PACKAGE \*PACKAGE\*)
+        (with-test ("Some feature")
+          (prin1 (current-trial))
+          (is t)
+          (return (values 1 2)))
+        .. #<TRIAL (WITH-TEST ("Some feature")) RUNNING>
+        .. "Some feature"
+        ..   ⋅ (IS T)
+        .. ⋅ "Some feature" ⋅1
+        ..
+        ==> #<TRIAL (WITH-TEST ("Some feature")) EXPECTED-SUCCESS 0.200s ⋅1>
+        => 1
+        => 2
+
+    In summary and in contrast to DEFTEST, WITH-TEST
+
+    - defines and runs a test at the same time,
+
+    - the test function cannot have arguments,
+
+    - may not bind their trial object to any variable,
+
+    - may have a BLOCK named NIL,
+
+    - has a NAME purely for presentation purposes.
+
+    WITH-TEST can be thought of as analogous to (FUNCALL (LAMBDA ()
+    BODY)). The presence of the LAMBDA is important because it is
+    stored in the TRIAL object to support Rerunning Trials.
+
+- [function] LIST-PACKAGE-TESTS &OPTIONAL (PACKAGE *PACKAGE*)
 
     List all symbols in PACKAGE that name global tests in the sense of
     TEST-BOUND-P.
 
 - [macro] WITH-TESTS-RUN (TESTS-RUN) &BODY BODY
 
-    Bind the symbol TESTS-RUN to an empty `EQ` hash table and execute
-    BODY. The has table reflects call counts to global tests. Keys are
+    Bind the symbol TESTS-RUN to an empty EQ hash table and execute
+    BODY. The hash table reflects call counts to global tests. Keys are
     symbols naming global tests, and the values are the number of times
     the keys have been called.
 
-- [macro] WARN-ON-TESTS-NOT-RUN (&OPTIONAL (PACKAGE \*PACKAGE\*)) &BODY BODY
+- [macro] WARN-ON-TESTS-NOT-RUN (&OPTIONAL (PACKAGE *PACKAGE*)) &BODY BODY
 
-    A convenience utility to that records the global tests run by BODY
+    A convenience utility that records the global tests run by BODY
     with WITH-TESTS-RUN and, when BODY finishes, signals a warning for
     each global tests in PACKAGE not run.
-    
+
     This is how Try runs its own tests:
-    
-    ```
-    (defun test ()
-      ;; Bind *PACKAGE* so that names of tests printed have package names,
-      ;; and M-. works on them in Slime.
-      (let ((*package* (find-package :common-lisp)))
-        (warn-on-tests-not-run ((find-package :try))
-          (print (try 'test-all
-                      :print 'unexpected
-                      :describe 'unexpected)))))
-    ```
+
+        (defun test ()
+          ;; Bind *PACKAGE* so that names of tests printed have package names,
+          ;; and M-. works on them in Slime.
+          (let ((*package* (find-package :common-lisp)))
+            (warn-on-tests-not-run ((find-package :try))
+              (print (try 'test-all
+                          :print 'unexpected
+                          :describe 'unexpected)))))
 
 ### Calling Test Functions
 
@@ -2354,94 +2195,91 @@ called directly by TRY.
 
 Global test functions can be TRYed explicitly by giving their name:
 
-```common-lisp
-(deftest my-test ()
-  (is t))
-
-(try 'my-test)
-.. MY-TEST
-..   ⋅ (IS T)
-.. ⋅ MY-TEST ⋅1
-..
-==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.000s ⋅1>
-```
+    (deftest my-test ()
+      (is t))
+    
+    (try 'my-test)
+    .. MY-TEST
+    ..   ⋅ (IS T)
+    .. ⋅ MY-TEST ⋅1
+    ..
+    ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.000s ⋅1>
 
 However, WITH-TEST has no global name, so to delay its execution
 until TRY calls it, it needs to be wrapped in a LAMBDA.
 
-```
-(try (lambda ()
-       (with-test (my-test)
-         (is t))))
-.. (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>)
-..   MY-TEST
-..     ⋅ (IS T)
-..   ⋅ MY-TEST ⋅1
-.. ⋅ (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) ⋅1
-..
-==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) EXPECTED-SUCCESS 0.000s ⋅1>
-```
+    (try (lambda ()
+           (with-test (my-test)
+             (is t))))
+    .. (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>)
+    ..   MY-TEST
+    ..     ⋅ (IS T)
+    ..   ⋅ MY-TEST ⋅1
+    .. ⋅ (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) ⋅1
+    ..
+    ==> #<TRIAL (TRY #<FUNCTION (LAMBDA ()) {531FE50B}>) EXPECTED-SUCCESS 0.000s ⋅1>
 
 In the example above, the TESTABLE argument is not the
 name of a test, so we see that TRY wraps an extra TRIAL
 around the lambda to ensure that the tree of TRIALs has a single
 root. This TRIAL object also remembers the lambda function for
 rerunning. This situation also arises when there are
-multiple basic @TESTABLES.
+multiple basic Testables.
 
 Explicit and implicit TRYs are very similar. The differences are
 that explicit TRY
 
-- can run @TESTABLES (it takes care of wrapping them in a function),
+- can run Testables (it takes care of wrapping them in a function),
 
 - has a function argument for each of the *DEBUG*, *COLLECT*, etc
   variables.
 
 Those arguments default to *TRY-DEBUG*, *TRY-COLLECT*, etc, which
-parallel and default to *DEBUG*, *COLLECT*, etc if set to
-:UNSPECIFIED. *TRY-DEBUG* is NIL, the rest of them are :UNSPECIFIED.
-These defaults encourage the use of an explicit TRY call in the
-non-interactive case and calling the test functions directly in the
-interactive one, but this is not enforced in any way.
+parallel and in turn default to *DEBUG*, *COLLECT*, etc when set to
+:UNSPECIFIED, their default value. The exception is *TRY-DEBUG*,
+which defaults to NIL. These defaults encourage the use of an
+explicit TRY call in the non-interactive case and calling the test
+functions directly in the interactive one, but this is not enforced
+in any way.
 
-- [function] TRY TESTABLE &KEY (DEBUG \*TRY-DEBUG\*) (COUNT \*TRY-COUNT\*) (COLLECT \*TRY-COLLECT\*) (RERUN \*TRY-RERUN\*) (PRINT \*TRY-PRINT\*) (DESCRIBE \*TRY-DESCRIBE\*) (STREAM \*TRY-STREAM\*) (PRINTER \*TRY-PRINTER\*)
+- [function] TRY TESTABLE &KEY (DEBUG *TRY-DEBUG*) (COUNT *TRY-COUNT*) (COLLECT *TRY-COLLECT*) (RERUN *TRY-RERUN*) (PRINT *TRY-PRINT*) (DESCRIBE *TRY-DESCRIBE*) (STREAM *TRY-STREAM*) (PRINTER *TRY-PRINTER*)
 
     TRY runs TESTABLE and handles the EVENTs to
     count, collect, debug, print the
     results of checks and trials, and to decide what tests to SKIP and
     what to rerun.
-    
+
     DEBUG, COUNT, COLLECT, RERUN, PRINT, and DESCRIBE must all be valid
     specifiers for types that are either NIL (the empty type) or have a
     non-empty intersection with the type EVENT (e.g. T, OUTCOME,
     UNEXPECTED, VERDICT).
-    
+
     TRY sets up a HANDLER-BIND handler for EVENTs and runs TESTABLE (see
-    @TESTABLES). When an EVENT is signalled, the handler matches its
-    type to the value of the DEBUG argument (in the sense of `(TYPEP
-    EVENT DEBUG)`). If it matches, then the debugger is invoked with the
+    Testables). When an EVENT is signalled, the handler matches its
+    type to the value of the DEBUG argument (in the sense of (TYPEP
+    EVENT DEBUG)). If it matches, then the debugger is invoked with the
     event. In the debugger, the user has a number of restarts available
-    to change (see @EVENT-RESTARTS, @OUTCOME-RESTARTS,
-    @CHECK-RESTARTS, @TRIAL-RESTARTS, and SET-TRY-DEBUG.
-    
+    to change (see Event Restarts, Outcome Restarts, Check Restarts,
+    Trial Restarts, and SET-TRY-DEBUG).
+
     If the debugger is not invoked, TRY invokes the very first restart
     available, which is always RECORD-EVENT.
-    
+
     Recording the event is performed as follows.
-    
-    - Outcome counts are updated (see @COUNT).
-    
-    - The event is passed to the collector (see @COLLECT).
-    
-    - The event is passed to the printer (see @PRINT).
-    
+
+    - Outcome counts are updated (see Counting Events).
+
+    - The event is passed to the collector (see Collecting Events).
+
+    - The event is passed to the printer (see Printing Events).
+
     - Finally, when rerunning a trial (i.e. when TESTABLE is a trial),
-      on a TRIAL-START event, the trial may be skipped (see @RERUN).
-    
+      on a TRIAL-START event, the trial may be skipped (see Rerunning Trials).
+
     TRY returns the values returned by the outermost trial. This is just
     the TRIAL object in the absence of an explicit RETURN or
-    RETURN-FROM (see examples in @TESTS).
-    
+    RETURN-FROM (see examples in Tests).
+
     If TRY is called within the dynamic extent of another TRY run, then
     it simply calls TESTABLE, ignores the other arguments and leaves
     event handling to the enclosing TRY.
@@ -2455,42 +2293,42 @@ interactive one, but this is not enforced in any way.
 
 - [variable] *TRY-DEBUG* NIL
 
-    @TRYVAR. The default value for TRY's :DEBUG argument.
+    Try var. The default value for TRY's :DEBUG argument.
     If :UNSPECIFIED, then the value of *DEBUG* is used instead.
 
 - [variable] *TRY-COUNT* :UNSPECIFIED
 
-    @TRYVAR. The default value for TRY's :COUNT argument.
+    Try var. The default value for TRY's :COUNT argument.
     If :UNSPECIFIED, then the value of *COUNT* is used instead.
 
 - [variable] *TRY-COLLECT* :UNSPECIFIED
 
-    @TRYVAR. The default value for TRY's :COLLECT argument.
+    Try var. The default value for TRY's :COLLECT argument.
     If :UNSPECIFIED, then the value of *COLLECT* is used instead.
 
 - [variable] *TRY-RERUN* :UNSPECIFIED
 
-    @TRYVAR. The default value for TRY's :RERUN argument.
+    Try var. The default value for TRY's :RERUN argument.
     If :UNSPECIFIED, then the value of *RERUN* is used instead.
 
 - [variable] *TRY-PRINT* :UNSPECIFIED
 
-    @TRYVAR. The default value for TRY's :PRINT argument.
+    Try var. The default value for TRY's :PRINT argument.
     If :UNSPECIFIED, then the value of *PRINT* is used instead.
 
 - [variable] *TRY-DESCRIBE* :UNSPECIFIED
 
-    @TRYVAR. The default value for TRY's :DESCRIBE argument.
+    Try var. The default value for TRY's :DESCRIBE argument.
     If :UNSPECIFIED, then the value of *DESCRIBE* is used instead.
 
 - [variable] *TRY-STREAM* :UNSPECIFIED
 
-    @TRYVAR. The default value for TRY's :STREAM argument.
+    Try var. The default value for TRY's :STREAM argument.
     If :UNSPECIFIED, then the value of *STREAM* is used instead.
 
 - [variable] *TRY-PRINTER* :UNSPECIFIED
 
-    @TRYVAR. The default value for TRY's :PRINTER argument.
+    Try var. The default value for TRY's :PRINTER argument.
     If :UNSPECIFIED, then the value of *PRINTER* is used instead.
 
 - [variable] *N-RECENT-TRIALS* 3
@@ -2499,21 +2337,21 @@ interactive one, but this is not enforced in any way.
 
 - [function] RECENT-TRIAL &OPTIONAL (N 0)
 
-    Returns the `N`th most recent trial or NIL if there are not enough
+    Returns the Nth most recent trial or NIL if there are not enough
     trials recorded. Every TRIAL returned by TRY gets pushed
     onto a list of trials, but only *N-RECENT-TRIALS* are kept.
 
 - [variable] ! NIL
 
-    The most recent trial. Equivalent to `(RECENT-TRIAL 0)`.
+    The most recent trial. Equivalent to (RECENT-TRIAL 0).
 
 - [variable] !! NIL
 
-    Equivalent to `(RECENT-TRIAL 1)`.
+    Equivalent to (RECENT-TRIAL 1).
 
 - [variable] !!! NIL
 
-    Equivalent to `(RECENT-TRIAL 2)`.
+    Equivalent to (RECENT-TRIAL 2).
 
 ##### Testables
 
@@ -2539,8 +2377,7 @@ With a list of function designators, TRY does the following:
 
 - Else, TRY behaves as if its TESTABLE argument were an anonymous
   function that calls the function designators one by one. See
-  @EXPLICIT-TRY for an example.
-
+  Explicit TRY for an example.
 
 #### Implicit TRY
 
@@ -2548,48 +2385,41 @@ We speak of an implicit TRY when the outermost test is entered
 via a Lisp function call. In this case, as the test function is
 entered, it invokes itself behind the scenes (implicitly) via TRY:
 
-```
-(try ... :debug *debug* :collect *collect* :rerun *rerun*
-     :print *print* :describe *describe*
-     :stream *stream* :printer *printer*)
-```
+    (try ... :debug *debug* :collect *collect* :rerun *rerun*
+         :print *print* :describe *describe*
+         :stream *stream* :printer *printer*)
 
-As its invoked again, it sees that it is now running under TRY and
+As it's invoked again, it sees that it is now running under TRY and
 proceeds to execute normally.
 
 An implicit TRY can only happen with the following two constructs.
 
 - Global test function
 
-    ```common-lisp
-    (deftest my-test ()
-      (is t))
-    
-    (my-test)
-    .. MY-TEST
-    ..   ⋅ (IS T)
-    .. ⋅ MY-TEST ⋅1
-    ..
-    ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.004s ⋅1>
-    ```
+        (deftest my-test ()
+          (is t))
+        
+        (my-test)
+        .. MY-TEST
+        ..   ⋅ (IS T)
+        .. ⋅ MY-TEST ⋅1
+        ..
+        ==> #<TRIAL (MY-TEST) EXPECTED-SUCCESS 0.004s ⋅1>
 
 - WITH-TEST
 
-    ```common-lisp
-    (with-test (my-test)
-      (is t))
-    .. MY-TEST
-    ..   ⋅ (IS T)
-    .. ⋅ MY-TEST ⋅1
-    ..
-    ==> #<TRIAL (WITH-TEST (MY-TEST)) EXPECTED-SUCCESS 0.000s ⋅1>
-    ```
-
+        (with-test (my-test)
+          (is t))
+        .. MY-TEST
+        ..   ⋅ (IS T)
+        .. ⋅ MY-TEST ⋅1
+        ..
+        ==> #<TRIAL (WITH-TEST (MY-TEST)) EXPECTED-SUCCESS 0.000s ⋅1>
 
 - [variable] *DEBUG* (AND UNEXPECTED (NOT NLX) (NOT VERDICT))
 
-    @TRYVAR. The default value makes TRY invoke the debugger on UNHANDLED-ERROR,
-    RESULT-ABORT\*, UNEXPECTED-RESULT-FAILURE, and
+    Try var. The default value makes TRY invoke the debugger on UNHANDLED-ERROR,
+    RESULT-ABORT*, UNEXPECTED-RESULT-FAILURE, and
     UNEXPECTED-RESULT-SUCCESS. NLX is excluded because it is caught as
     the test function is being exited, but by that time the dynamic
     environment of the actual cause is likely gone. VERDICT is excluded
@@ -2597,63 +2427,58 @@ An implicit TRY can only happen with the following two constructs.
 
 - [variable] *COUNT* LEAF
 
-    @TRYVAR. Although the default value of *CATEGORIES* lumps RESULTs and
+    Try var. Although the default value of *CATEGORIES* lumps RESULTs and
     VERDICTs together, with the default of LEAF, VERDICTs are not
-    counted. See @COUNT.
+    counted. See Counting Events.
 
 - [variable] *COLLECT* (OR TRIAL-EVENT UNEXPECTED)
 
-    @TRYVAR. By default all TRIALs and UNEXPECTED are
-    collected. This is sufficient for being able to @RERUN
+    Try var. By default all TRIALs and UNEXPECTED are
+    collected. This is sufficient for being able to Rerunning Trials
     anything in context.
 
 - [variable] *RERUN* UNEXPECTED
 
-    @TRYVAR. The default matches that of *COLLECT*. See @RERUN.
+    Try var. The default matches that of *COLLECT*. See Rerunning Trials.
 
 - [variable] *PRINT* (OR LEAF DISMISSAL)
 
-    @TRYVAR. Events of this type are printed.
-    
-    ```common-lisp
-    (concrete-events-of-type '(or leaf dismissal))
-    => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
-        EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
-        RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT* UNHANDLED-ERROR NLX)
-    ```
+    Try var. Events of this type are printed.
+
+        (concrete-events-of-type '(or leaf dismissal))
+        => (EXPECTED-RESULT-SUCCESS UNEXPECTED-RESULT-SUCCESS
+            EXPECTED-RESULT-FAILURE UNEXPECTED-RESULT-FAILURE RESULT-SKIP
+            RESULT-ABORT* VERDICT-SKIP VERDICT-ABORT* UNHANDLED-ERROR NLX)
 
 - [variable] *DESCRIBE* (OR UNEXPECTED FAILURE)
 
-    @TRYVAR. By default, the context (e.g. @CAPTURES, and the CTX argument of
-    is and other checks) of UNEXPECTED events is described. See @PRINT.
+    Try var. By default, the context (e.g. Captures, and the CTX argument of
+    is and other checks) of UNEXPECTED events is described. See Printing Events.
 
-- [variable] *STREAM* (MAKE-SYNONYM-STREAM '\*DEBUG-IO\*)
+- [variable] *STREAM* (MAKE-SYNONYM-STREAM '*DEBUG-IO*)
 
-    @TRYVAR.
+    Try var.
 
 - [variable] *PRINTER* TREE-PRINTER
 
-    @TRYVAR.
+    Try var.
 
 ##### Implementation of Implicit TRY
 
 What's happening in the implementation is that a test function,
 when it is called, checks whether it is running under the TRY
 function. If it isn't, then it invokes TRY with its TRIAL. TRY
-realizes the trial cannot be rerun yet (see @RERUN) because it
+realizes the trial cannot be rerun yet (see Rerunning Trials) because it
 is RUNNINGP, sets up its event handlers for debugging, collecting,
 printing, and invokes the trial as if it were rerun but without
 skipping anything based on the RERUN argument. Thus the following
 are infinite recursions:
 
-```
-(with-test (recurse)
-  (try recurse))
-
-(with-test (recurse)
-  (funcall recurse))
-```
-
+    (with-test (recurse)
+      (try recurse))
+    
+    (with-test (recurse)
+      (funcall recurse))
 
 ### Printing Events
 
@@ -2676,205 +2501,191 @@ setups.
     tree-like structure, with each internal node corresponding to a
     TRIAL. This is the default printer (according to *PRINTER* and
     *TRY-PRINTER*) and currently the only one.
-    
-    The following example prints all @CONCRETE-EVENTS.
-    
-    ```common-lisp
-    (let ((*debug* nil)
-          (*print* '(not trial-start))
-          (*describe* nil))
-      (with-test (verdict-abort*)
-        (with-test (expected-verdict-success))
-        (with-expected-outcome ('failure)
-          (with-test (unexpected-verdict-success)))
-        (handler-bind (((and verdict success) #'force-expected-failure))
-          (with-test (expected-verdict-failure)))
-        (handler-bind (((and verdict success) #'force-unexpected-failure))
-          (with-test (unexpected-verdict-failure)))
-        (with-test (verdict-skip)
-          (skip-trial))
-        (is t :msg "EXPECTED-RESULT-SUCCESS")
-        (with-failure-expected ('failure)
-          (is t :msg "UNEXPECTED-RESULT-SUCCESS")
-          (is nil :msg "EXPECTED-RESULT-FAILURE"))
-        (is nil :msg "UNEXPECTED-RESULT-FAILURE")
-        (with-skip ()
-          (is nil :msg "RESULT-SKIP"))
-        (handler-bind (((and result success) #'abort-check))
-          (is t :msg "RESULT-ABORT*"))
-        (catch 'foo
-          (with-test (nlx-test)
-            (throw 'foo nil)))
-        (error "UNHANDLED-ERROR")))
-    .. VERDICT-ABORT*                       ; TRIAL-START
-    ..   ⋅ EXPECTED-VERDICT-SUCCESS
-    ..   ⊡ UNEXPECTED-VERDICT-SUCCESS
-    ..   × EXPECTED-VERDICT-FAILURE
-    ..   ⊠ UNEXPECTED-VERDICT-FAILURE
-    ..   - VERDICT-SKIP
-    ..   ⋅ EXPECTED-RESULT-SUCCESS
-    ..   ⊡ UNEXPECTED-RESULT-SUCCESS
-    ..   × EXPECTED-RESULT-FAILURE
-    ..   ⊠ UNEXPECTED-RESULT-FAILURE
-    ..   - RESULT-SKIP
-    ..   ⊟ RESULT-ABORT*
-    ..   NLX-TEST                           ; TRIAL-START
-    ..     ⊟ non-local exit                 ; NLX
-    ..   ⊟ NLX-TEST ⊟1                      ; VERDICT-ABORT*
-    ..   ⊟ "UNHANDLED-ERROR" (SIMPLE-ERROR)
-    .. ⊟ VERDICT-ABORT* ⊟3 ⊠1 ⊡1 -1 ×1 ⋅1
-    ..
-    ==> #<TRIAL (WITH-TEST (VERDICT-ABORT*)) ABORT* 0.004s ⊟3 ⊠1 ⊡1 -1 ×1 ⋅1>
-    ```
-    
-    The `⊟3 ⊠1 ⊡1 -1 ×1 ⋅1` part is the counts for *CATEGORIES* printed
+
+    The following example prints all Concrete Events.
+
+        (let ((*debug* nil)
+              (*print* '(not trial-start))
+              (*describe* nil))
+          (with-test (verdict-abort*)
+            (with-test (expected-verdict-success))
+            (with-expected-outcome ('failure)
+              (with-test (unexpected-verdict-success)))
+            (handler-bind (((and verdict success) #'force-expected-failure))
+              (with-test (expected-verdict-failure)))
+            (handler-bind (((and verdict success) #'force-unexpected-failure))
+              (with-test (unexpected-verdict-failure)))
+            (with-test (verdict-skip)
+              (skip-trial))
+            (is t :msg "EXPECTED-RESULT-SUCCESS")
+            (with-failure-expected ('failure)
+              (is t :msg "UNEXPECTED-RESULT-SUCCESS")
+              (is nil :msg "EXPECTED-RESULT-FAILURE"))
+            (is nil :msg "UNEXPECTED-RESULT-FAILURE")
+            (with-skip ()
+              (is nil :msg "RESULT-SKIP"))
+            (handler-bind (((and result success) #'abort-check))
+              (is t :msg "RESULT-ABORT*"))
+            (catch 'foo
+              (with-test (nlx-test)
+                (throw 'foo nil)))
+            (error "UNHANDLED-ERROR")))
+        .. VERDICT-ABORT*                       ; TRIAL-START
+        ..   ⋅ EXPECTED-VERDICT-SUCCESS
+        ..   ⊡ UNEXPECTED-VERDICT-SUCCESS
+        ..   × EXPECTED-VERDICT-FAILURE
+        ..   ⊠ UNEXPECTED-VERDICT-FAILURE
+        ..   - VERDICT-SKIP
+        ..   ⋅ EXPECTED-RESULT-SUCCESS
+        ..   ⊡ UNEXPECTED-RESULT-SUCCESS
+        ..   × EXPECTED-RESULT-FAILURE
+        ..   ⊠ UNEXPECTED-RESULT-FAILURE
+        ..   - RESULT-SKIP
+        ..   ⊟ RESULT-ABORT*
+        ..   NLX-TEST                           ; TRIAL-START
+        ..     ⊟ non-local exit                 ; NLX
+        ..   ⊟ NLX-TEST ⊟1                      ; VERDICT-ABORT*
+        ..   ⊟ "UNHANDLED-ERROR" (SIMPLE-ERROR)
+        .. ⊟ VERDICT-ABORT* ⊟3 ⊠1 ⊡1 -1 ×1 ⋅1
+        ..
+        ==> #<TRIAL (WITH-TEST (VERDICT-ABORT*)) ABORT* 0.004s ⊟3 ⊠1 ⊡1 -1 ×1 ⋅1>
+
+    The ⊟3 ⊠1 ⊡1 -1 ×1 ⋅1 part is the counts for *CATEGORIES* printed
     with their markers.
 
 - [variable] *PRINT-PARENT* T
 
-    @TRYVAR. When an EVENT is signalled and its parent TRIAL's type matches
+    Try var. When an EVENT is signalled and its parent TRIAL's type matches
     *PRINT-PARENT*, the trial is printed as if its TRIAL-START matched
      the PRINT argument of TRY.
-    
-    ```common-lisp
-    (let ((*print* 'leaf)
-          (*print-parent* t))
-      (with-test (t0)
-        (is t)
-        (is t)))
-    .. T0
-    ..   ⋅ (IS T)
-    ..   ⋅ (IS T)
-    .. ⋅ T0 ⋅2
-    ..
-    ==> #<TRIAL (WITH-TEST (T0)) EXPECTED-SUCCESS 0.000s ⋅2>
-    ```
-    
-    ```common-lisp
-    (let ((*print* 'leaf)
-          (*print-parent* nil))
-      (with-test (t0)
-        (is t)
-        (is t)))
-    .. ⋅ (IS T)
-    .. ⋅ (IS T)
-    ..
-    ==> #<TRIAL (WITH-TEST (T0)) EXPECTED-SUCCESS 0.000s ⋅2>
-    ```
-    
+
+        (let ((*print* 'leaf)
+              (*print-parent* t))
+          (with-test (t0)
+            (is t)
+            (is t)))
+        .. T0
+        ..   ⋅ (IS T)
+        ..   ⋅ (IS T)
+        .. ⋅ T0 ⋅2
+        ..
+        ==> #<TRIAL (WITH-TEST (T0)) EXPECTED-SUCCESS 0.000s ⋅2>
+
+        (let ((*print* 'leaf)
+              (*print-parent* nil))
+          (with-test (t0)
+            (is t)
+            (is t)))
+        .. ⋅ (IS T)
+        .. ⋅ (IS T)
+        ..
+        ==> #<TRIAL (WITH-TEST (T0)) EXPECTED-SUCCESS 0.000s ⋅2>
+
     *PRINT-PARENT* NIL combined with printing VERDICTs results in a flat
      output:
-    
-    ```common-lisp
-    (let ((*print* '(or leaf verdict))
-          (*print-parent* nil))
-      (with-test (outer)
-        (with-test (inner)
-          (is t :msg "inner-t"))
-        (is t :msg "outer-t")))
-    .. ⋅ inner-t
-    .. ⋅ INNER ⋅1
-    .. ⋅ outer-t
-    .. ⋅ OUTER ⋅2
-    ..
-    ==> #<TRIAL (WITH-TEST (OUTER)) EXPECTED-SUCCESS 0.000s ⋅2>
-    ```
+
+        (let ((*print* '(or leaf verdict))
+              (*print-parent* nil))
+          (with-test (outer)
+            (with-test (inner)
+              (is t :msg "inner-t"))
+            (is t :msg "outer-t")))
+        .. ⋅ inner-t
+        .. ⋅ INNER ⋅1
+        .. ⋅ outer-t
+        .. ⋅ OUTER ⋅2
+        ..
+        ==> #<TRIAL (WITH-TEST (OUTER)) EXPECTED-SUCCESS 0.000s ⋅2>
 
 - [variable] *PRINT-INDENTATION* 2
 
-    @TRYVAR. The number of spaces each printed TRIAL increases the indentation
+    Try var. The number of spaces each printed TRIAL increases the indentation
     of its children.
 
 - [variable] *PRINT-DURATION* NIL
 
-    @TRYVAR. If true, the number of seconds spent during execution is printed.
-    
-    ```common-lisp
-    (let ((*print-duration* t)
-          (*debug* nil)
-          (*describe* nil))
-      (with-test (timed)
-        (is (progn (sleep 0.1) t))
-        (is (progn (sleep 0.2) t))
-        (error "xxx")))
-    ..        TIMED
-    ..  0.100   ⋅ (IS (PROGN (SLEEP 0.1) T))
-    ..  0.200   ⋅ (IS (PROGN (SLEEP 0.2) T))
-    ..          ⊟ "xxx" (SIMPLE-ERROR)
-    ..  0.300 ⊟ TIMED ⊟1 ⋅2
-    ..
-    ==> #<TRIAL (WITH-TEST (TIMED)) ABORT* 0.300s ⊟1 ⋅2>
-    ```
-    
-    Timing is available for all OUTCOMEs (i.e. for @CHECKS and TRIALs).
+    Try var. If true, the number of seconds spent during execution is printed.
+
+        (let ((*print-duration* t)
+              (*debug* nil)
+              (*describe* nil))
+          (with-test (timed)
+            (is (progn (sleep 0.1) t))
+            (is (progn (sleep 0.2) t))
+            (error "xxx")))
+        ..        TIMED
+        ..  0.100   ⋅ (IS (PROGN (SLEEP 0.1) T))
+        ..  0.200   ⋅ (IS (PROGN (SLEEP 0.2) T))
+        ..          ⊟ "xxx" (SIMPLE-ERROR)
+        ..  0.300 ⊟ TIMED ⊟1 ⋅2
+        ..
+        ==> #<TRIAL (WITH-TEST (TIMED)) ABORT* 0.300s ⊟1 ⋅2>
+
+    Timing is available for all OUTCOMEs (i.e. for Checks and TRIALs).
     Checks generally measure the time spent during evaluation the form
     they are wrapping. Trials measure the time between TRIAL-START and
     the VERDICT.
-    
-    Timing information is not available for TRIAL-START and ERROR\*
+
+    Timing information is not available for TRIAL-START and ERROR*
     events.
 
 - [variable] *PRINT-COMPACTLY* NIL
 
-    @TRYVAR. EVENTs whose type matches *PRINT-COMPACTLY* are printed less
+    Try var. EVENTs whose type matches *PRINT-COMPACTLY* are printed less
     verbosely. LEAF events are printed only with their marker, and
-    VERDICTs of trials without printed child trials are printed with `=>
-    <MARKER>` (see *CATEGORIES*).
-    
-    ```common-lisp
-    (let ((*print-compactly* t)
-          (*debug* nil)
-          (*describe* nil))
-      (with-test (outer)
-        (loop repeat 10 do (is t))
-        (with-test (inner)
-          (is t)
-          (is nil)
-          (error "xxx"))
-        (loop repeat 10 do (is t))))
-    .. OUTER ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅
-    ..   INNER ⋅⊠⊟ => ⊟
-    ..   ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅
-    .. ⊠ OUTER ⊟1 ⊠1 ⋅21
-    ..
-    ==> #<TRIAL (WITH-TEST (OUTER)) UNEXPECTED-FAILURE 0.000s ⊟1 ⊠1 ⋅21>
-    ```
-    
-    *PRINT-COMPACTLY* has no effect on events being `DESCRIBE`d.
+    VERDICTs of trials without printed child trials are printed with =>
+    <MARKER> (see *CATEGORIES*).
+
+        (let ((*print-compactly* t)
+              (*debug* nil)
+              (*describe* nil))
+          (with-test (outer)
+            (loop repeat 10 do (is t))
+            (with-test (inner)
+              (is t)
+              (is nil)
+              (error "xxx"))
+            (loop repeat 10 do (is t))))
+        .. OUTER ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅
+        ..   INNER ⋅⊠⊟ => ⊟
+        ..   ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅
+        .. ⊠ OUTER ⊟1 ⊠1 ⋅21
+        ..
+        ==> #<TRIAL (WITH-TEST (OUTER)) UNEXPECTED-FAILURE 0.000s ⊟1 ⊠1 ⋅21>
+
+    *PRINT-COMPACTLY* has no effect on events being DESCRIBEd.
 
 - [variable] *PRINT-BACKTRACE* T
 
-    @TRYVAR. Whether to print backtraces gathered when *GATHER-BACKTRACE*.
+    Try var. Whether to print backtraces gathered when *GATHER-BACKTRACE*.
 
 - [variable] *DEFER-DESCRIBE* NIL
 
-    @TRYVAR. When an EVENT is to be `*DESCRIBE*`d and its type matches
+    Try var. When an EVENT is to be *DESCRIBE*d and its type matches
     *DEFER-DESCRIBE*, then instead of printing the often longish context
     information in the tree of events, it is deferred until after TRY
     has finished. The following example only prints LEAF events (due to
     *PRINT* and *PRINT-PARENT*) and in compact form (see
     *PRINT-COMPACTLY*), deferring description of events matching
     *DESCRIBE* until the end.
-    
-    ```common-lisp
-    (let ((*print* 'leaf)
-          (*print-parent* nil)
-          (*print-compactly* t)
-          (*defer-describe* t)
-          (*debug* nil))
-      (with-test (outer)
-        (loop repeat 10 do (is t))
-        (with-test (inner)
-          (is (= (1+ 5) 7)))))
-    .. ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⊠
-    ..
-    .. ;; UNEXPECTED-RESULT-FAILURE (⊠) in OUTER INNER:
-    .. (IS (= #1=(1+ 5) 7))
-    .. where
-    ..   #1# = 6
-    ..
-    ==> #<TRIAL (WITH-TEST (OUTER)) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅10>
-    ```
+
+        (let ((*print* 'leaf)
+              (*print-parent* nil)
+              (*print-compactly* t)
+              (*defer-describe* t)
+              (*debug* nil))
+          (with-test (outer)
+            (loop repeat 10 do (is t))
+            (with-test (inner)
+              (is (= (1+ 5) 7)))))
+        .. ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⊠
+        ..
+        .. ;; UNEXPECTED-RESULT-FAILURE (⊠) in OUTER INNER:
+        .. (IS (= #1=(1+ 5) 7))
+        .. where
+        ..   #1# = 6
+        ..
+        ==> #<TRIAL (WITH-TEST (OUTER)) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅10>
 
 ### Counting Events
 
@@ -2883,67 +2694,66 @@ EVENT is recorded by TRY and its type matches *COUNT*, the counters
 of all categories matching the event type are incremented in the
 CURRENT-TRIAL. When a trial finishes and a VERDICT is recorded, the
 trial's event counters are added to that of its parent's (if any).
-The counts are printed with VERDICTs (see @PRINT).
+The counts are printed with VERDICTs (see Printing Events).
 
-If both *COUNT* and *CATEGORIES* are unchanged from the their
-default values, then only LEAF events are counted, and we get
-separate counters for ABORT\*, UNEXPECTED-FAILURE,
-UNEXPECTED-SUCCESS, SKIP, EXPECTED-FAILURE, and EXPECTED-SUCCESS.
+If both *COUNT* and *CATEGORIES* are unchanged from their default
+values, then only LEAF events are counted, and we get separate
+counters for ABORT*, UNEXPECTED-FAILURE, UNEXPECTED-SUCCESS, SKIP,
+EXPECTED-FAILURE, and EXPECTED-SUCCESS.
 
-```common-lisp
-(let ((*debug* nil))
-  (with-test (outer)
-    (with-test (inner)
-      (is t))
-    (is t)
-    (is nil)))
-.. OUTER
-..   INNER
-..     ⋅ (IS T)
-..   ⋅ INNER ⋅1
-..   ⋅ (IS T)
-..   ⊠ (IS NIL)
-.. ⊠ OUTER ⊠1 ⋅2
-..
-==> #<TRIAL (WITH-TEST (OUTER)) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅2>
-```
+    (let ((*debug* nil))
+      (with-test (outer)
+        (with-test (inner)
+          (is t))
+        (is t)
+        (is nil)))
+    .. OUTER
+    ..   INNER
+    ..     ⋅ (IS T)
+    ..   ⋅ INNER ⋅1
+    ..   ⋅ (IS T)
+    ..   ⊠ (IS NIL)
+    .. ⊠ OUTER ⊠1 ⋅2
+    ..
+    ==> #<TRIAL (WITH-TEST (OUTER)) UNEXPECTED-FAILURE 0.000s ⊠1 ⋅2>
 
 As the above example shows, EXPECTED-VERDICT-SUCCESS and
-EXPECTED-RESULT-SUCCESS are both marked with `"⋅"`, but only
+EXPECTED-RESULT-SUCCESS are both marked with "⋅", but only
 EXPECTED-RESULT-SUCCESS is counted due to *COUNT* being LEAF.
 
 ### Collecting Events
 
 When an EVENT is recorded and the type of the EVENT matches the
 COLLECT type argument of TRY, then a corresponding object is pushed
-onto CHILDREN of the CURRENT-TRIAL for subsequent @RERUN or @REPLAY.
+onto CHILDREN of the CURRENT-TRIAL for subsequent Rerunning Trials or Reprocessing Trials.
 
 In particular, if the matching event is a LEAF, then the event
 itself is collected. If the matching event is a TRIAL-EVENT, then
-its TRIAL is collected. Furthermore, trials
-which collected anything are always collected by their parent.
+VERDICT of its TRIAL is
+collected. Furthermore, trials which collected anything are always
+collected by their parent.
 
 By default, both implicit and explicit calls to TRY collect the
 UNEXPECTED (see *COLLECT* and *TRY-COLLECT*), and consequently all
 the enclosing trials.
 
-- [reader] CHILDREN [TRIAL][99d0] (:CHILDREN = NIL)
+- [reader] CHILDREN TRIAL (:CHILDREN = NIL)
 
     A list of immediate child VERDICTs, RESULTs, and
-    ERROR\*s collected in reverse chronological order (see @COLLECT).
+    ERROR*s collected in reverse chronological order (see Collecting Events).
     The VERDICT of this TRIAL is not among CHILDREN, but the VERDICTs
     of child trials' are.
 
 ### Rerunning Trials
 
-When a TRIAL is `FUNCALL`ed or passed to TRY, the *test that
-created the trial* is invoked, and it may be run again in its
-entirety or in part. As the test runs, it may invoke other tests.
-Any test (including the top-level one) is skipped if it does not
+When a TRIAL is FUNCALLed or passed to TRY, the test that created
+the trial is invoked, and it may be run again in its entirety or in
+part. As the test runs, it may invoke other tests. Any
+test (including the top-level one) is skipped if it does not
 correspond to a collected trial or its TRIAL-START event
 and VERDICT do not match the RERUN argument of TRY. When that
 happens, the corresponding function call immediately returns the
-TRIAL object. In trials that are rerun, @CHECKS are executed
+TRIAL object. In trials that are rerun, Checks are executed
 normally.
 
 - A new trial is skipped (as if with SKIP-TRIAL) if RERUN is not T
@@ -2961,7 +2771,7 @@ normally.
   even the non-collected trials. Use RERUN EVENT to run only the
   collected trials.
 
-- The *test that created the trial* is determined as follows.
+- The test that created the trial is determined as follows.
 
     - If the trial was created by calling a DEFTEST function, then
       the test currently associated with that symbol naming the
@@ -2979,153 +2789,142 @@ normally.
       VAR-OR-NAME and same NAME.
 
     - If the trial was created by TRY itself to ensure that all
-      events are signalled in a trial (see @EXPLICIT-TRY), then
+      events are signalled in a trial (see Explicit TRY), then
       on a rerun the same TESTABLE is run again.
 
     All three possibilities involve entering DEFTEST or WITH-TEST,
-    or invoking TRY: the same cases that we have with @IMPLICIT-TRY.
+    or invoking TRY: the same cases that we have with Implicit TRY.
     Thus, even if a trial is rerun with FUNCALL, execution is
     guaranteed to happen under TRY.
 
-
 - [variable] *RERUN-CONTEXT* NIL
 
-    @TRYVAR. A TRIAL or NIL. If it's a TRIAL, then TRY will
+    Try var. A TRIAL or NIL. If it's a TRIAL, then TRY will
     rerun this trial skipping everything that does not lead to
     an invocation of a basic testable in its TESTABLE argument (see
-    @TESTABLES). If no route to any basic testable function can be found
+    Testables). If no route to any basic testable function can be found
     among the collected events of the context, then a
     warning is signalled and the context is ignored.
-    
+
     Consider the following code evaluated in the package TRY:
-    
-    ```common-lisp
-    (deftest test-try ()
-      (let ((*package* (find-package :cl-user)))
-        (test-whatever)
-        (test-printing)))
-    
-    (deftest test-whatever ()
-      (is t))
-    
-    (deftest test-printing ()
-      (is (equal (prin1-to-string 'x) "TRY::X")))
-    
-    (test-try)
-    .. TEST-TRY
-    ..   TEST-WHATEVER
-    ..     ⋅ (IS T)
-    ..   ⋅ TEST-WHATEVER ⋅1
-    ..   TEST-PRINTING
-    ..     ⋅ (IS (EQUAL (PRIN1-TO-STRING 'X) "TRY::X"))
-    ..   ⋅ TEST-PRINTING ⋅1
-    .. ⋅ TEST-TRY ⋅2
-    ..
-    ==> #<TRIAL (TEST-TRY) EXPECTED-SUCCESS 0.500s ⋅2>
-    
-    ;; This could also be an implicit try such as (TEST-PRINTING),
-    ;; but this way we avoid entering the debugger.
-    (try 'test-printing)
-    .. TEST-PRINTING
-    ..   ⊠ (IS (EQUAL #1=(PRIN1-TO-STRING 'X) "TRY::X"))
-    ..     where
-    ..       #1# = "X"
-    .. ⊠ TEST-PRINTING ⊠1
-    ..
-    ==> #<TRIAL (TEST-PRINTING) UNEXPECTED-FAILURE 0.200s ⊠1>
-    ```
-    
+
+        (deftest test-try ()
+          (let ((*package* (find-package :cl-user)))
+            (test-whatever)
+            (test-printing)))
+        
+        (deftest test-whatever ()
+          (is t))
+        
+        (deftest test-printing ()
+          (is (equal (prin1-to-string 'x) "TRY::X")))
+        
+        (test-try)
+        .. TEST-TRY
+        ..   TEST-WHATEVER
+        ..     ⋅ (IS T)
+        ..   ⋅ TEST-WHATEVER ⋅1
+        ..   TEST-PRINTING
+        ..     ⋅ (IS (EQUAL (PRIN1-TO-STRING 'X) "TRY::X"))
+        ..   ⋅ TEST-PRINTING ⋅1
+        .. ⋅ TEST-TRY ⋅2
+        ..
+        ==> #<TRIAL (TEST-TRY) EXPECTED-SUCCESS 0.500s ⋅2>
+        
+        ;; This could also be an implicit try such as (TEST-PRINTING),
+        ;; but this way we avoid entering the debugger.
+        (try 'test-printing)
+        .. TEST-PRINTING
+        ..   ⊠ (IS (EQUAL #1=(PRIN1-TO-STRING 'X) "TRY::X"))
+        ..     where
+        ..       #1# = "X"
+        .. ⊠ TEST-PRINTING ⊠1
+        ..
+        ==> #<TRIAL (TEST-PRINTING) UNEXPECTED-FAILURE 0.200s ⊠1>
+
     TEST-PRINTING fails because when called directly, *PACKAGE* is not
-    the expected `CL-USER`. However, when *RERUN-CONTEXT* is set,
-    `TEST-PRINTING` will be executed in the correct dynamic environment.
-    
-    ```common-lisp
-    (setq *rerun-context*
-          ;; Avoid the debugger, as a matter of style.
-          (try 'test-try))
-    
-    (test-printing)
-    .. TEST-TRY
-    ..   - TEST-WHATEVER
-    ..   TEST-PRINTING
-    ..     ⋅ (IS (EQUAL (PRIN1-TO-STRING 'X) "TRY::X"))
-    ..   ⋅ TEST-PRINTING ⋅1
-    .. ⋅ TEST-TRY ⋅1
-    ..
-    ```
-    
-    Note how `TEST-WHATEVER` was SKIPped because it leads to no calls to
-    `TEST-PRINTING`.
-    
-    See @EMACS for a convenient way of taking advantage of this feature.
+    the expected CL-USER. However, when *RERUN-CONTEXT* is set,
+    TEST-PRINTING will be executed in the correct dynamic environment.
+
+        (setq *rerun-context*
+              ;; Avoid the debugger, as a matter of style.
+              (try 'test-try))
+        
+        (test-printing)
+        .. TEST-TRY
+        ..   - TEST-WHATEVER
+        ..   TEST-PRINTING
+        ..     ⋅ (IS (EQUAL (PRIN1-TO-STRING 'X) "TRY::X"))
+        ..   ⋅ TEST-PRINTING ⋅1
+        .. ⋅ TEST-TRY ⋅1
+        ..
+
+    Note how TEST-WHATEVER was SKIPped because it leads to no calls to
+    TEST-PRINTING.
+
+    See Emacs Integration for a convenient way of taking advantage of this feature.
 
 ### Reprocessing Trials
 
-- [function] REPLAY-EVENTS TRIAL &KEY (COLLECT \*TRY-COLLECT\*) (PRINT \*TRY-PRINT\*) (DESCRIBE \*TRY-DESCRIBE\*) (STREAM \*TRY-STREAM\*) (PRINTER \*TRY-PRINTER\*)
+- [function] REPLAY-EVENTS TRIAL &KEY (COLLECT *TRY-COLLECT*) (PRINT *TRY-PRINT*) (DESCRIBE *TRY-DESCRIBE*) (STREAM *TRY-STREAM*) (PRINTER *TRY-PRINTER*)
 
-    REPLAY-EVENTS reprocesses the events collected (see @COLLECT)
+    REPLAY-EVENTS reprocesses the events collected (see Collecting Events)
     in TRIAL. It takes the same arguments as TRY except
     DEBUG, COUNT and RERUN. This is because
     REPLAY-EVENTS does not run any tests. It simply signals the events
     collected in TRIAL again to allow further processing. The values of
     *CATEGORIES* and *COUNT* that were in effect for TRIAL are used, and
     their current values are ignored to be able to keep consistent
-    counts (see @COUNT).
-    
-    Suppose we ran a large test using the default `:PRINT` and into a
+    counts (see Counting Events).
+
+    Suppose we ran a large test using the default :PRINT and into a
     rare non-deterministic bug.
-    
-    ```common-lisp
-    (deftest some-test ()
-      (with-test (inner)
-        (is t)
-        (is (= 10 7))   ; fake non-deterministic bug
-        (is t))
-      (error "my-msg"))
-    
-    (try 'some-test)
-    ```
-    
+
+        (deftest some-test ()
+          (with-test (inner)
+            (is t)
+            (is (= 10 7))   ; fake non-deterministic bug
+            (is t))
+          (error "my-msg"))
+        
+        (try 'some-test)
+
     Now, the output is too large with EXPECTED events and the backtrace
     cluttering it. We could try running the test again with different
     settings, or even just rerunning it, but that might make
     the bug go away. Instead of searching for the interesting bits in
     the text output, we can replay the events and print only the
     UNEXPECTED events:
-    
-    ```common-lisp
-    (let ((*print-backtrace* nil))
-      (replay-events ! :print 'unexpected))
-    .. SOME-TEST
-    ..   INNER
-    ..     ⊠ (IS (= 10 7))
-    ..   ⊠ INNER ⊠1 ⋅2
-    ..   ⊟ "my-msg" (SIMPLE-ERROR)
-    .. ⊟ SOME-TEST ⊟1 ⊠1 ⋅2
-    ..
-    ==> #<TRIAL (SOME-TEST) ABORT* 0.500s ⊟1 ⊠1 ⋅2>
-    ```
-    
+
+        (let ((*print-backtrace* nil))
+          (replay-events ! :print 'unexpected))
+        .. SOME-TEST
+        ..   INNER
+        ..     ⊠ (IS (= 10 7))
+        ..   ⊠ INNER ⊠1 ⋅2
+        ..   ⊟ "my-msg" (SIMPLE-ERROR)
+        .. ⊟ SOME-TEST ⊟1 ⊠1 ⋅2
+        ..
+        ==> #<TRIAL (SOME-TEST) ABORT* 0.500s ⊟1 ⊠1 ⋅2>
+
     Now, we decide that nesting of test is unimportant here, change to
     new printer settings and replay:
-    
-    ```common-lisp
-    (let ((*print-backtrace* nil)
-          (*print-parent* nil)
-          (*print-compactly* t)
-          (*defer-describe* t))
-      (replay-events !))
-    .. ⊠⊟
-    .. ⊟ SOME-TEST ⊟1 ⊠1 ⋅2
-    ..
-    .. ;; UNEXPECTED-RESULT-FAILURE (⊠) in SOME-TEST INNER:
-    .. (IS (= 10 7))
-    ..
-    .. ;; UNHANDLED-ERROR (⊟) in SOME-TEST:
-    .. "my-msg" (SIMPLE-ERROR)
-    ..
-    ==> #<TRIAL (SOME-TEST) ABORT* 0.500s ⊟1 ⊠1 ⋅2>
-    ```
+
+        (let ((*print-backtrace* nil)
+              (*print-parent* nil)
+              (*print-compactly* t)
+              (*defer-describe* t))
+          (replay-events !))
+        .. ⊠⊟
+        .. ⊟ SOME-TEST ⊟1 ⊠1 ⋅2
+        ..
+        .. ;; UNEXPECTED-RESULT-FAILURE (⊠) in SOME-TEST INNER:
+        .. (IS (= 10 7))
+        ..
+        .. ;; UNHANDLED-ERROR (⊟) in SOME-TEST:
+        .. "my-msg" (SIMPLE-ERROR)
+        ..
+        ==> #<TRIAL (SOME-TEST) ABORT* 0.500s ⊟1 ⊠1 ⋅2>
 
 ## Implementation Notes
 
@@ -3141,17 +2940,16 @@ SBCL.
 - ABCL, CMUCL, and ECL have a bug related to losing
   EQLness of source literals
   [https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665](https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665).
-  The result is somewhat cosmetic, it may cause multiple captures
+  The result is somewhat cosmetic; it may cause multiple captures
   being made for the same thing.
-
 
 ## Glossary
 
 - [glossary-term] funcallable instance
 
     This is a term from the MOP. A funcallable instance is an instance
-    of a class that's a subclass of `MOP:FUNCALLABLE-STANDARD-CLASS`. It
-    is like a normal instance, but it can also be `FUNCALL`ed.
+    of a class that's a subclass of MOP:FUNCALLABLE-STANDARD-CLASS. It
+    is like a normal instance, but it can also be FUNCALLed.
 
 - [glossary-term] cancelled non-local exit
 
@@ -3160,20 +2958,13 @@ SBCL.
     nlx is initiated in, and exits from an UNWIND-PROTECT cleanup form,
     then this second nlx is said to have cancelled the first, and the
     first nlx will not continue.
-    
-    ```common-lisp
-    (catch 'foo
-      (catch 'bar
-        (unwind-protect
-             (throw 'foo 'foo)
-          (throw 'bar 'bar))))
-    => BAR
-    ```
 
-  [0321]: #TRY:ERROR*%20CONDITION "TRY:ERROR* CONDITION"
-  [8f78]: #TRY:UNHANDLED-ERROR%20CONDITION "TRY:UNHANDLED-ERROR CONDITION"
-  [99d0]: #TRY:TRIAL%20CLASS "TRY:TRIAL CLASS"
-  [b36a]: #TRY:TRIAL-EVENT%20CONDITION "TRY:TRIAL-EVENT CONDITION"
+        (catch 'foo
+          (catch 'bar
+            (unwind-protect
+                 (throw 'foo 'foo)
+              (throw 'bar 'bar))))
+        => BAR
 
 * * *
 ###### \[generated by [MGL-PAX](https://github.com/melisgl/mgl-pax)\]

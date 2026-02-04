@@ -402,7 +402,7 @@
 
 (defmacro with-tests-run ((tests-run) &body body)
   "Bind the symbol TESTS-RUN to an empty `EQ` hash table and execute
-  BODY. The has table reflects call counts to global tests. Keys are
+  BODY. The hash table reflects call counts to global tests. Keys are
   symbols naming global tests, and the values are the number of times
   the keys have been called."
   `(let* ((,tests-run (make-hash-table))
@@ -414,7 +414,7 @@
     (incf (gethash (test-name trial) *tests-run* 0))))
 
 (defmacro warn-on-tests-not-run ((&optional (package *package*)) &body body)
-  "A convenience utility to that records the global tests run by BODY
+  "A convenience utility that records the global tests run by BODY
   with WITH-TESTS-RUN and, when BODY finishes, signals a warning for
   each global tests in PACKAGE not run.
 

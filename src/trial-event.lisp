@@ -23,9 +23,9 @@
 
 (define-condition trial-start (trial-event) ()
   (:documentation """TRIAL-START is signalled when a test function
-  (see @TESTS) is entered and a TRIAL is started, it is already the
-  CURRENT-TRIAL, and the @TRIAL-RESTARTS are available. It is also
-  signalled when a trial is retried:
+  (see @TESTS) is entered and a TRIAL is started. When this happens
+  that trial is already the CURRENT-TRIAL, and the @TRIAL-RESTARTS are
+  available. It is also signalled when a trial is retried:
 
   ```cl-transcript (:dynenv try-transcript)
   (let ((*print* nil)
@@ -119,6 +119,8 @@
 
 ;;; KLUDGE: For SUBTYPEP to work in DETERMINE-OUTCOME-TYPE. Not to be
 ;;; exported because for example EXPECTED-RESULT-SUCCESS is not a
-;;; subtype of RESULT-SUCCESS.
+;;; subtype of RESULT-SUCCESS. Note that with (DEFTYPE VERDICT-SUCCESS
+;;; '(AND VERDICT SUCCESS)), we'd have another problem: (SUBTYPEP
+;;; 'VERDICT-SUCCESS 'SUCCESS) => NIL.
 (define-combi-event (verdict success))
 (define-combi-event (verdict failure))

@@ -49,8 +49,8 @@
   HANDLER is T, the matching condition is handled by performing a
   non-local exit to just outside BODY. If the exit completes, BODY is
   treated as if it had returned normally, and ON-RETURN is consulted.
-  When HANDLER is NIL, no addition action is performed when a matching
-  condition is found.
+  When HANDLER is NIL, no additional action is performed when a
+  matching condition is found.
 
   The default CTX describes the result of the matching process in
   terms of *CONDITION-MATCHED-P* and *BEST-MATCHING-CONDITION*.
@@ -229,7 +229,7 @@
   (is (null *condition-matched-p*)
       :msg (or msg
                (list "~S does not signal a condition of type ~S~
-                      ~@[ that match ~S~]."
+                      ~@[ that matches ~S~]."
                      (or name (present-body body)) condition-type pred))
       :ctx (or ctx
                (list "Condition received: \"~A\" (~S)"
@@ -250,7 +250,7 @@
 
   Note that in a trial (see CURRENT-TRIAL), all ERRORs are handled,
   and a *DEBUGGER-HOOK* is set up (see UNHANDLED-ERROR). Thus,
-  invoking debugger would normally cause the trial to abort.
+  invoking the debugger would normally cause the trial to abort.
 
   ```cl-transcript (:dynenv try-transcript)
   (invokes-debugger (error :pred "xxx")
@@ -480,7 +480,8 @@
                             '((:on-length-mismatch (return nil))))
                         ,@body))))
 
-;;; Get VALUES-FORM from (MATCH-VALUES VALUES-FORM ...).
+;;; Get VALUES-FORM from (MATCH-VALUES VALUES-FORM ...). FIXME:
+;;; Capture values in the first form?
 (defmethod substitute-is-list-form ((first (eql 'match-values)) form env)
   (declare (ignore env))
   (values `(match-values% ,@(rest form)) nil))

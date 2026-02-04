@@ -79,7 +79,7 @@
              ;; Named and lambda trials
              (values `(,testable) nil)))
         ((or (and (symbolp testable) (fboundp testable))
-             ;; TRIALs are funcallable thus FUNCTIONP so except for
+             ;; TRIALs are funcallable thus FUNCTIONP, so (except for
              ;; TRY-TRIALs handled above) trials end up here.
              (functionp testable))
          (values (list testable) `(try ,testable)))

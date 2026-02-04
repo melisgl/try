@@ -14,8 +14,8 @@
   :long-description "Try stays as close to normal Lisp evaluation
   rules as possible. Tests are functions that record the checks they
   perform as events. These events provide the means of customization
-  of what to debug, print, rerun. There is a single fundamental check,
-  the extensible IS macro. Everything else is built on top."
+  of what to debug, print or rerun. There is a single fundamental
+  check, the extensible IS macro. Everything else is built on top."
   :defsystem-depends-on (#:try.asdf)
   :depends-on ("alexandria" "cl-ppcre" "closer-mop" "ieee-floats" "mgl-pax"
                "trivial-gray-streams" "uiop")

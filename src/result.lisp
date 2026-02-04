@@ -21,7 +21,9 @@
 
 ;;; KLUDGE: For SUBTYPEP to work in DETERMINE-OUTCOME-TYPE. Not to be
 ;;; exported because for example EXPECTED-RESULT-SUCCESS is not a
-;;; subtype of RESULT-SUCCESS.
+;;; subtype of RESULT-SUCCESS. Note that with (DEFTYPE RESULT-SUCCESS
+;;; '(AND RESULT SUCCESS)), we'd have another problem: (SUBTYPEP
+;;; 'RESULT-SUCCESS 'SUCCESS) => NIL.
 (define-combi-event (result success))
 (define-combi-event (result failure))
 
@@ -41,6 +43,7 @@
 ;;; Remove % and %% (see CAPTURE), so that they don't pollute the form
 ;;; displayed in the events. KLUDGE: We should use a proper code
 ;;; walker, but we simply assume that all % and %% are to be removed.
+;;; FIXME: Infinite loop on #1=(#1#) or #1=(% #1#).
 (defun %frob-form-for-printing (result form)
   ;; Memoize the results so that printing a result twice writes EQ
   ;; objects and *PRINT-CIRCLE* thus works.
@@ -119,7 +122,8 @@
              ctx-args))))
 
 ;;; To be used in logical blocks, substitute ~% with ~@:_
-;;; (PPRINT-NEWLINE :MANDATORY).
+;;; (PPRINT-NEWLINE :MANDATORY). FIXME: This does not handle literal
+;;; newlines, ~~, nor recursion via ~?.
 (defun substitute-tilde-percent (string)
   (with-output-to-string (s)
     (let ((n (length string))

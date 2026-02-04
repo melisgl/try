@@ -3,10 +3,10 @@
 (in-readtable pythonic-string-syntax)
 
 (defsection @rerun (:title "Rerunning Trials")
-  "When a TRIAL is `FUNCALL`ed or passed to TRY, the _test that
-  created the trial_ is invoked, and it may be run again in its
-  entirety or in part. As the test runs, it may invoke other tests.
-  Any test (including the top-level one) is skipped if it does not
+  "When a TRIAL is FUNCALLed or passed to TRY, the _test that created
+  the trial_ is invoked, and it may be run again in its entirety or in
+  part. As the test runs, it may invoke other tests. Any
+  test (including the top-level one) is skipped if it does not
   correspond to a [collected][@collect] trial or its TRIAL-START event
   and VERDICT do not match the RERUN argument of TRY. When that
   happens, the corresponding function call immediately returns the

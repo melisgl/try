@@ -94,7 +94,7 @@
 
   There are three ways to acquire a TRIAL object: by calling
   CURRENT-TRIAL, through the lexical binding of the symbol that names
-  the test or through the return value of a test:
+  the test, or through the return value of a test:
 
   ```cl-transcript (:dynenv try-transcript)
   (deftest xxx ()
@@ -171,8 +171,8 @@
 
 
 (defsection @trial-verdicts (:title "Trial Verdicts")
-  "When a trial finished, a VERDICT is signalled. The verdict's type
-  is determined as follows.
+  "When a trial has finished, a VERDICT is signalled. The verdict's
+  type is determined as follows.
 
   - It is a VERDICT-SKIP if
 

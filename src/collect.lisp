@@ -7,8 +7,9 @@
 
   In particular, if the matching event is a LEAF, then the event
   itself is collected. If the matching event is a TRIAL-EVENT, then
-  its [TRIAL][(reader trial-event)] is collected. Furthermore, trials
-  which collected anything are always collected by their parent.
+  [VERDICT][(reader trial)] of its [TRIAL][(reader trial-event)] is
+  collected. Furthermore, trials which collected anything are always
+  collected by their parent.
 
   By default, both implicit and explicit calls to TRY collect the
   UNEXPECTED (see *COLLECT* and *TRY-COLLECT*), and consequently all

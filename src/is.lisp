@@ -20,7 +20,7 @@
   in the above example. Values of other interesting subforms can be
   explicitly requested to be captured. IS supports capturing multiple
   values and can be taught how to deal with macros. The combination of
-  these features allows MATCH-VALUES to be implementable as tiny
+  these features allows MATCH-VALUES to be implementable as a tiny
   extension:
 
   ```cl-transcript (:dynenv try-transcript)
@@ -39,8 +39,8 @@
   ```
 
   IS is flexible enough that all other checks (SIGNALS, SIGNALS-NOT,
-  INVOKES-DEBUGGER, INVOKES-DEBUGGER-NOT, FAILS, and IN-TIME are built
-  on top of it.
+  INVOKES-DEBUGGER, INVOKES-DEBUGGER-NOT, FAILS, and IN-TIME) are
+  built on top of it.
   """
   (is macro)
   (*is-form* variable)
@@ -136,7 +136,7 @@
                  (let* ((*%is-captures* ())
                         ;; The above binding of *%IS-CAPTURES* may be
                         ;; modified by CAPTURE during the evaluation
-                        ;; these bindings.
+                        ;; of these bindings.
                         ,@(%subs-to-bindings subs)
                         (*is-form* ',form)
                         ,@(when subs
@@ -167,8 +167,8 @@
 
 (defsection @format-specifier-form (:title "Format Specifier Form")
   """A format specifier form is a Lisp form, typically an argument to
-  macro, standing for the FORMAT-CONTROL and FORMAT-ARGS arguments to
-  the FORMAT function.
+  a macro, standing for the FORMAT-CONTROL and FORMAT-ARGS arguments
+  to the FORMAT function.
 
   It may be a constant string:
 
@@ -291,7 +291,7 @@
        ,%value)))
 
 (defmacro capture-values (form)
-  "Like CAPTURE-VALUES, but record and return all values returned by
+  "Like CAPTURE-VALUES, but records and return all values returned by
   FORM. It is recommended to use the equivalent MACROLET `%%` in the
   lexical scope as `%%` is removed before printing."
   (with-gensyms (%values)
@@ -375,8 +375,8 @@
   checking, a SUBFORM was substituted (by SUBSTITUTE-IS-FORM) with
   VAR (if VALUESP is NIL) or with (VALUES-LIST VAR) if VALUESP is
   true. Conversely, VAR is to be bound to the evaluated NEW-FORM if
-  VALUESP is NIL, and to (MULTIPLE-VALUE-LIST FORM) if VALUESP.
-  NEW-FORM is often `EQ` to SUBFORM, but it may be different, which is
+  VALUESP is NIL, and to (MULTIPLE-VALUE-LIST NEW-FORM) if VALUESP.
+  NEW-FORM is often EQ to SUBFORM, but it may be different, which is
   the case when further substitutions are made within a substitution."
   var
   subform

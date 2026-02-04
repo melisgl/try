@@ -112,7 +112,7 @@
               (%replay-events (verdict trial))
             (finish-printing printer)))))))
 
-(defun %replay-events (trial)
+(defun %replay-events (verdict)
   (labels
       ((%replay (child)
          ;; LEAFs in CHILDREN are resignalled as is, but TRIALs are
@@ -124,7 +124,7 @@
                (with-test (replay-trial :name (test-name trial))
                  (map nil #'%replay (reverse (children trial)))))
              (signal child))))
-    (%replay trial)))
+    (%replay verdict)))
 
 (defun %replay-trial-initargs (trial)
   (list :cform (cform trial)
@@ -137,4 +137,3 @@
         (has-non-collected-failed-child-p trial)
         :counter (copy-counter (non-collected-counter trial))
         :non-collected-counter (copy-counter (non-collected-counter trial))))
-

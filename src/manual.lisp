@@ -26,7 +26,7 @@
   almost everything else is a condition, whose types feature
   prominently in parameterization.
 
-  Try is is what we get if we make tests functions and build a test
+  Try is what we get if we make tests functions and build a test
   framework on top of the condition system as
   [Stefil](https://common-lisp.net/project/stefil/index-old.shtml) did
   but also address the issue of rerunning and replaying, make the IS
@@ -36,7 +36,7 @@
 
   ##### Looking for Truth
 
-  @IS is a replacement for CL:ASSERT, that can capture values of
+  @IS is a replacement for CL:ASSERT that can capture values of
   subforms to provide context to failures:
 
   ```cl-transcript (:dynenv try-transcript)
@@ -84,12 +84,12 @@
   MATCH-VALUES comes with an automatic rewrite rule that captures the
   values of this form, which are printed above as `#1# == 6 #2#`. IS
   is flexible enough that all other checks (SIGNALS, SIGNALS-NOT,
-  INVOKES-DEBUGGER, INVOKES-DEBUGGER-NOT, FAILS, and IN-TIME are built
-  on top of it.
+  INVOKES-DEBUGGER, INVOKES-DEBUGGER-NOT, FAILS, and IN-TIME) are
+  built on top of it.
 
   ##### Writing Tests
 
-  Beyond IS, a fancy ASSERT, Try provides tests, which are Lisp
+  Beyond IS (a fancy ASSERT), Try provides tests, which are Lisp
   functions that record their execution in TRIAL objects. Let's define
   a test and run it:
 
@@ -110,10 +110,10 @@
   character marks successes.
 
   We could have run our test with `(TRY 'SHOULD-WORK)` as well, which
-  does pretty much the same thing except it defaults to never entering
-  the debugger, whereas calling a test function directly enters the
-  debugger on events whose type matches the type in the variable
-  *DEBUG*.
+  does pretty much the same thing except that it defaults to never
+  entering the debugger, whereas calling a test function directly
+  enters the debugger on events whose type matches the type in the
+  variable *DEBUG*.
 
   ```cl-transcript (:dynenv try-transcript)
   (try 'should-work)
@@ -171,7 +171,7 @@
   ```
 
   Note that `SHOULD-WORK` is still run, and its check's success is
-  counted as evidenced by`⋅1`. The above effect can also be achieved
+  counted as evidenced by `⋅1`. The above effect can also be achieved
   without running the tests again with REPLAY-EVENTS.
 
   ##### Debugging
@@ -272,7 +272,7 @@
 
   ##### Conditional Execution
 
-  Conditional execution can be achieved simply testing the TRIAL
+  Conditional execution can be achieved simply by testing the TRIAL
   object returned by @TESTS.
 
   ```
@@ -318,13 +318,14 @@
 
   `×` marks EXPECTED-FAILUREs. `(WITH-SKIP (T) ...)` makes all checks
   successes and failures EXPECTED, which are counted in their own
-  *CATEGORIES* by default but don't make the enclosing tests to fail.
+  *CATEGORIES* by default but don't make the enclosing tests fail.
   Also see WITH-EXPECTED-OUTCOME.
 
   ##### Running Tests on Definition
 
-  With *RUN-DEFTEST-WHEN*, tests on in various EVAL-WHEN situations.
-  To run tests on evaluation, as in SLIME `C-M-x`, `slime-eval-defun`:
+  With *RUN-DEFTEST-WHEN*, tests can be run in various EVAL-WHEN
+  situations. To run tests on evaluation, as in SLIME `C-M-x`,
+  `slime-eval-defun`:
 
   ```cl-transcript (:dynenv try-transcript)
   (setq *run-deftest-when* :execute)
@@ -372,7 +373,8 @@
 
   Use `mgl-try-rerun` and `mgl-try-rerun-all` to rerun trials. They
   are especially convenient to rerun TRY:!, when deciding to inspect
-  the results conveniently in a Try buffer.
+  the results in a Try buffer for trial that may not have been run via
+  Emacs.
 
   In an Emacs Try buffer, the following key bindings are available.
 
@@ -397,7 +399,7 @@
 
       - `t` runs a test (defaults to the name of the innermost global
         test function that contains the current line) in the context
-        associated with the Emacs buffer, which is similar but
+        associated with the Emacs buffer, which is similar to but
         distinct from *RERUN-CONTEXT*. With a prefix arg, the test is
         an @IMPLICIT-TRY with no arguments. This is suitable for
         interactive debugging under the default settings.
@@ -407,7 +409,7 @@
         the test is called implicitly.
 
       - `\\R` is like `r`, but *TRY-RERUN* and TRY:*RERUN* are set to
-        T, so all test are rerun. With a prefix argument, the test is
+        T, so all tests are rerun. With a prefix argument, the test is
         called implicitly.
 
   - Visiting source locations:
@@ -415,7 +417,7 @@
       - `v` visits the source location of the enclosing global test
         function (see `t`).
 
-      - `\\M-.` visits a test function also works as usual.
+      - `\\M-.` visits a test function as usual.
 
   In general, since the major mode is `lisp-mode`, the usual key
   bindings are available."""
@@ -438,7 +440,7 @@
   ```
 
   For easy access to the functionality of the keys `t`, `r` and `R`
-  described in @EMACS, you may want give them a global binding:
+  described in @EMACS, you may want to give them a global binding:
 
   ```elisp
   (global-set-key (kbd "s-t t") 'mgl-try)
@@ -501,7 +503,7 @@
   - ABCL, CMUCL, and ECL have a bug related to losing
     [EQL][function]ness of source literals
     [https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665](https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665).
-    The result is somewhat cosmetic, it may cause multiple captures
+    The result is somewhat cosmetic; it may cause multiple captures
     being made for the same thing.
   """)
 

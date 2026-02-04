@@ -139,7 +139,7 @@
   "WITH-SKIP skips checks and trials. It forces an immediate
   SKIP-TRIAL whenever a trial is started (which turns into a
   VERDICT-SKIP) and makes checks (without intervening trials, of
-  course) evaluate normally but signal RESULT-SKIP. SKIP is NIL
+  course) evaluate normally but signal RESULT-SKIP. SKIP being NIL
   cancels the effect of any enclosing WITH-SKIP with SKIP true."
   `(let ((*skip* ,skip))
      ,@body))

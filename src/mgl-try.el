@@ -51,7 +51,7 @@
 (defvar mgl-try-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<tab>") 'outline-cycle)
-    (define-key map (kbd "C-P") 'outline-previous-visible-heading)
+    (define-key map (kbd "C-p") 'outline-previous-visible-heading)
     (define-key map (kbd "C-n") 'outline-next-visible-heading)
     (define-key map (kbd "U") 'outline-up-heading)
     (define-key map (kbd "q") 'quit-window)
@@ -88,7 +88,7 @@
 ;;; See TRY::CHECK-TRY-ELISP-VERSION.
 (defvar mgl-try-version)
 ;;; The next line is `(setq mgl-try-version (mgl-try-read-version))`
-;;; in the sources, which gets replaced by the the version in
+;;; in the sources, which gets replaced by the version in
 ;;; `version.lisp-expr` by MGL-TRY:INSTALL-TRY-ELISP.
 (setq mgl-try-version (mgl-try-read-version))
 
@@ -147,7 +147,7 @@ normally. Examples:
 
   \'(foo bar)
 
-  \'foo (same as the convenicence shorthand `foo' above)
+  \'foo (same as the convenience shorthand `foo' above)
 
 Prefix arg
 ----------
@@ -156,9 +156,9 @@ Prefix arg
   are used. With the default value of TRY:*TRY-DEBUG* being NIL,
   this will not enter the debugger.
 
-- With a prefix arg, the parameters for an TRY::@IMPLICIT-TRY are
-  used. With the  default value of TRY:*DEBUG*,  this is suitable
-  for interactive debugging.
+- With a prefix arg, the parameters for an TRY::@IMPLICIT-TRY are used.
+  With the default value of TRY:*DEBUG*, this is suitable for
+  interactive debugging.
 
 Record context
 --------------
@@ -199,11 +199,10 @@ Common Lisp variables are overridden:
 
 - TRY:*DEFER-DESCRIBE* to NIL.
 
-- TRY:*CATEGORIES* to TRY:FANCY-STD-FAILURE (with a small
-  modification to print UNEXPECTED-VERDICT-FAILUREs with the
-  marker \"→⊠\". This is because their failure is a consequence
-  of other failures, and this way `mgl-try-mode-next-unexpected'
-  skips over them.
+- TRY:*CATEGORIES* to TRY:FANCY-STD-FAILURE with a small modification to
+  print UNEXPECTED-VERDICT-FAILUREs with the marker \"→⊠\". This is
+  because their failure is a consequence of other failures, and this way
+  `mgl-try-mode-next-unexpected' skips over them.
 
 Other variables not listed here (such as TRY:*PRINT-BACKTRACE*,
 TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
@@ -349,10 +348,9 @@ Prefix arguments are variables overrides are as described in
 
 (defun mgl-try-rerun-all (trial-string)
   "Like `mgl-try-rerun', but TRY:*TRY-RERUN* and TRY:*RERUN* are
-ignored, and all test are rerun.
+ignored, and all tests are rerun.
 
-Prefix arguments are variables overrides are as described in
-`mgl-try'."
+Prefix arguments are variables overrides as described in `mgl-try'."
   (interactive (list (mgl-pax-rerun-default-testable t)))
   (mgl-try* trial-string t))
 

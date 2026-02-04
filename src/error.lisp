@@ -30,7 +30,7 @@
     :reader debugger-invoked-p
     :documentation "True if NESTED-CONDITION was caught by a trial's
     *DEBUGGER-HOOK*, NIL if it was caught by its ERROR handler."))
-  (:documentation "Signalled when an CL:ERROR condition reaches the
+  (:documentation "Signalled when a CL:ERROR condition reaches the
   handlers set up by DEFTEST or WITH-TEST, or when their
   *DEBUGGER-HOOK* is invoked with a condition that's not an EVENT."))
 

@@ -10,10 +10,10 @@
   trial's event counters are added to that of its parent's (if any).
   The counts are printed with VERDICTs (see @PRINT).
 
-  If both *COUNT* and *CATEGORIES* are unchanged from the their
-  default values, then only LEAF events are counted, and we get
-  separate counters for ABORT*, UNEXPECTED-FAILURE,
-  UNEXPECTED-SUCCESS, SKIP, EXPECTED-FAILURE, and EXPECTED-SUCCESS.
+  If both *COUNT* and *CATEGORIES* are unchanged from their default
+  values, then only LEAF events are counted, and we get separate
+  counters for ABORT*, UNEXPECTED-FAILURE, UNEXPECTED-SUCCESS, SKIP,
+  EXPECTED-FAILURE, and EXPECTED-SUCCESS.
 
   ```cl-transcript (:dynenv try-transcript)
   (let ((*debug* nil))
