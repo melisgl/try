@@ -234,11 +234,10 @@ TRY:*DEBUG*, TRY:*TRY-DEBUG*) are in effect."
 
 (defun mgl-try-mode-deftest-name-on-current-line ()
   (when (looking-at "\\*")
-    (slime-symbol-at-point)
     (search-forward " " (line-end-position))
     ;; TRY:TRIAL-START events have either a normal entry or a skip
     ;; marker.
-    (when (search-forward-regexp "[→-] " (+ (point) 2) t)
+    (when (search-forward-regexp " " (+ (point) 3) t)
       (slime-symbol-at-point))))
 
 (defvar mgl-try-buffer-name "*try*")
