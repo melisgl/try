@@ -23,11 +23,13 @@
 
 (defmacro check-try-output ((testable &key (print ''(or outcome error*))
                              (describe ''unexpected)
+                             (count ''leaf)
                              (collect ''unexpected)
                              (debug nil)
                              (rerun ''unexpected)
                              (replay-events nil)
                              (printer ''tree-printer)
+                             categories
                              use-debug-io
                              (expected-outcome
                               (if (alexandria:featurep '(or :abcl :clisp))
@@ -37,19 +39,23 @@
                             expected)
   `(%check-try-output ,testable ,expected
                       :print ,print :describe ,describe
+                      :count ,count
                       :collect ,collect
                       :debug ,debug :rerun ,rerun
                       :replay-events ,replay-events
                       :printer ,printer
+                      :categories ,categories
                       :use-debug-io ,use-debug-io
                       :expected-outcome ,expected-outcome
                       :msg ,msg))
 
 (defun %check-try-output (testable expected &key (print 'outcome)
-                          (describe 'unexpected) (collect 'unexpected)
+                          (describe 'unexpected) (count 'leaf)
+                          (collect 'unexpected)
                           (debug nil) (rerun 'unexpected)
                           (replay-events nil)
-                          (printer 'tree-printer) use-debug-io
+                          (printer 'tree-printer)
+                          categories use-debug-io
                           (expected-outcome
                            (if (alexandria:featurep '(or :abcl :clisp))
                                '(or failure success)
@@ -57,13 +63,14 @@
                           msg)
   (flet ((call-it (stream)
            (with-std-try
-             (if replay-events
-                 (replay-events testable :print print :describe describe
-                                :collect collect
-                                :stream stream :printer printer)
-                 (try testable :print print :describe describe
-                      :collect collect :debug debug :rerun rerun
-                      :stream stream :printer printer)))))
+             (let ((*categories* (or categories *categories*)))
+               (if replay-events
+                   (replay-events testable :print print :describe describe
+                                  :collect collect
+                                  :stream stream :printer printer)
+                   (try testable :print print :describe describe
+                        :count count :collect collect :debug debug :rerun rerun
+                        :stream stream :printer printer))))))
     (let* ((trial nil)
            (output (let ((*print-duration* nil))
                      (if use-debug-io

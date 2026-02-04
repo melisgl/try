@@ -67,10 +67,10 @@
     (bump-counter (non-collected-counter *trial*) leaf)))
 
 (defun count-trial-start (trial-start count-type)
-  (let* ((trial (trial trial-start))
-         (parent (parent trial)))
-    (when (and parent (typep trial-start count-type))
-      (bump-counter (counter parent) trial-start))))
+  (let ((trial (trial trial-start)))
+    (when (typep trial-start count-type)
+      (bump-counter (counter trial) trial-start)
+      (bump-counter (non-collected-counter trial) trial-start))))
 
 (defun count-collected-verdict (verdict count-type)
   (let* ((trial (trial verdict))
