@@ -201,9 +201,6 @@
                      ((identity (1+ 5)) 6 nil nil))
     (is (null (identity (1+ 5)))))
   (is-ctx-captures '(((1+ 5) 6 nil nil)
-                     ((identity (1+ 5)) 6 nil nil))
-    (is (null (identity (1+ 5)))))
-  (is-ctx-captures '(((1+ 5) 6 nil nil)
                      ((list (1+ 5)) (6) nil nil))
     (is (endp (list (1+ 5))))))
 

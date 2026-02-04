@@ -14,12 +14,6 @@
              '(2 "sdfmore")))
   (is (equal (multiple-value-list
               (on-values (values 1 "sdf" 3)
-                (:truncate t)
-                (+ * 1)
-                (concatenate 'string * "more")))
-             '(2 "sdfmore")))
-  (is (equal (multiple-value-list
-              (on-values (values 1 "sdf" 3)
                 (:truncate nil)
                 (+ * 1)
                 (concatenate 'string * "more")))
