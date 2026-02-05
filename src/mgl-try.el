@@ -1,9 +1,16 @@
-;; -*- lexical-binding: t -*-
+;;;; mgl-try.el --- Try Emacs integration -*- lexical-binding: t -*-
+
+(eval-and-compile
+  (require 'cl-lib nil t)
+  ;; For emacs 23, look for bundled version
+  (require 'cl-lib "lib/cl-lib")
+  (require 'slime))
 
 (defgroup mgl-try nil
   "Interaction with the Common Lisp TRY library."
   :group 'lisp
   :prefix "mgl-try-")
+
 
 (defgroup mgl-try-faces nil
   "Faces in mgl-try buffers."
