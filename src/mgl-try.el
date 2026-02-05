@@ -348,7 +348,7 @@ See TRY:*TRY-RERUN* and TRY::@RERUN.
 
 Prefix arguments are variables overrides are as described in
 `mgl-try'."
-  (interactive (list (mgl-pax-rerun-default-testable nil)))
+  (interactive (list (mgl-try-rerun-default-testable nil)))
   (mgl-try* trial-string :unspecified))
 
 (defun mgl-try-rerun-all (trial-string)
@@ -356,10 +356,10 @@ Prefix arguments are variables overrides are as described in
 ignored, and all tests are rerun.
 
 Prefix arguments are variables overrides as described in `mgl-try'."
-  (interactive (list (mgl-pax-rerun-default-testable t)))
+  (interactive (list (mgl-try-rerun-default-testable t)))
   (mgl-try* trial-string t))
 
-(defun mgl-pax-rerun-default-testable (allp)
+(defun mgl-try-rerun-default-testable (allp)
   (if mgl-try-mode
       "try::*emacs-!*"
     (mgl-try-rerun-read-from-minibuffer allp)))
