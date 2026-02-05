@@ -1,7 +1,13 @@
 ;; -*- lexical-binding: t -*-
 
+(defgroup mgl-try nil
+  "Interaction with the Common Lisp TRY library."
+  :group 'lisp
+  :prefix "mgl-try-")
+
 (defgroup mgl-try-faces nil
   "Faces in mgl-try buffers."
+  :group 'mgl-try
   :prefix "mgl-try-")
 
 (defface mgl-try-abort-face
