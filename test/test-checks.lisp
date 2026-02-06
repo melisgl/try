@@ -205,11 +205,11 @@
   (let ((*n-retries* 1))
     (check-try-output ('%retry-signals :print t :describe nil)
                       "%RETRY-SIGNALS
-  - (WHEN (<= 0 (DECF *N-RETRIES*)) (RETRY-TRIAL)) signals a condition of type
-    ERROR.
+  - (WHEN (<= 0 (DECF *N-RETRIES*))
+      (RETRY-TRIAL)) signals a condition of type ERROR.
 %RETRY-SIGNALS retry #1
-  × (WHEN (<= 0 (DECF *N-RETRIES*)) (RETRY-TRIAL)) signals a condition of type
-    ERROR.
+  × (WHEN (<= 0 (DECF *N-RETRIES*))
+      (RETRY-TRIAL)) signals a condition of type ERROR.
 × %RETRY-SIGNALS ×1
 ")))
 

@@ -66,25 +66,25 @@
       (frob form))))
 
 (defun %write-result-msg (result stream &key terse)
+  ;; Everything multi-line is printed with FORMAT-FILL, so the current
+  ;; indentation level in the body is respected. Even hard newlines
+  ;; are indented. This is for when the event is printed deep in a
+  ;; tree-like structure.
   (cond (terse
          (%%write-result-msg result stream))
         (t
          (format stream "~@<~S in check:~:@_~:@>"
                  (event-category result *categories*))
-         (pprint-logical-block (stream nil :per-line-prefix "  ")
-           (%%write-result-msg result stream)))))
+         (format stream "  ")
+         (%%write-result-msg result stream))))
 
 (defun %%write-result-msg (result stream)
   (destructuring-bind (&optional msg-control &rest msg-args)
       (alexandria:ensure-list (msg result))
     (if msg-control
-        (apply #'format stream
-               (concatenate 'string "~@<"
-                            (substitute-tilde-percent msg-control)
-                            "~:@>")
-               msg-args)
-        (format stream "~@<~S~:@>"
-                (%frob-form-for-printing result (check result))))))
+        (apply #'format/filled stream msg-control msg-args)
+        (format/filled stream "~S"
+                       (%frob-form-for-printing result (check result))))))
 
 (declaim (ftype function finalize-captures))
 
@@ -93,6 +93,9 @@
     (let ((captures (finalize-captures (captures result))))
       (when captures
         (format stream "~:@_where~:@_")
+        ;; Note that we do not enforce indentation with
+        ;; :PER-LINE-PREFIX. That would be confusing e.g. when
+        ;; multiline string values are printed.
         (pprint-logical-block (stream nil)
           (loop
             for capture in captures
@@ -113,29 +116,9 @@
                      (format stream "~:@_"))))))))))
 
 (defun %write-result-ctx (result stream)
+  ;; As in %WRITE-RESULT-MSG, everything respects the current
+  ;; indentation level.
   (destructuring-bind (&optional ctx-control &rest ctx-args) (ctx result)
     (when ctx-control
-      (apply #'format stream
-             (concatenate 'string "~:@_~@<"
-                          (substitute-tilde-percent ctx-control)
-                          "~:@>")
-             ctx-args))))
-
-;;; To be used in logical blocks, substitute ~% with ~@:_
-;;; (PPRINT-NEWLINE :MANDATORY). FIXME: This does not handle literal
-;;; newlines, ~~, nor recursion via ~?.
-(defun substitute-tilde-percent (string)
-  (with-output-to-string (s)
-    (let ((n (length string))
-          (start 0))
-      (loop for pos = (position #\~ string :start start)
-            while pos
-            do (cond ((and (< (1+ pos) n)
-                           (char= (aref string (1+ pos)) #\%))
-                      (write-string string s :start start :end pos)
-                      (write-string "~@:_" s)
-                      (setq start (+ pos 2)))
-                     (t
-                      (write-string string s :start start :end (1+ pos))
-                      (setq start (+ pos 1))))
-            finally (write-string string s :start start)))))
+      (pprint-newline :mandatory stream)
+      (apply #'format/filled stream ctx-control ctx-args))))

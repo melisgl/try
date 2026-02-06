@@ -84,24 +84,189 @@
 
 ;;;; Printing
 
-;;; Execute BODY via a dummy PRINT-OBJECT method to force circularity
-;;; detection.
-(defmacro with-circularity-detection ((stream) &body body)
+(defvar *circularity-detection-stream* nil)
+(defvar *circularity-detection-stream-stream* nil)
+
+(defmacro with-circularity-detection ((var &optional stream) &body body)
+  """If *PRINT-CIRCLE*, then enable circularity dectection for across
+  all writes to VAR within the dynamic extent of BODY, where VAR is
+  bound to a SYNONYM-STREAM initially pointing to STREAM (evaluated).
+  If STREAM is NIL, then it defaults to the value of VAR.
+
+  ```cl-transcript
+  (let ((*print-circle* t)
+        (x (cons t t)))
+    (with-circularity-detection (*standard-output*)
+      (format t "~S~%" x)
+      (format t "~S~%" x)))
+  .. #1=(T . T)
+  .. #1#
+  ..
+  ```
+
+  Note the contrast to
+
+  ```cl-transcript
+  (let ((*print-circle* t)
+        (x (cons t t)))
+    (format t "1. ~S ~S~%" x x)
+    (format t "2. ~S~%" (list x x))
+    (format t "3. ~@<~S ~S~:@>~%" x x))
+  .. 1. (T . T) (T . T)
+  .. 2. (#1=(T . T) #1#)
+  .. 3. #1=(T . T) #1#
+  ..
+  ```
+
+  The SYNONYM-STREAM-SYMBOL is always
+  *CIRCULARITY-DETECTION-STREAM-STREAM*, which
+  WITH-CIRCULARITY-DETECTION binds to STREAM. The redirection can be
+  changed by altering or shadowing this binding. This is to support
+  portably sharing circularity detection across different streams:
+
+  ```cl-transcript
+  (let ((*print-circle* t)
+        (x (cons t t)))
+    (with-circularity-detection (*standard-output*)
+      (format t "~S~%" x)
+      (format t "~A~%"
+                 (with-output-to-string (*circularity-detection-stream-stream*)
+                   (format t "~S" x)))))
+  .. #1=(T . T)
+  .. #1#
+  ..
+  ```
+
+  The above can be written a bit more naturally with the convenience
+  function FORMAT/CIRC:
+
+  ```cl-transcript
+  (let ((*print-circle* t)
+        (x (cons t t)))
+    (with-circularity-detection (*standard-output*)
+      (format t "~S~%" x)
+      (format t "~A~%"
+                (format/circ nil "~S" x))))
+  .. #1=(T . T)
+  .. #1#
+  ..
+  ```
+
+  Note that on SBCL, all streams share circularity detection, but
+  that's a bug (<https://bugs.launchpad.net/sbcl/+bug/309090>).
+
+  Also note, it may not be entirely portable, as
+  [*PRINT-CIRCLE*][clhs] (CLHS) says:
+
+      If true, a user-defined print-object method can print objects to
+      the supplied stream using write, prin1, princ, or format and
+      expect circularities and sharing to be detected and printed
+      using the #n# syntax. If a user-defined print-object method
+      prints to a stream other than the one that was supplied, then
+      circularity detection starts over for that stream.
+
+  ... whatever "starts over" is supposed to mean."""
+  ;; We could GENSYM a unique special, but SBCL supports only a finite
+  ;; number of specials (adjustable with --tls-limit) that are
+  ;; let-bound ().
+  `(let* ((*circularity-detection-stream-stream* ,(or stream var))
+          (,var (make-synonym-stream '*circularity-detection-stream-stream*)))
+     (%with-circularity-detection (,var)
+       (let ((*circularity-detection-stream* ,var))
+         ,@body))))
+
+(defmacro %with-circularity-detection ((var) &body body)
+  #-cmucl
+  `(pprint-logical-block (,var ',body)
+     ,@body)
+  #+cmucl
+  ;; Execute BODY via a dummy PRINT-OBJECT method to force circularity
+  ;; detection.
   (alexandria:with-gensyms (values dummy)
     `(let* ((,values nil)
             (,dummy (make-instance
                      'dummy-with-print-object
-                     :fn (lambda (,stream)
+                     :fn (lambda (,var)
                            (setq ,values
-                                 (multiple-value-list ,@body))))))
-       (prin1 ,dummy ,stream)
+                                 (multiple-value-list (progn ,@body)))))))
+       (prin1 ,dummy ,var)
        (values-list ,values))))
 
+#+cmucl
 (defclass dummy-with-print-object ()
   ((fn :initarg :fn)))
 
+#+cmucl
 (defmethod print-object ((dummy dummy-with-print-object) stream)
   (funcall (slot-value dummy 'fn) stream))
+
+(defun format/circ (destination control-string &rest args)
+  "Like FORMAT, but shares the circularity detection with the stream
+  established by the immediately enclosing WITH-CIRCULARITY-DETECTION
+  if any."
+  (flet ((foo (stream)
+           (apply #'format stream control-string args)))
+    (cond ((or (not *print-circle*)
+               (null *circularity-detection-stream*))
+           (foo destination))
+          ((null destination)
+           (with-output-to-string (*circularity-detection-stream-stream*)
+             (foo *circularity-detection-stream*)))
+          ((stringp destination)
+           (assert nil () "STRING destinations not implemented."))
+          (t
+           (when (eq destination t)
+             (setq destination *standard-output*))
+           (if (eq destination *circularity-detection-stream*)
+               (let ((*circularity-detection-stream-stream* destination))
+                 (foo destination))
+               (foo destination))))))
+
+(defun format/filled (destination control-string &rest args)
+  """Like FORMAT, but print with paragraph filling. Unlike the format
+  directive ~@< ... ~:@>, this works with hard newlines, newlines
+  escaped by ~, ~%, and ~?. All lines are indented to the current
+  column. Thus, for example, a final newline does not do what you may
+  want it to do.
+
+  For background, this is the difference between ~% and ~@:_
+  (equivalent to (PPRINT-NEWLINE :MANDATORY)) in paragraph filling:
+
+  ```cl-transcript
+  (format t "~@<X~:@_A B C.~:@>")
+  .. X
+  .. A B C.
+
+  (format t "~@<X~%A B C.~:@>")
+  .. X
+  .. A
+  .. B C.
+  ```
+
+  FORMAT-FILLED breaks multi-write circularity detection unless it is
+  established with WITH-CIRCULARITY-DETECTION."""
+  #-cmucl
+  (let* ((output (apply #'format/circ nil control-string args))
+         (new-control (filled-format-control output)))
+    (format destination new-control))
+  #+cmucl
+  (apply #'format destination control-string args))
+
+(defun filled-format-control (string)
+  (with-output-to-string (s)
+    ;; Wrap the whole thing in paragraph filling
+    (write-string "~@<" s)
+    (dotimes (i (length string))
+      (let ((char (aref string i)))
+        (cond ((char= char #\~)
+               ;; Escape format directives
+               (write-string "~~" s))
+              ((char= char #\Newline)
+               ;; Replace hard newlines with (PPRINT-NEWLINE :MANDATORY)
+               (write-string "~:@_" s))
+              (t
+               (write-char char s)))))
+    (write-string "~:@>" s)))
 
 
 ;;;; Types
