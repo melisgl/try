@@ -28,7 +28,7 @@
 
 (deftest test-is/print-newline ()
   (let ((*package* (find-package :cl-user)))
-    (with-failure-expected ((alexandria:featurep '(:or :clisp :cmucl)))
+    (with-failure-expected ((alexandria:featurep :clisp))
       (is (null (mismatch% (handler-case
                                (is t :msg "FORMAT-CONTROL~%with new line.")
                              (outcome (c)
@@ -37,26 +37,16 @@
                            "TRY:EXPECTED-SUCCESS in check:
   FORMAT-CONTROL
   with new line."))))
-    (with-failure-expected ((alexandria:featurep '(:or :clisp :cmucl)))
+    (with-failure-expected ((alexandria:featurep '(:or :abcl :allegro :clisp)))
       (is (null (mismatch% (handler-case
-                               (is t :msg "FORMAT-CONTROL
-with hard new line.")
-                             (outcome (c)
-                               (with-output-to-string (s)
-                                 (try::write-event c s :ctx t :terse nil))))
-                           "TRY:EXPECTED-SUCCESS in check:
-  FORMAT-CONTROL
-  with hard new line."))))
-    (with-failure-expected
-        ((alexandria:featurep '(:or :abcl :allegro :clisp :cmucl)))
-      (is (null (mismatch% (handler-case
-                               (is t :msg (list "FORMAT-ARGS~Awith new line."
+                               (is t :msg (list "FORMAT-ARGS~A with new line."
                                                 (format nil "~%")))
                              (outcome (c)
                                (with-output-to-string (s)
                                  (try::write-event c s :ctx t :terse nil))))
                            "TRY:EXPECTED-SUCCESS in check:
   FORMAT-ARGS
+
   with new line."))))))
 
 (deftest test-is/failure-debug-info ()
