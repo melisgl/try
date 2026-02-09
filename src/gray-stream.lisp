@@ -30,6 +30,9 @@
     (setf column (sync-stream-line-column column inner-stream))
     column))
 
+;;; If STREAM knows its column and it's different from TO-COLUMN, then
+;;; "sync": start a new line and return the new column (0). Else,
+;;; return TO-COLUMN.
 (defun sync-stream-line-column (to-column stream)
   (let ((syncedp nil))
     (labels

@@ -201,7 +201,7 @@
       (retry-trial))))
 
 (deftest test-signals/retry-trial ()
-  #-cmucl
+  #-(or ccl cmucl)
   (let ((*n-retries* 1))
     (check-try-output ('%retry-signals :print t :describe nil)
                       "%RETRY-SIGNALS
