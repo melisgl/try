@@ -1,9 +1,28 @@
 (in-package :try-test)
 
 (deftest test-utils ()
+  (test-format/filled)
   (test-on-values)
   (test-with-retry)
   (test-lambda-list-to-arglist-form))
+
+(deftest test-format/filled ()
+  (with-test ("desitnation T and ~%")
+    (fresh-line)
+    (equal (with-output-to-string (*standard-output*)
+             (format t "xx")
+             (try::format/filled t "FORMAT-CONTROL~%with new line."))
+           "xxFORMAT-CONTROL
+  with new line."))
+  (with-test ("~? and stream output")
+    (equal (with-output-to-string (*standard-output*)
+             (format *standard-output* "xx")
+             (try::format/filled *standard-output* "FORMAT-CONTROL~?"
+                                 "~%with new~A." '(" line")))
+           "xxFORMAT-CONTROL
+  with new line."))
+  (with-test ("string output and escaping")
+    (equal (try::format/filled nil "~~") "~")))
 
 (deftest test-on-values ()
   (is (equal (multiple-value-list
