@@ -48,7 +48,6 @@
 ! %SIMPLE-UNEXPECTED-ERROR !1
 "))
 
-
 (deftest test-try/printer-variable-bindings ()
   (let ((try::*event-print-bindings* '((*print-circle* t))))
     (check-try-output ('%simple-success :describe t)
