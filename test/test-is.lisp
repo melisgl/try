@@ -105,7 +105,8 @@
   (test-is/capture/evaluation-order)
   (test-is/capture/duplicate)
   (test-is/capture/nested-subs)
-  (test-is/capture/improper-list-literal))
+  (test-is/capture/improper-list-literal)
+  (test-is/capture/cyclic))
 
 (deftest test-is/capture/implicit-and-explicit ()
   (is-ctx-captures '(((null t) nil nil t))
@@ -210,6 +211,16 @@
                     "FOO77
   × (IS (EQUALP 1 '(1 . 2)))
 × FOO77 ×1
+"))
+
+(deftest test-is/capture/cyclic ()
+  (check-try-output ((named-lambda-test fff ()
+                       (is (not (% '(#1=(#1#)))))))
+                    "FFF
+  × (IS (NOT #1='#2=(#3=(#3#))))
+    where
+      #1# = #2#
+× FFF ×1
 "))
 
 

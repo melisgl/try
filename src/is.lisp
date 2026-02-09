@@ -347,10 +347,10 @@
   (is (endp (member (1+ 1) '(1 2 3))))
   .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
   ..   UNEXPECTED-FAILURE in check:
-  ..     (IS (ENDP #1=(MEMBER #2=(1+ 1) '(1 2 3))))
+  ..     (IS (ENDP #1=(MEMBER #2=(1+ 1) '(1 . #3=(2 3)))))
   ..   where
   ..     #2# = 2
-  ..     #1# = (2 3)
+  ..     #1# = #3#
   ```
 
   Note that the argument of [NOT][function] is not captured as it is

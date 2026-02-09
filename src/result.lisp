@@ -40,29 +40,45 @@
       (%write-result-captures result stream)
       (%write-result-ctx result stream))))
 
-;;; Remove % and %% (see CAPTURE), so that they don't pollute the form
-;;; displayed in the events. KLUDGE: We should use a proper code
-;;; walker, but we simply assume that all % and %% are to be removed.
-;;; FIXME: Infinite loop on #1=(#1#) or #1=(% #1#).
+(declaim (ftype function capture-subform capture-explicitp))
+
+;;; Remove % and %% (see CAPTURE) in explicit captures, so that they
+;;; don't pollute the form displayed in the events.
 (defun %frob-form-for-printing (result form)
   ;; Memoize the results so that printing a result twice writes EQ
   ;; objects and *PRINT-CIRCLE* thus works.
   (let ((data (print-form-memoization-data result)))
-    (labels ((frob (form)
+    (labels ((explicitly-captured-p (subform)
+               (loop for capture in (captures result)
+                       thereis (and (capture-explicitp capture)
+                                    (eq subform (capture-subform capture)))))
+             (frob (form)
                (or (gethash form data)
                    (cond
-                     ;; Basically ATOM, but also include improper
-                     ;; lists.
-                     ((not (alexandria:proper-list-p form))
+                     ((atom form)
                       form)
-                     ((and (member (first form) '(% %%))
-                           ;; Catch circles in code.
+                     ((and (member (car form) '(% %%))
+                           ;; See if it's a proper list of length 2.
+                           (consp (cdr form))
                            (null (cddr form))
-                           (= (length form) 2))
-                      (setf (gethash form data) (frob (second form))))
+                           (explicitly-captured-p (second form)))
+                      (let* ((subform (second form))
+                             (frobbed (frob subform)))
+                        (setf (gethash subform data) frobbed)
+                        (values frobbed t)))
                      (t
-                      (setf (gethash form data)
-                            (mapcar #'frob form)))))))
+                      (let ((new (cons nil nil)))
+                        (setf (gethash form data) new)
+                        (multiple-value-bind (car car-frobbed?)
+                            (frob (car form))
+                          (multiple-value-bind (cdr cdr-frobbed?)
+                              (frob (cdr form))
+                            (cond ((or car-frobbed? cdr-frobbed?)
+                                   (setf (car new) car
+                                         (cdr new) cdr)
+                                   (values new t))
+                                  (t
+                                   (setf (gethash form data) form)))))))))))
       (frob form))))
 
 (defun %write-result-msg (result stream &key terse)
