@@ -502,7 +502,7 @@
 
   - ABCL, CMUCL, and ECL have a bug related to losing
     [EQL][function]ness of source literals
-    [https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665](https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665).
+    <https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665>.
     The result is somewhat cosmetic; it may cause multiple captures
     being made for the same thing.
   """)
