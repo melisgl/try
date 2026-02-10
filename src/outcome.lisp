@@ -301,7 +301,7 @@
   The result is signalled with the function SIGNAL if it is a PASS,
   else it's signalled with [ERROR][function]. This distinction matters
   only if the event is not handled, which is never the case in a
-  TRIAL. Standalone checks though – those not enclosed by a trial –
+  TRIAL. However, standalone checks – those not enclosed by a trial –
   invoke the debugger on RESULTs which are not of type PASS.
 
   The signalled RESULT is not final until RECORD-EVENT is invoked on

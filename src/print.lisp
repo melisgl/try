@@ -283,9 +283,9 @@
   ```
 
   Timing is available for all OUTCOMEs (i.e. for @CHECKS and TRIALs).
-  Checks generally measure the time spent during evaluation the form
-  they are wrapping. Trials measure the time between TRIAL-START and
-  the VERDICT.
+  Checks generally measure the time spent during evaluation of the
+  form they are wrapping. Trials measure the time between TRIAL-START
+  and the VERDICT.
 
   Timing information is not available for TRIAL-START and ERROR*
   events.""")

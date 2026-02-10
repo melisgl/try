@@ -73,8 +73,7 @@
   - NLX, signalled when no error was detected by the handler, but the
     trial finishes with a [non-local exit][clhs].
 
- These are the 15 concrete event classes.
- """
+  These are the 15 concrete event classes."""
   (concrete-events-of-type function))
 
 (defvar *concrete-events*

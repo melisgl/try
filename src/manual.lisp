@@ -62,7 +62,8 @@
   [@EXPLICIT-CAPTURES]. IS supports capturing multiple values and can
   be taught [how to deal with macros]
   [@WRITING-AUTOMATIC-CAPTURE-RULES]. The combination of these
-  features allows MATCH-VALUES to be implementable as tiny extension:
+  features allows MATCH-VALUES to be implementable as a tiny
+  extension:
 
   ```cl-transcript (:dynenv try-transcript)
   (is (match-values (values (1+ 5) "sdf")
@@ -105,9 +106,9 @@
   ==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
   ```
 
-  Try is driven by conditions, and the comments to the right give the
-  type of the condition that is printed on that line. The `⋅`
-  character marks successes.
+  Try is driven by conditions, and the comments to the right show the
+  type of the condition printed on that line. The `⋅` character marks
+  successes.
 
   We could have run our test with `(TRY 'SHOULD-WORK)` as well, which
   does pretty much the same thing except that it defaults to never
@@ -373,8 +374,8 @@
 
   Use `mgl-try-rerun` and `mgl-try-rerun-all` to rerun trials. They
   are especially convenient to rerun TRY:!, when deciding to inspect
-  the results in a Try buffer for trial that may not have been run via
-  Emacs.
+  the results in a Try buffer for a trial that may not have been run
+  via Emacs.
 
   In an Emacs Try buffer, the following key bindings are available.
 
@@ -409,8 +410,8 @@
         the test is called implicitly.
 
       - `\\R` is like `r`, but *TRY-RERUN* and TRY:*RERUN* are set to
-        T, so all tests are rerun. With a prefix argument, the test is
-        called implicitly.
+        T, to ensure that all tests are rerun. With a prefix argument,
+        the test is called implicitly.
 
   - Visiting source locations:
 
@@ -500,11 +501,11 @@
   - Gray streams are broken on ABCL so the output may look even worse
     [https://abcl.org/trac/ticket/373](https://abcl.org/trac/ticket/373).
 
-  - ABCL, CMUCL, and ECL have a bug related to losing
+  - ABCL, CMUCL and ECL have a bug related to losing
     [EQL][function]ness of source literals
-    <https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665>.
-    The result is somewhat cosmetic; it may cause multiple captures
-    being made for the same thing.
+    <https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665>. The
+    result is somewhat cosmetic; it may cause multiple captures being
+    made for the same thing.
   """)
 
 

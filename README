@@ -77,7 +77,8 @@ IS automatically captures values of arguments
 to functions like 1+ in the above example. Values of other
 interesting subforms can be explicitly captured. IS supports capturing multiple values and can
 be taught how to deal with macros. The combination of these
-features allows MATCH-VALUES to be implementable as tiny extension:
+features allows MATCH-VALUES to be implementable as a tiny
+extension:
 
     (is (match-values (values (1+ 5) "sdf")
           (= * 0)
@@ -116,9 +117,9 @@ a test and run it:
     ..
     ==> #<TRIAL (SHOULD-WORK) EXPECTED-SUCCESS 0.000s ⋅1>
 
-Try is driven by conditions, and the comments to the right give the
-type of the condition that is printed on that line. The ⋅
-character marks successes.
+Try is driven by conditions, and the comments to the right show the
+type of the condition printed on that line. The ⋅ character marks
+successes.
 
 We could have run our test with (TRY 'SHOULD-WORK) as well, which
 does pretty much the same thing except that it defaults to never
@@ -409,8 +410,8 @@ It is assumed that the Lisp is running under
 
 Use mgl-try-rerun and mgl-try-rerun-all to rerun trials. They
 are especially convenient to rerun TRY:!, when deciding to inspect
-the results in a Try buffer for trial that may not have been run via
-Emacs.
+the results in a Try buffer for a trial that may not have been run
+via Emacs.
 
 In an Emacs Try buffer, the following key bindings are available.
 
@@ -445,8 +446,8 @@ In an Emacs Try buffer, the following key bindings are available.
       the test is called implicitly.
 
     - R is like r, but *TRY-RERUN* and TRY:*RERUN* are set to
-      T, so all tests are rerun. With a prefix argument, the test is
-      called implicitly.
+      T, to ensure that all tests are rerun. With a prefix argument,
+      the test is called implicitly.
 
 - Visiting source locations:
 
@@ -523,29 +524,29 @@ disjoint subclasses:
 ### Concrete Events
 
 The non-abstract condition classes of events that are actually
- signalled are called concrete.
+signalled are called concrete.
 
 Checks' RESULTs and Trials' VERDICTs have six concrete subclasses
- each:
+each:
 
 - EXPECTED-RESULT-SUCCESS, UNEXPECTED-RESULT-SUCCESS,
-   EXPECTED-RESULT-FAILURE, UNEXPECTED-RESULT-FAILURE,
-   RESULT-SKIP, RESULT-ABORT*
+  EXPECTED-RESULT-FAILURE, UNEXPECTED-RESULT-FAILURE,
+  RESULT-SKIP, RESULT-ABORT*
 
 - EXPECTED-VERDICT-SUCCESS, UNEXPECTED-VERDICT-SUCCESS,
-   EXPECTED-VERDICT-FAILURE, UNEXPECTED-VERDICT-FAILURE,
-   VERDICT-SKIP, VERDICT-ABORT*
+  EXPECTED-VERDICT-FAILURE, UNEXPECTED-VERDICT-FAILURE,
+  VERDICT-SKIP, VERDICT-ABORT*
 
 Breaking the symmetry between Checks and Trials, TRIAL-START is a
- concrete event class, that marks the start of a TRIAL.
+concrete event class, that marks the start of a TRIAL.
 
 ERROR* is an abstract class with two concrete subclasses:
 
 - UNHANDLED-ERROR, signalled when a CL:ERROR reaches the handler set
-   up by DEFTEST or WITH-TEST, or when the debugger is invoked.
+  up by DEFTEST or WITH-TEST, or when the debugger is invoked.
 
 - NLX, signalled when no error was detected by the handler, but the
-   trial finishes with a non-local exit.
+  trial finishes with a non-local exit.
 
 These are the 15 concrete event classes.
 
@@ -858,7 +859,7 @@ effect, then RESULT-SKIP is signalled.
 The result is signalled with the function SIGNAL if it is a PASS,
 else it's signalled with ERROR. This distinction matters
 only if the event is not handled, which is never the case in a
-TRIAL. Standalone checks though – those not enclosed by a trial –
+TRIAL. However, standalone checks – those not enclosed by a trial –
 invoke the debugger on RESULTs which are not of type PASS.
 
 The signalled RESULT is not final until RECORD-EVENT is invoked on
@@ -2622,9 +2623,9 @@ setups.
         ==> #<TRIAL (WITH-TEST (TIMED)) ABORT* 0.300s ⊟1 ⋅2>
 
     Timing is available for all OUTCOMEs (i.e. for Checks and TRIALs).
-    Checks generally measure the time spent during evaluation the form
-    they are wrapping. Trials measure the time between TRIAL-START and
-    the VERDICT.
+    Checks generally measure the time spent during evaluation of the
+    form they are wrapping. Trials measure the time between TRIAL-START
+    and the VERDICT.
 
     Timing information is not available for TRIAL-START and ERROR*
     events.
@@ -2937,11 +2938,11 @@ SBCL.
 - Gray streams are broken on ABCL so the output may look even worse
   [https://abcl.org/trac/ticket/373](https://abcl.org/trac/ticket/373).
 
-- ABCL, CMUCL, and ECL have a bug related to losing
+- ABCL, CMUCL and ECL have a bug related to losing
   EQLness of source literals
-  <https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665>.
-  The result is somewhat cosmetic; it may cause multiple captures
-  being made for the same thing.
+  <https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665>. The
+  result is somewhat cosmetic; it may cause multiple captures being
+  made for the same thing.
 
 ## Glossary
 
