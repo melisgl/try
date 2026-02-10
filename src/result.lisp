@@ -29,17 +29,7 @@
 
 
 (defmethod write-event ((result result) stream &key terse ctx)
-  (let (#+#.(cl:if (cl:and (cl:find-package 'sb-ext)
-                           (cl:find-symbol
-                            (cl:string '*print-circle-not-shared*)
-                            'sb-ext))
-                   '(:and)
-                   '(:or))
-        ;; SLIME's WITH-CONDITION-PRINTING binds this to T, with which
-        ;; captures are not printed with the #1# syntax even if
-        ;; *PRINT-CIRCLE* is true.
-        (sb-ext:*print-circle-not-shared* nil))
-    (%write-result result stream :terse terse :ctx ctx)))
+  (%write-result result stream :terse terse :ctx ctx))
 
 (defun %write-result (result stream &key terse ctx)
   (setf (print-form-memoization-data result)

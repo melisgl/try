@@ -11,7 +11,7 @@ for the latest version.
 
 - [system] "try"
 
-    - Version: 0.0.7
+    - Version: 0.0.8
 
     - Description: Try is an extensible test framework with equal support
     for interactive and non-interactive workflows.
@@ -707,7 +707,7 @@ PASS and FAIL partition ACT.
 
 ### Printing Events
 
-- [variable] *EVENT-PRINT-BINDINGS* ((*PRINT-CIRCLE* T))
+- [variable] *EVENT-PRINT-BINDINGS* ((*PRINT-CIRCLE* T) (SB-EXT:*PRINT-CIRCLE-NOT-SHARED* NIL))
 
     Try var. EVENTs are conditions signalled in code that may change printer
     variables such as *PRINT-CIRCLE*, *PRINT-LENGTH*, etc. To control

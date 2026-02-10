@@ -285,7 +285,18 @@
 (defsection @printing-events (:title "Printing Events")
   (*event-print-bindings* variable))
 
-(define-try-var *event-print-bindings* '((*print-circle* t))
+(define-try-var *event-print-bindings*
+    '((*print-circle* t)
+      #+#.(cl:if (cl:and (cl:find-package 'sb-ext)
+                         (cl:find-symbol
+                          (cl:string '*print-circle-not-shared*)
+                          'sb-ext))
+                 '(:and)
+                 '(:or))
+      ;; SLIME's WITH-CONDITION-PRINTING binds this to T, with which
+      ;; captures are not printed with the #1# syntax even if
+      ;; *PRINT-CIRCLE* is true.
+      (sb-ext:*print-circle-not-shared* nil))
   "EVENTs are conditions signalled in code that may change printer
   variables such as *PRINT-CIRCLE*, *PRINT-LENGTH*, etc. To control
   how events are printed, the list of variable bindings in

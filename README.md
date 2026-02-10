@@ -63,7 +63,7 @@ for the latest version.
 
 - [system] **"try"**
 
-    - _Version:_ 0.0.7
+    - _Version:_ 0.0.8
     - _Description:_ Try is an extensible test framework with equal support
         for interactive and non-interactive workflows.
     - _Long Description:_ Try stays as close to normal Lisp evaluation
@@ -869,7 +869,7 @@ The following types are shorthands.
 
 <a id="x-28TRY-3A-2AEVENT-PRINT-BINDINGS-2A-20VARIABLE-29"></a>
 
-- [variable] **\*EVENT-PRINT-BINDINGS\*** *((\*PRINT-CIRCLE\* T))*
+- [variable] **\*EVENT-PRINT-BINDINGS\*** *((\*PRINT-CIRCLE\* T) (SB-EXT:\*PRINT-CIRCLE-NOT-SHARED\* NIL))*
 
     [Try var][0d7a]. [`EVENT`][955d]s are conditions signalled in code that may change printer
     variables such as [`*PRINT-CIRCLE*`][c8cb], [`*PRINT-LENGTH*`][8f7a], etc. To control
