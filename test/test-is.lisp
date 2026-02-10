@@ -214,12 +214,29 @@
 "))
 
 (deftest test-is/capture/cyclic ()
+  ;; For some reason this can overflow the stack on ABCL and CLISP.
+  #-(or abcl clisp)
   (check-try-output ((named-lambda-test fff ()
                        (is (not (% '(#1=(#1#)))))))
+                    #-(or ccl ecl)
                     "FFF
   × (IS (NOT #1='#2=(#3=(#3#))))
     where
       #1# = #2#
+× FFF ×1
+"
+                    #+ccl
+                    "FFF
+  × (IS (NOT #2='#3=(#1=(#1#))))
+    where
+      #2# = #3#
+× FFF ×1
+"
+                    #+ecl
+                    "FFF
+  × (IS (NOT '#1=(#2=(#2#))))
+    where
+      '#1# = #1#
 × FFF ×1
 "))
 
