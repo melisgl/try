@@ -32,7 +32,12 @@
     *DEBUGGER-HOOK*, NIL if it was caught by its ERROR handler."))
   (:documentation "Signalled when a CL:ERROR condition reaches the
   handlers set up by DEFTEST or WITH-TEST, or when their
-  *DEBUGGER-HOOK* is invoked with a condition that's not an EVENT."))
+  *DEBUGGER-HOOK* is invoked with a condition that's not an EVENT.
+
+  Note that if NESTED-CONDITION (the original CL:ERROR) has restarts
+  [associated][9.1.4.2.4 clhs] with it, these are not going to be
+  associated with its UNHANDLED-ERROR condition, which may restrict
+  debugger the list of available restarts in the debugger."))
 
 (define-condition nlx (error*)
   ((extra-message :initarg :extra-message :reader extra-message))

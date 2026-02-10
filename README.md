@@ -1524,6 +1524,11 @@ dropped.
     Signalled when a [`CL:ERROR`][d162] condition reaches the
     handlers set up by [`DEFTEST`][e7ca] or [`WITH-TEST`][8f5d], or when their
     [`*DEBUGGER-HOOK*`][1cdc] is invoked with a condition that's not an [`EVENT`][955d].
+    
+    Note that if [`NESTED-CONDITION`][0aad] (the original `CL:ERROR`) has restarts
+    [associated][bba7] with it, these are not going to be
+    associated with its [`UNHANDLED-ERROR`][8f78] condition, which may restrict
+    debugger the list of available restarts in the debugger.
 
 <a id="x-28TRY-3ANESTED-CONDITION-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29"></a>
 
@@ -3620,6 +3625,7 @@ SBCL.
   [06c2]: #x-28TRY-3AEXPECTED-VERDICT-SUCCESS-20CONDITION-29 "TRY:EXPECTED-VERDICT-SUCCESS CONDITION"
   [0743]: #x-28TRY-3A-40WRITING-AUTOMATIC-CAPTURE-RULES-20MGL-PAX-3ASECTION-29 "Writing Automatic Capture Rules"
   [0992]: #x-28TRY-3ADISMISSAL-20CONDITION-29 "TRY:DISMISSAL CONDITION"
+  [0aad]: #x-28TRY-3ANESTED-CONDITION-20-28MGL-PAX-3AREADER-20TRY-3AUNHANDLED-ERROR-29-29 "TRY:NESTED-CONDITION (MGL-PAX:READER TRY:UNHANDLED-ERROR)"
   [0c39]: #x-28TRY-3A-2ATRY-COLLECT-2A-20VARIABLE-29 "TRY:*TRY-COLLECT* VARIABLE"
   [0d57]: http://www.lispworks.com/documentation/HyperSpec/Body/t_short_.htm "DOUBLE-FLOAT (MGL-PAX:CLHS TYPE)"
   [0d7a]: #x-28TRY-3A-40TRYVAR-20MGL-PAX-3AGLOSSARY-TERM-29 "Try var"
@@ -3757,6 +3763,7 @@ SBCL.
   [b949]: #x-28TRY-3A-40TUTORIAL-20MGL-PAX-3ASECTION-29 "Tutorial"
   [b94a]: http://www.lispworks.com/documentation/HyperSpec/Body/f_mismat.htm "MISMATCH (MGL-PAX:CLHS FUNCTION)"
   [bb56]: #x-28TRY-3A-40CHECKS-20MGL-PAX-3ASECTION-29 "Checks"
+  [bba7]: http://www.lispworks.com/documentation/HyperSpec/Body/09_adbd.htm "\"9.1.4.2.4\" (MGL-PAX:CLHS MGL-PAX:SECTION)"
   [c1f6]: #x-28TRY-3A-25-25-20MACROLET-29 "TRY:%% MACROLET"
   [c3a0]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq_sle.htm "< (MGL-PAX:CLHS FUNCTION)"
   [c759]: #x-28TRY-3A-40GLOSSARY-20MGL-PAX-3ASECTION-29 "Glossary"

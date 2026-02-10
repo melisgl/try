@@ -1231,6 +1231,11 @@ dropped.
     handlers set up by DEFTEST or WITH-TEST, or when their
     *DEBUGGER-HOOK* is invoked with a condition that's not an EVENT.
 
+    Note that if NESTED-CONDITION (the original CL:ERROR) has restarts
+    associated with it, these are not going to be
+    associated with its UNHANDLED-ERROR condition, which may restrict
+    debugger the list of available restarts in the debugger.
+
 - [reader] NESTED-CONDITION UNHANDLED-ERROR (:CONDITION = 'NIL)
 
 - [reader] BACKTRACE-OF UNHANDLED-ERROR (:BACKTRACE = 'NIL)
