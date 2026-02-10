@@ -66,8 +66,8 @@ subforms to provide context to failures:
     ..     #1# = 6
 
 This is a PAX transcript,
-output is prefixed with ... Readable and unreadable return values
-are prefixed with => and ==>, respectively.
+output is prefixed with ".. ". Readable and unreadable return
+values are prefixed with "=> " and "==> ", respectively.
 
 Note the #N# syntax due to *PRINT-CIRCLE*.
 
@@ -307,7 +307,7 @@ In the above, (IS T) was executed, but (IS NIL) was not.
     ..
     ==> #<TRIAL (KNOWN-BROKEN) EXPECTED-SUCCESS 0.000s ×1>
 
-× marks EXPECTED-FAILUREs. (WITH-SKIP (T) ...) makes all checks
+× marks EXPECTED-FAILUREs. (WITH-SKIP (T) ...) makes all check
 successes and failures EXPECTED, which are counted in their own
 *CATEGORIES* by default but don't make the enclosing tests fail.
 Also see WITH-EXPECTED-OUTCOME.
@@ -492,9 +492,9 @@ Matching the types of events to *DEBUG*, *COUNT*, *COLLECT*, *RERUN*,
 
 ### Middle Layer of Events
 
-The event hierarchy is fairly involved, so let's start with the middle
-layer because it is smallest. The condition EVENT has 4 disjoint
-subclasses:
+The event hierarchy is fairly involved, so let's start with the
+middle layer because it is the smallest. The condition EVENT has 4
+disjoint subclasses:
 
 - TRIAL-START, starting a TRIAL (by executing a test),
 
@@ -1464,10 +1464,10 @@ ENDP and NOT:
     (is (endp (member (1+ 1) '(1 2 3))))
     .. debugger invoked on UNEXPECTED-RESULT-FAILURE:
     ..   UNEXPECTED-FAILURE in check:
-    ..     (IS (ENDP #1=(MEMBER #2=(1+ 1) '(1 2 3))))
+    ..     (IS (ENDP #1=(MEMBER #2=(1+ 1) '(1 . #3=(2 3)))))
     ..   where
     ..     #2# = 2
-    ..     #1# = (2 3)
+    ..     #1# = #3#
 
 Note that the argument of NOT is not captured as it is
 assumed to be NIL or T. If that's not true, use NULL.
@@ -2868,11 +2868,11 @@ normally.
 
 - [function] REPLAY-EVENTS TRIAL &KEY (COLLECT *TRY-COLLECT*) (PRINT *TRY-PRINT*) (DESCRIBE *TRY-DESCRIBE*) (STREAM *TRY-STREAM*) (PRINTER *TRY-PRINTER*)
 
-    REPLAY-EVENTS reprocesses the events collected (see Collecting Events)
-    in TRIAL. It takes the same arguments as TRY except
-    DEBUG, COUNT and RERUN. This is because
-    REPLAY-EVENTS does not run any tests. It simply signals the events
-    collected in TRIAL again to allow further processing. The values of
+    REPLAY-EVENTS reprocesses the events collected in
+    TRIAL without actually running the tests that produced them. It
+    simply signals the events collected in TRIAL again to allow further
+    processing. It takes the same arguments as TRY except
+    DEBUG, COUNT and RERUN. The values of
     *CATEGORIES* and *COUNT* that were in effect for TRIAL are used, and
     their current values are ignored to be able to keep consistent
     counts (see Counting Events).
@@ -2939,7 +2939,7 @@ SBCL.
 
 - ABCL, CMUCL, and ECL have a bug related to losing
   EQLness of source literals
-  [https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665](https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665).
+  <https://gitlab.com/embeddable-common-lisp/ecl/-/issues/665>.
   The result is somewhat cosmetic; it may cause multiple captures
   being made for the same thing.
 

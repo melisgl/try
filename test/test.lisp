@@ -18,12 +18,28 @@
     (test-trial)
     (test-try)
     (test-transcripts)))
+
 
 (deftest test-transcripts ()
   #+sbcl
-  (signals-not (pax:transcription-error)
-    (with-new-implicit-try
-      (pax:document try::@try-manual :format nil))))
+  (signals-not (pax:transcription-error :handler #'continue)
+    (ensure-directories-exist "test/data/")
+    (with-new-implicit-try ()
+      (try::update-try-docs :output-dir "test/data/")))
+  #+sbcl
+  (check-files-the-same
+   (asdf:system-relative-pathname "try" "README")
+   (asdf:system-relative-pathname "try" "test/data/README"))
+  #+sbcl
+  (check-files-the-same
+   (asdf:system-relative-pathname "try" "README.md")
+   (asdf:system-relative-pathname "try" "test/data/README.md")))
+
+(defun check-files-the-same (file1 file2)
+  (is (equal (alexandria:read-file-into-string (% file1))
+             (alexandria:read-file-into-string (% file2)))
+      :capture nil))
+
 
 (defun test (&key (debug nil) (print 'unexpected) (describe 'unexpected))
   (let ((try::*allow-nested-try* t))

@@ -5,4 +5,6 @@
 *.*fsl
 *.lib
 *.sse2f
-doc/
+/doc/
+/test/data/README
+/test/data/README.md

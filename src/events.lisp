@@ -16,9 +16,9 @@
   (@categories section))
 
 (defsection @middle-layer-of-events (:title "Middle Layer of Events")
-  """The event hierarchy is fairly involved, so let's start with the middle
-  layer because it is smallest. The condition EVENT has 4 disjoint
-  subclasses:
+  """The event hierarchy is fairly involved, so let's start with the
+  middle layer because it is the smallest. The condition EVENT has 4
+  disjoint subclasses:
 
   - TRIAL-START, starting a TRIAL (by executing a [test][@TESTS]),
 

@@ -49,8 +49,8 @@
   ```
 
   This is a [PAX][pax::@pax-manual] [transcript][pax::@transcripts],
-  output is prefixed with `.. `. Readable and unreadable return values
-  are prefixed with `=> ` and `==> `, respectively.
+  output is prefixed with `".. "`. Readable and unreadable return
+  values are prefixed with `"=> "` and `"==> "`, respectively.
 
   Note the `#N#` syntax due to *PRINT-CIRCLE*.
 
@@ -316,7 +316,7 @@
   ==> #<TRIAL (KNOWN-BROKEN) EXPECTED-SUCCESS 0.000s ×1>
   ```
 
-  `×` marks EXPECTED-FAILUREs. `(WITH-SKIP (T) ...)` makes all checks
+  `×` marks EXPECTED-FAILUREs. `(WITH-SKIP (T) ...)` makes all check
   successes and failures EXPECTED, which are counted in their own
   *CATEGORIES* by default but don't make the enclosing tests fail.
   Also see WITH-EXPECTED-OUTCOME.

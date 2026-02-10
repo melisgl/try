@@ -43,23 +43,52 @@
 
 ;;;; Register in PAX World
 
-(defun pax-sections ()
+(defun try-sections ()
   (list @try-manual))
-(defun pax-pages ()
+
+(defun try-pages ()
   `((:objects
      (, @try-manual)
      :source-uri-fn ,(make-github-source-uri-fn
                       :try
                       "https://github.com/melisgl/try"))))
-(register-doc-in-pax-world :try (pax-sections) (pax-pages))
+
+(register-doc-in-pax-world :try (try-sections) (try-pages))
+
+
+(defun try-pages* (format &key (output-dir ""))
+  (let ((source-uri-fn (make-git-source-uri-fn
+                        "try"
+                        "https://github.com/melisgl/try"))
+        (try-file (ecase format
+                    ((:plain) "README")
+                    ((:markdown) "README.md")
+                    ((:html) "doc/try-manual.html")
+                    ((:pdf) "try-manual.pdf")))
+        (output-dir (asdf:system-relative-pathname "try" output-dir)))
+    `((:objects (, @try-manual)
+       :output (,(merge-pathnames try-file output-dir)
+                ,@pax::*default-output-options*)
+       ,@(when (member format '(:plain :markdown))
+           '(:footer-fn pax::print-markdown-footer))
+       :uri-fragment ,try-file
+       :source-uri-fn ,source-uri-fn))))
+
+(defun update-try-docs (&key (output-dir ""))
+  (let ((*document-url-versions* '(1))
+        (*document-max-numbering-level* 4)
+        (*document-max-table-of-contents-level* 4)
+        (*document-html-max-navigation-table-of-contents-level* 3))
+    (document (try-sections)
+              :pages (try-pages* :plain :output-dir output-dir)
+              :format :plain)
+    (document (try-sections)
+              :pages (try-pages* :markdown :output-dir output-dir)
+              :format :markdown)
+    #+nil
+    (update-asdf-system-html-docs @try-manual :try
+                                  :pages (try-pages* :html))))
 
 ;;; Regenerate documentation
 #+nil
-(let ((pax:*document-max-numbering-level* 4)
-      (pax:*document-max-table-of-contents-level* 4)
-      (pax:*document-html-max-navigation-table-of-contents-level* 3))
-  (update-asdf-system-readmes @try-manual :try
-                              :formats '(:plain :markdown))
-  #+nil
-  (update-asdf-system-html-docs @try-manual :try
-                                :pages (pax-pages)))
+(update-try-docs)

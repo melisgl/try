@@ -15,11 +15,11 @@
 (defun replay-events (trial &key (collect *try-collect*)
                               (print *try-print*) (describe *try-describe*)
                               (stream *try-stream*) (printer *try-printer*))
-  """REPLAY-EVENTS reprocesses the events collected (see @COLLECT)
-  in TRIAL. It takes the same arguments as TRY except
-  [DEBUG][argument], [COUNT][argument] and RERUN. This is because
-  REPLAY-EVENTS does not run any tests. It simply signals the events
-  collected in TRIAL again to allow further processing. The values of
+  """REPLAY-EVENTS reprocesses the events [collected][@COLLECT] in
+  TRIAL without actually running the tests that produced them. It
+  simply signals the events collected in TRIAL again to allow further
+  processing. It takes the same arguments as TRY except
+  [DEBUG][argument], [COUNT][argument] and RERUN. The values of
   *CATEGORIES* and *COUNT* that were in effect for TRIAL are used, and
   their current values are ignored to be able to keep consistent
   counts (see @COUNT).

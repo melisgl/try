@@ -164,8 +164,8 @@
                          (% (progn
                               (is (= x 1))
                               1))))))
-  ;; Evaluation rules is macros generally unknown, so we don't do
-  ;; automatic captures.
+  ;; Evaluation rules for macro arguments are generally unknown, so we
+  ;; don't do automatic captures.
   (try::without-compiler-notes
     (let ((x nil))
       (is (not (and x (is nil :msg "Must not be evaluated.")))))))
