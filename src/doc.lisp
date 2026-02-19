@@ -68,9 +68,9 @@
         (output-dir (asdf:system-relative-pathname "try" output-dir)))
     `((:objects (, @try-manual)
        :output (,(merge-pathnames try-file output-dir)
-                (:if-does-not-exist :create
-                 :if-exists :supersede
-                 :ensure-directories-exist t))
+                :if-does-not-exist :create
+                :if-exists :supersede
+                :ensure-directories-exist t)
        ,@(when (member format '(:plain :markdown))
            '(:footer-fn pax::print-markdown-footer))
        :uri-fragment ,try-file
