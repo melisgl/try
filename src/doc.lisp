@@ -6,17 +6,19 @@
 ;;; ```cl-transcript (:dynenv try-transcript)
 ;;; ```
 (defun try-transcript (fn)
-  (without-redefinition-warnings
-    (let ((*package* (find-package :try))
-          (*run-deftest-when* *run-deftest-when*)
-          (*testing-timing* '(0.1 0.2 0.3 0.4 0.5 0.6))
-          (*categories* (fancy-std-categories))
-          (*rerun-context* nil)
-          (mgl-pax:*transcribe-check-consistency*
-            '((:output try-transcript-output=)
-              (:readable equal)
-              (:unreadable try-transcript-unreadable=))))
-      (funcall fn))))
+  (standard-transcribe-dynenv
+   (lambda ()
+     (without-redefinition-warnings
+       (let ((*package* (find-package :try))
+             (*run-deftest-when* *run-deftest-when*)
+             (*testing-timing* '(0.1 0.2 0.3 0.4 0.5 0.6))
+             (*categories* (fancy-std-categories))
+             (*rerun-context* nil)
+             (mgl-pax:*transcribe-check-consistency*
+               '((:output try-transcript-output=)
+                 (:readable equal)
+                 (:unreadable try-transcript-unreadable=))))
+         (funcall fn))))))
 
 (defun try-transcript-output= (string1 string2)
   (string= (try-transcript-normalize-output string1)
