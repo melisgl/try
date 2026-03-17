@@ -73,10 +73,15 @@
                 :if-does-not-exist :create
                 :if-exists :supersede
                 :ensure-directories-exist t)
+       ,@(when (eq format :markdown)
+           '(:header-fn print-try-markdown-header))
        ,@(when (member format '(:plain :markdown))
            '(:footer-fn pax::print-markdown-footer))
        :uri-fragment ,try-file
        :source-uri-fn ,source-uri-fn))))
+
+(defun print-try-markdown-header (stream)
+  (format stream "![](src/try-logo.jpg)~%~%"))
 
 (defun update-try-docs (&key (output-dir ""))
   (let ((*document-url-versions* '(1))

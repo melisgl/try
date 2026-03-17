@@ -1,3 +1,5 @@
+![](src/try-logo.jpg)
+
 <a id="x-28TRY-3A-40TRY-MANUAL-20MGL-PAX-3ASECTION-29"></a>
 
 # Try Manual
