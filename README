@@ -36,8 +36,6 @@ for the latest version.
 
     - Depends on: alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
 
-    - Defsystem depends on: try.asdf
-
 ## Tutorial
 
 Try is a library for unit testing with equal support for

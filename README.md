@@ -78,7 +78,6 @@ for the latest version.
     - _Bug tracker:_ [https://github.com/melisgl/try/issues](https://github.com/melisgl/try/issues)
     - _Source control:_ [GIT](https://github.com/melisgl/try.git)
     - *Depends on:* alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
-    - *Defsystem depends on:* try.asdf
 
 <a id="x-28TRY-3A-40TUTORIAL-20MGL-PAX-3ASECTION-29"></a>
 
