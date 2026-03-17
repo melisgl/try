@@ -33,8 +33,16 @@ jobs:
 
       - name: Install latest stuff from GitHub
         run: |
-          ros install melisgl/autoload melisgl/named-readtables melisgl/dref \
-              melisgl/mgl-pax/no-swank
+          # KLUDGE: 'ros install' wants to compile things immediately
+          # after downloading, but there are circular dependencies on
+          # the repository level. There are no circular dependencies
+          # at the ASDF level though, so let's just clone everything
+          # before compiling.
+          cd ~/.roswell/local-projects/
+          git clone --depth 1 https://github.com/melisgl/autoload
+          git clone --depth 1 https://github.com/melisgl/named-readtables
+          git clone --depth 1 https://github.com/melisgl/dref
+          git clone --depth 1 --branch no-swank https://github.com/melisgl/mgl-pax
 
       - name: Run tests
         env:
