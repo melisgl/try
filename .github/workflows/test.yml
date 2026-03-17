@@ -31,17 +31,10 @@ jobs:
         run: |
           curl -L https://raw.githubusercontent.com/roswell/roswell/master/scripts/install-for-ci.sh | sh
 
-      - name: Install latest autoload from GitHub
-        run: ros install melisgl/autoload
-
-      - name: Install latest DRef from GitHub
-        run: ros install melisgl/dref
-
-      - name: Install latest MGL-PAX from GitHub
-        run: ros install melisgl/mgl-pax
-
-      - name: Install latest Named-readtables from GitHub
-        run: ros install melisgl/named-readtables
+      - name: Install latest stuff from GitHub
+        run: |
+          ros install melisgl/autoload melisgl/named-readtables melisgl/dref \
+              melisgl/mgl-pax/no-swank
 
       - name: Run tests
         env:
