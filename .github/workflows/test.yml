@@ -42,7 +42,7 @@ jobs:
           git clone --depth 1 https://github.com/melisgl/autoload
           git clone --depth 1 https://github.com/melisgl/named-readtables
           git clone --depth 1 https://github.com/melisgl/dref
-          git clone --depth 1 --branch no-swank https://github.com/melisgl/mgl-pax
+          git clone --depth 1 https://github.com/melisgl/mgl-pax
 
       - name: Run tests
         env:
