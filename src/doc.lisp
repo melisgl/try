@@ -52,16 +52,14 @@
   `((:objects
      (, @try-manual)
      :source-uri-fn ,(make-github-source-uri-fn
-                      :try
-                      "https://github.com/melisgl/try"))))
+                      "try" "https://github.com/melisgl/try"))))
 
 (register-doc-in-pax-world :try (try-sections) (try-pages))
 
 
 (defun try-pages* (format &key (output-dir ""))
   (let ((source-uri-fn (make-git-source-uri-fn
-                        "try"
-                        "https://github.com/melisgl/try"))
+                        "try" "https://github.com/melisgl/try"))
         (try-file (ecase format
                     ((:plain) "README")
                     ((:markdown) "README.md")

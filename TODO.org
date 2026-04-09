@@ -68,3 +68,9 @@ Some of this is taken care of by rerunning (e.g. (FUNCALL !)), which
 will likely land in the debugger, and that has source location info.
 * MAYBE in mgl-try-mode find the non-global test function sources too?
 * TODO test elisp
+* MAYBE support testing for warnings during compilation
+CCL for example [handle][pax:clhs]s even user-signalled warnings
+during compilation. Textual matching?
+* MAYBE limit the number of :HANDLER uses?
+It is easy to get into a infinite loop with :HANDLER #'CONTINUE.
+* MAYBE make test.sh public
