@@ -3,8 +3,8 @@
 lisp="$1"
 stop_on_failure="${2:-t}"
 debug="${3:-nil}"
-print="${4:-(quote try:unexpected)}"
-describe="${5:-(quote try:unexpected)}"
+print="${4:-(quote try:leaf)}"
+describe="${5:-(quote (or try:unexpected try:failure))}"
 num_passes=
 num_failures=
 

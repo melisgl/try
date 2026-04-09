@@ -8,6 +8,7 @@
         (*print-indentation* 2)
         (*print-duration* nil)
         (*print-compactly* nil)
+        (*print-parent* t)
         (*print-backtrace* t)
         (*defer-describe* nil)
         (*rerun-context* nil))
@@ -42,7 +43,13 @@
 
 
 (defun test (&key (debug nil) (print 'unexpected) (describe 'unexpected))
-  (let ((try::*allow-nested-try* t))
+  (let ((try::*allow-nested-try* t)
+        ;; Bind *PACKAGE* so that names of tests printed have package
+        ;; names, and M-. works on them in Slime.
+        (*package* (find-package :common-lisp))
+        (*print-compactly* t)
+        (*print-parent* nil)
+        (*defer-describe* t))
     (warn-on-tests-not-run ((find-package :try-test))
       (print (try 'test-all :debug debug :print print :describe describe)))))
 
