@@ -142,5 +142,5 @@
                            (trial-gather-backtrace-p *trial*)
                            *gather-backtrace*))
     (with-output-to-string (s)
-      (uiop/image:print-backtrace
+      (uiop:print-backtrace
        :stream s :condition condition))))
