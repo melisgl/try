@@ -76,8 +76,8 @@ for the latest version.
     - _Licence:_ MIT, see COPYING.
     - _Author:_ Gábor Melis
     - _Mailto:_ [mega@retes.hu](mailto:mega@retes.hu)
-    - _Homepage:_ [http://github.com/melisgl/try](http://github.com/melisgl/try)
-    - _Bug tracker:_ [https://github.com/melisgl/try/issues](https://github.com/melisgl/try/issues)
+    - _Homepage:_ <http://github.com/melisgl/try>
+    - _Bug tracker:_ <https://github.com/melisgl/try/issues>
     - _Source control:_ [GIT](https://github.com/melisgl/try.git)
     - *Depends on:* alexandria, cl-ppcre, closer-mop, ieee-floats, mgl-pax, trivial-gray-streams, uiop
 
