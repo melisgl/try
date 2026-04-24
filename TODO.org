@@ -1,5 +1,6 @@
-#+SEQ_TODO: TODO(t@) NEXT(n@) STARTED(s@) WAITING(w@) | DONE(d@) OLD(o@) CANCELLED(c@)
-#+TODO: MAYBE(m@) FAILED(f@) LOG(l@) DEFERRED(e@)
+#+STARTUP: overview nologdone
+#+SEQ_TODO: TODO(t) NEXT(n) STARTED(s) WAITING(w) | DONE(d) OLD(o) CANCELLED(c)
+#+TODO: MAYBE(m) FAILED(f) LOG(l) DEFERRED(e) BUG(b)
 * MAYBE fixtures: easy DEFINE-ENSURE-* macro
 * MAYBE DEFTEST ignore declarations don't work
 Because we save the args in the trial for rerunning.
