@@ -479,6 +479,15 @@ described in Emacs Integration, you may want to give them a global binding:
     (global-set-key (kbd "s-t r") 'mgl-try-rerun)
     (global-set-key (kbd "s-t R") 'mgl-try-rerun-all)
 
+The same with use-package:
+
+    (use-package mgl-try :load-path "~/quicklisp/"
+      :after slime
+      :demand t
+      :bind (("s-t t" . mgl-try)
+             ("s-t r" . mgl-try-rerun)
+             ("s-t R" . mgl-try-rerun-all)))
+
 - [function] INSTALL-TRY-ELISP TARGET-DIR
 
     Install mgl-try.el distributed with this package in TARGET-DIR.

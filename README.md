@@ -566,6 +566,17 @@ described in [Emacs Integration][4c86], you may want to give them a global bindi
 (global-set-key (kbd "s-t R") 'mgl-try-rerun-all)
 ```
 
+The same with `use-package`:
+
+```elisp
+(use-package mgl-try :load-path "~/quicklisp/"
+  :after slime
+  :demand t
+  :bind (("s-t t" . mgl-try)
+         ("s-t r" . mgl-try-rerun)
+         ("s-t R" . mgl-try-rerun-all)))
+```
+
 
 <a id="x-28TRY-3AINSTALL-TRY-ELISP-20FUNCTION-29"></a>
 

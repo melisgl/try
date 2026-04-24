@@ -447,6 +447,17 @@
   (global-set-key (kbd "s-t t") 'mgl-try)
   (global-set-key (kbd "s-t r") 'mgl-try-rerun)
   (global-set-key (kbd "s-t R") 'mgl-try-rerun-all)
+  ```
+
+  The same with `\use-package`:
+
+  ```elisp
+  (use-package mgl-try :load-path "~/quicklisp/"
+    :after slime
+    :demand t
+    :bind (("s-t t" . mgl-try)
+           ("s-t r" . mgl-try-rerun)
+           ("s-t R" . mgl-try-rerun-all)))
   ```"""
   (install-try-elisp function))
 
