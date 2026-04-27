@@ -13,8 +13,8 @@
   (funcall *collect-satisfies-pred* event))
 
 (defun replay-events (trial &key (collect *try-collect*)
-                              (print *try-print*) (describe *try-describe*)
-                              (stream *try-stream*) (printer *try-printer*))
+                      (print *try-print*) (describe *try-describe*)
+                      (stream *try-stream*) (printer *try-printer*))
   """REPLAY-EVENTS reprocesses the events [collected][@COLLECT] in
   TRIAL without actually running the tests that produced them. It
   simply signals the events collected in TRIAL again to allow further
@@ -96,8 +96,8 @@
              (collector (make-%collector :count-type (count-of trial)
                                          :collect-type collect))
              (printer (make-instance printer :stream stream
-                                             :print-type print
-                                             :describe-type describe))
+                                     :print-type print
+                                     :describe-type describe))
              (*record-event* nil))
         (handler-bind ((event
                          (lambda (event)

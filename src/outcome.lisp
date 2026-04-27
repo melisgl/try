@@ -83,7 +83,7 @@
      ,@body))
 
 (defmacro with-failure-expected ((&optional (result-expected-type t)
-                                    (verdict-expected-type ''success))
+                                  (verdict-expected-type ''success))
                                  &body body)
   "A convenience macro on top of WITH-EXPECTED-OUTCOME,
   WITH-FAILURE-EXPECTED expects VERDICTs to have VERDICT-EXPECTED-TYPE

@@ -472,7 +472,7 @@
         (target (merge-pathnames "mgl-try.el"
                                  (uiop:ensure-directory-pathname target-dir))))
     (with-open-file (s target :direction :output :if-does-not-exist :create
-                              :if-exists :supersede)
+                       :if-exists :supersede)
       (dolist (line (uiop:read-file-lines source))
         (if (string= line "(setq mgl-try-version (mgl-try-read-version))")
             (format s "(setq mgl-try-version '~S)~%" *try-version*)
@@ -549,7 +549,7 @@
 ;;; This is last because SLIME gets confused by the IN-PACKAGE within
 ;;; triple quotes and thinks that anything below is in that package.
 (note @package-example
-      """##### Packages
+  """##### Packages
 
   The suggested way of writing tests is to call test functions
   explicitly:

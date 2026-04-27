@@ -91,7 +91,7 @@
 (deftest test-signals/failure/pred ()
   (handler-case
       (signals ((and unexpected failure)
-                 :pred "predicate did not match")
+                :pred "predicate did not match")
         (signals (error :pred (constantly nil))
           (error 'my-err)))
     (my-err ())))
@@ -108,22 +108,22 @@
 
 (deftest test-signals/rewrite ()
   (signals ((and unexpected failure) :pred "No condition of type"
-             :name 'signal-rewrite-1)
+            :name 'signal-rewrite-1)
     (signals ((and unexpected failure)
               :pred "This signals a condition of type MY-ERR"
               :name 'signals-rewrite :handler nil)
       (signals (my-err :pred "my-msg"
-                 :msg ("This signals a condition of type MY-ERR ~
+                :msg ("This signals a condition of type MY-ERR ~
                         that matches \"my-msg\".")
-                 :ctx (cond (*condition-matched-p*
-                             ())
-                            (*best-matching-condition*
-                             (list "The predicate did not match ~S."
-                                   (try::%describe-condition-for-matching
-                                    *best-matching-condition*)))
-                            (t
-                             (list "No condition of type ~S was handled."
-                                   'my-err))))
+                :ctx (cond (*condition-matched-p*
+                            ())
+                           (*best-matching-condition*
+                            (list "The predicate did not match ~S."
+                                  (try::%describe-condition-for-matching
+                                   *best-matching-condition*)))
+                           (t
+                            (list "No condition of type ~S was handled."
+                                  'my-err))))
         47))))
 
 
