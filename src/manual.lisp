@@ -15,9 +15,8 @@
 
 (defsection @links (:title "Links and Systems")
   "Here is the [official repository](https://github.com/melisgl/try)
-  and the [HTML
-  documentation](http://melisgl.github.io/mgl-pax-world/try-manual.html)
-  for the latest version."
+  and the [HTML documentation](http://fixnum.com/try-manual.html) for
+  the latest version."
   (try asdf:system))
 
 (defsection @tutorial (:title "Tutorial")
