@@ -56,9 +56,9 @@
 
 ## 1 Links and Systems
 
-Here is the [official repository](https://github.com/melisgl/try)
-and the [HTML documentation](http://fixnum.com/try-manual.html) for
-the latest version.
+The official repository is <https://github.com/melisgl/try>, and
+this document in available in various formats on
+<https://fixnum.com> for the latest version.
 
 <a id="x-28-22try-22-20ASDF-2FSYSTEM-3ASYSTEM-29"></a>
 
