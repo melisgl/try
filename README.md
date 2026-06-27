@@ -605,7 +605,7 @@ disjoint subclasses:
 
 - [`RESULT`][231f], the `OUTCOME` of a [check][bb56], and
 
-- [`ERROR*`][0321], an unexpected `CL:ERROR`([`0`][d162] [`1`][35ba]) or unadorned [non-local exit][b815].
+- [`ERROR*`][0321], an unexpected [`CL:ERROR`][669b] or unadorned [non-local exit][b815].
 
 ```common-lisp
 (let (;; We don't want to debug nor print a backtrace for the error below.
@@ -649,7 +649,7 @@ concrete event class, that marks the start of a [`TRIAL`][99d0].
 
 [`ERROR*`][0321] is an abstract class with two concrete subclasses:
 
-- [`UNHANDLED-ERROR`][8f78], signalled when a `CL:ERROR`([`0`][d162] [`1`][35ba]) reaches the handler set
+- [`UNHANDLED-ERROR`][8f78], signalled when a [`CL:ERROR`][669b] reaches the handler set
   up by [`DEFTEST`][e7ca] or [`WITH-TEST`][8f5d], or when the debugger is invoked.
 
 - [`NLX`][b115], signalled when no error was detected by the handler, but the
@@ -1121,7 +1121,7 @@ it, and it can be changed with the [Outcome Restarts][7ef5] and the
 
     Change the [`OUTCOME`][2656] of the check being signalled to [`RESULT-SKIP`][7c3f].
     `RESULT-SKIP`, being a [`PASS`][21d9], will cause the check to return `T` if
-    `CONTINUE`([`0`][02a3] [`1`][1867]) or [`RECORD-EVENT`][ce49] is invoked on it.
+    [`CONTINUE`][87a5] or [`RECORD-EVENT`][ce49] is invoked on it.
 
 <a id="x-28TRY-3ARETRY-CHECK-20FUNCTION-29"></a>
 
@@ -1399,7 +1399,7 @@ following example, the non-local exit from a skip is cancelled by a
 ```
 
 In the next example, the non-local exit from a skip is cancelled by
-an `ERROR`([`0`][d162] [`1`][35ba]), which triggers an `ABORT-TRIAL`.
+an [`ERROR`][669b], which triggers an `ABORT-TRIAL`.
 
 ```common-lisp
 (let ((*debug* nil)
@@ -1568,7 +1568,7 @@ dropped.
     Representing a [non-local exit][b815] of unknown
     origin, this is signalled if a [`TRIAL`][99d0] does not return normally
     although it should have because it was not dismissed (see [`DISMISSAL`][0992],
-    [`SKIP-TRIAL`][f45a], [`ABORT-TRIAL`][4f9f]). In this case, there is no `CL:ERROR`([`0`][d162] [`1`][35ba])
+    [`SKIP-TRIAL`][f45a], [`ABORT-TRIAL`][4f9f]). In this case, there is no [`CL:ERROR`][669b]
     associated with the event.
 
 <a id="x-28TRY-3A-40CATEGORIES-20MGL-PAX-3ASECTION-29"></a>
@@ -2124,7 +2124,7 @@ terms of [`*CONDITION-MATCHED-P*`][cf88] and [`*BEST-MATCHING-CONDITION*`][a07f]
     `*DEBUGGER-HOOK*` is changed by `BODY`, it may not detect the condition.
     The arguments are described in [Checking Conditions][ff2c].
     
-    Note that in a trial (see [`CURRENT-TRIAL`][e186]), all `ERROR`([`0`][d162] [`1`][35ba])s are handled,
+    Note that in a trial (see [`CURRENT-TRIAL`][e186]), all [`ERROR`][669b]s are handled,
     and a `*DEBUGGER-HOOK*` is set up (see [`UNHANDLED-ERROR`][8f78]). Thus,
     invoking the debugger would normally cause the trial to abort.
     
@@ -2549,7 +2549,7 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
 
 <a id="x-28TRY-3AWITH-TEST-20MGL-PAX-3AMACRO-29"></a>
 
-- [macro] **WITH-TEST** *(&OPTIONAL VAR-OR-NAME &KEY (NAME NIL)) &BODY BODY*
+- [macro] **WITH-TEST** *(&OPTIONAL VAR-OR-NAME &KEY NAME) &BODY BODY*
 
     Execute `BODY` in a [`TRIAL`][99d0] to group together `CHECK`s and
     other tests in its dynamic scope. `BODY` is executed in its lexical
@@ -2645,7 +2645,7 @@ See [`DEFTEST`][e7ca] and [`WITH-TEST`][8f5d] for more precise descriptions.
     - has a `NAME` purely for presentation purposes.
     
     `WITH-TEST` can be thought of as analogous to `(FUNCALL (LAMBDA ()
-    BODY))`. The presence of the `LAMBDA`([`0`][e400] [`1`][5c01]) is important because it is
+    BODY))`. The presence of the [`LAMBDA`][650d] is important because it is
     stored in the `TRIAL` object to support [Rerunning Trials][e4ac].
 
 <a id="x-28TRY-3ALIST-PACKAGE-TESTS-20FUNCTION-29"></a>
@@ -2730,7 +2730,7 @@ Global test functions can be `TRY`ed explicitly by giving their name:
 ```
 
 However, [`WITH-TEST`][8f5d] has no global name, so to delay its execution
-until `TRY` calls it, it needs to be wrapped in a `LAMBDA`([`0`][e400] [`1`][5c01]).
+until `TRY` calls it, it needs to be wrapped in a [`LAMBDA`][650d].
 
 ```
 (try (lambda ()
@@ -3628,7 +3628,6 @@ SBCL.
   [0126]: #x-28TRY-3A-2ASTREAM-2A-20VARIABLE-29 "TRY:*STREAM* VARIABLE"
   [012f]: #x-28TRY-3A-40IMPLICIT-TRY-20MGL-PAX-3ASECTION-29 "Implicit `TRY`"
   [01e7]: #x-28TRY-3A-2ATRY-RERUN-2A-20VARIABLE-29 "TRY:*TRY-RERUN* VARIABLE"
-  [02a3]: http://www.lispworks.com/documentation/HyperSpec/Body/f_abortc.htm "CONTINUE (MGL-PAX:CLHS FUNCTION)"
   [0321]: #x-28TRY-3AERROR-2A-20CONDITION-29 "TRY:ERROR* CONDITION"
   [03c7]: http://www.lispworks.com/documentation/HyperSpec/Body/f_funcal.htm "FUNCALL (MGL-PAX:CLHS FUNCTION)"
   [03ec]: #x-28TRY-3A-40CATEGORIES-20MGL-PAX-3ASECTION-29 "Categories"
@@ -3703,7 +3702,6 @@ SBCL.
   [59c3]: http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_h.htm#handle "\"handle\" (MGL-PAX:CLHS MGL-PAX:GLOSSARY-TERM)"
   [5a82]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq.htm "EQ (MGL-PAX:CLHS FUNCTION)"
   [5b0b]: http://www.lispworks.com/documentation/HyperSpec/Body/m_return.htm "RETURN (MGL-PAX:CLHS MGL-PAX:MACRO)"
-  [5c01]: http://www.lispworks.com/documentation/HyperSpec/Body/m_lambda.htm "LAMBDA (MGL-PAX:CLHS MGL-PAX:MACRO)"
   [5d4a]: #x-28TRY-3ARUNNINGP-20FUNCTION-29 "TRY:RUNNINGP FUNCTION"
   [5e1a]: #x-28TRY-3A-40TRIAL-VERDICTS-20MGL-PAX-3ASECTION-29 "Trial Verdicts"
   [5ed1]: http://www.lispworks.com/documentation/HyperSpec/Body/v_pkg.htm "*PACKAGE* (MGL-PAX:CLHS VARIABLE)"
@@ -3712,7 +3710,9 @@ SBCL.
   [628a]: #x-28TRY-3A-40LINKS-20MGL-PAX-3ASECTION-29 "Links and Systems"
   [6384]: http://www.lispworks.com/documentation/HyperSpec/Body/f_wr_pr.htm "PRIN1 (MGL-PAX:CLHS FUNCTION)"
   [63db]: #x-28TRY-3A-2ARERUN-2A-20VARIABLE-29 "TRY:*RERUN* VARIABLE"
+  [650d]: http://www.lispworks.com/documentation/HyperSpec/Body/a_lambda.htm "LAMBDA (MGL-PAX:CLHS NIL)"
   [6651]: http://www.lispworks.com/documentation/HyperSpec/Body/f_descri.htm "DESCRIBE (MGL-PAX:CLHS FUNCTION)"
+  [669b]: http://www.lispworks.com/documentation/HyperSpec/Body/a_error.htm "ERROR (MGL-PAX:CLHS NIL)"
   [676d]: http://www.lispworks.com/documentation/HyperSpec/Body/f_wr_pr.htm "PRINC (MGL-PAX:CLHS FUNCTION)"
   [6910]: #x-28TRY-3AWITH-TESTS-RUN-20MGL-PAX-3AMACRO-29 "TRY:WITH-TESTS-RUN MGL-PAX:MACRO"
   [69a2]: #x-28TRY-3ASKIP-20CONDITION-29 "TRY:SKIP CONDITION"
@@ -3733,6 +3733,7 @@ SBCL.
   [83e1]: http://www.lispworks.com/documentation/HyperSpec/Body/e_cnd.htm "CONDITION (MGL-PAX:CLHS CONDITION)"
   [856d]: #x-28TRY-3A-2ADEBUG-2A-20VARIABLE-29 "TRY:*DEBUG* VARIABLE"
   [8620]: #x-28TRY-3AEXPECTED-FAILURE-20TYPE-29 "TRY:EXPECTED-FAILURE TYPE"
+  [87a5]: http://www.lispworks.com/documentation/HyperSpec/Body/a_contin.htm "CONTINUE (MGL-PAX:CLHS NIL)"
   [886e]: #x-28TRY-3A-40COUNT-20MGL-PAX-3ASECTION-29 "Counting Events"
   [8aea]: http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#function_designator "\"function designator\" (MGL-PAX:CLHS MGL-PAX:GLOSSARY-TERM)"
   [8b69]: #x-28TRY-3AREPLAY-EVENTS-20FUNCTION-29 "TRY:REPLAY-EVENTS FUNCTION"
@@ -3803,7 +3804,6 @@ SBCL.
   [de7d]: #x-28TRY-3ACHILDREN-20-28MGL-PAX-3AREADER-20TRY-3ATRIAL-29-29 "TRY:CHILDREN (MGL-PAX:READER TRY:TRIAL)"
   [e186]: #x-28TRY-3ACURRENT-TRIAL-20FUNCTION-29 "TRY:CURRENT-TRIAL FUNCTION"
   [e2e0]: #x-28TRY-3A-40IS-20MGL-PAX-3ASECTION-29 "The `IS` Macro"
-  [e400]: http://www.lispworks.com/documentation/HyperSpec/Body/s_lambda.htm "\"s_lambda\" (MGL-PAX:CLHS MGL-PAX:SECTION)"
   [e4ac]: #x-28TRY-3A-40RERUN-20MGL-PAX-3ASECTION-29 "Rerunning Trials"
   [e514]: #x-28TRY-3A-40OUTCOMES-20MGL-PAX-3ASECTION-29 "Outcomes"
   [e52f]: http://www.lispworks.com/documentation/HyperSpec/Body/f_eq_sle.htm "= (MGL-PAX:CLHS FUNCTION)"

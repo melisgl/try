@@ -2061,7 +2061,7 @@ See DEFTEST and WITH-TEST for more precise descriptions.
     UNINTERNed, FMAKUNBOUNDed, or redefined with DEFUN, then it no
     longer names a global test.
 
-- [macro] WITH-TEST (&OPTIONAL VAR-OR-NAME &KEY (NAME NIL)) &BODY BODY
+- [macro] WITH-TEST (&OPTIONAL VAR-OR-NAME &KEY NAME) &BODY BODY
 
     Execute BODY in a TRIAL to group together CHECKs and
     other tests in its dynamic scope. BODY is executed in its lexical
