@@ -14,9 +14,9 @@
   (@glossary section))
 
 (defsection @links (:title "Links and Systems")
-  "Here is the [official repository](https://github.com/melisgl/try)
-  and the [HTML documentation](http://fixnum.com/try-manual.html) for
-  the latest version."
+  "The official repository is <https://github.com/melisgl/try>, and
+  this document in available in various formats on
+  <https://fixnum.com> for the latest version."
   (try asdf:system))
 
 (defsection @tutorial (:title "Tutorial")
